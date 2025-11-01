@@ -1,0 +1,64 @@
+---
+import MainLayout from "../layout/MainLayout.astro";
+
+/** CONTACT FORM via Web3Forms (free tier)
+ * 1) Sign up at https://web3forms.com and get an access_key.
+ * 2) Replace YOUR_ACCESS_KEY below.
+ * 3) Set the "from_name" and "subject" to something recognizable in the owner's inbox.
+ */
+const ACCESS_KEY = "YOUR_ACCESS_KEY";
+---
+<MainLayout title="Contact | KIL Construction">
+    <h1>Get a Free Quote</h1>
+    <p>Prefer phone? <a href="tel:+1-555-555-5555">Call us</a>. Otherwise, send details below.</p>
+
+    <form id="contact-form">
+        <input type="hidden" name="access_key" value={ACCESS_KEY} />
+        <input type="hidden" name="from_name" value="kilcon.work website" />
+        <input type="hidden" name="subject" value="New Quote Request from kilcon.work" />
+        <label for="name">Name</label>
+        <input id="name" name="name" required />
+
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required />
+
+        <label for="phone">Phone (optional)</label>
+        <input id="phone" name="phone" />
+
+        <label for="address">Job Address (optional)</label>
+        <input id="address" name="address" />
+
+        <label for="message">Project Details</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
+
+        <button class="btn" type="submit">Send</button>
+        <div id="result" aria-live="polite"></div>
+    </form>
+
+    <script is:inline>
+        const form = document.getElementById('contact-form');
+        const result = document.getElementById('result');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            result.textContent = 'Sending…';
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData);
+            try {
+                const r = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await r.json();
+                if (r.ok) {
+                    result.textContent = 'Thanks! We received your message.';
+                    form.reset();
+                } else {
+                    result.textContent = data.message || 'Something went wrong.';
+                }
+            } catch (err) {
+                result.textContent = 'Network error. Please try again.';
+            }
+        });
+    </script>
+</MainLayout>

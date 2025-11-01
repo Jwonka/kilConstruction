@@ -1,0 +1,36 @@
+---
+const { title = "KIL Construction", description = "Quality construction & contracting." } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/kilConstruction.jpg" />
+    <link rel="stylesheet" href="/src/styles/global.css" />
+</head>
+<body>
+<header class="header">
+    <div class="container nav">
+        <a href="/"><img src="/kilConstruction.jpg" alt="KIL Construction logo" /></a>
+        <a href="/services">Services</a>
+        <a href="/gallery">Gallery</a>
+        <a href="/contact">Contact</a>
+        <div class="spacer"></div>
+        <a class="btn" href="tel:+1-715-279-1241">Call Now</a>
+    </div>
+</header>
+
+<main class="container">
+    <slot />
+</main>
+
+<footer class="footer">
+    <div class="container">
+        © {new Date().getFullYear()} KIL Construction · Licensed & Insured · Serving Your Area
+    </div>
+</footer>
+</body>
+</html>

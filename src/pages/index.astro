@@ -1,16 +1,23 @@
 ---
-
+import MainLayout from "../layout/MainLayout.astro";
 ---
+<MainLayout title="KIL Construction | Home">
+	<section class="hero">
+		<h1>On-target workmanship. On-time results.</h1>
+		<p>Residential & light commercial construction, repairs, and renovations.</p>
+		<div style="display:flex; gap:12px; margin-top:16px">
+			<a class="btn" href="/contact">Get a Free Quote</a>
+			<a class="btn outline" href="/gallery">See Our Work</a>
+		</div>
+	</section>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+	<section>
+		<h2>What we do</h2>
+		<div class="grid">
+			<div class="card"><h3>Kitchens & Baths</h3><p>Remodels, tiling, fixtures, cabinetry.</p></div>
+			<div class="card"><h3>Framing & Drywall</h3><p>Walls, ceilings, finishing.</p></div>
+			<div class="card"><h3>Decks & Exterior</h3><p>Deck builds, repairs, siding.</p></div>
+			<div class="card"><h3>Concrete</h3><p>Pads, walkways, steps.</p></div>
+		</div>
+	</section>
+</MainLayout>
