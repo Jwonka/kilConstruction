@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import logo from "../assets/logo.png";
+import Nav from "../components/Nav.astro";
 const { title = "KIL Construction", description = "Quality construction & contracting." } = Astro.props;
 const base = import.meta.env.BASE_URL;
 ---
@@ -14,16 +15,7 @@ const base = import.meta.env.BASE_URL;
     <link rel="icon" href={logo.src} />
 </head>
 <body>
-<header class="header">
-    <div class="container nav">
-        <a href={`${base}`}><img src={logo.src} alt="KIL Construction logo" /></a>
-        <a href={`${base}services/`}>Services</a>
-        <a href={`${base}projects/`}>Projects</a>
-        <a href={`${base}contact/`}>Contact</a>
-        <div class="spacer"></div>
-        <a class="btn" href="tel:+1-715-279-1241">Call Now</a>
-    </div>
-</header>
+<header class="header"><div class="container"><Nav /></div></header>
 
 <main class="container">
     <slot />
