@@ -5,7 +5,7 @@ export type Project = {
     year?: string;
     cover?: string;        // thumbnail
     images?: string[];     // local images
-    albumUrl: "https://photos.google.com/share/…"
+    albumUrl?: string;
 };
 
 export const projects: Project[] = [

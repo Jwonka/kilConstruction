@@ -4,7 +4,7 @@ export type Service = {
     blurb?: string;
     // Either local images OR an external album embed (Google Photos share link) later
     images?: string[];           // paths under /public/images/...
-    albumUrl: "https://photos.google.com/share/…"
+    albumUrl?: string;
 };
 
 export const services: Service[] = [
