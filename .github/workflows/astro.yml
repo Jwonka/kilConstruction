@@ -26,8 +26,8 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          ASTRO_BASE: /kilConstruction/
-          ASTRO_SITE: https://jwonka.github.io/kilConstruction/
+          ASTRO_BASE: /
+          ASTRO_SITE: https://kilcon.work
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
