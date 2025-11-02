@@ -5,7 +5,7 @@ export type Project = {
     year?: string;
     cover?: string;        // thumbnail
     images?: string[];     // local images
-    albumUrl?: string;     // optional: Google Photos share URL
+    albumUrl: "https://photos.google.com/share/…"
 };
 
 export const projects: Project[] = [

@@ -1,13 +1,7 @@
 ---
 import logo from "../assets/logo.png";
 const base = import.meta.env.BASE_URL;
-const items = [
-    { href: `${base}services/`, label: "Services" },
-    { href: `${base}gallery/`,  label: "Gallery" },   // keep if you still want a generic page
-    { href: `${base}projects/`, label: "Projects" },
-    { href: `${base}contact/`,  label: "Contact" },
-];
-// Service submenu labels must match the slugs in data/services.ts
+
 const serviceSubs = [
     { href: `${base}services/kitchens-baths/`, label: "Kitchens & Baths" },
     { href: `${base}services/framing-drywall/`, label: "Framing & Drywall" },
@@ -16,36 +10,87 @@ const serviceSubs = [
 ];
 ---
 
-<nav class="nav">
-    <a class="logo" href={base}><img src={logo.src} alt="KIL Construction" /></a>
+<nav class="navgrid">
+    <!-- Left: brand -->
+    <a class="brand" href={base} aria-label="KIL Construction Home">
+        <img src={logo.src} alt="KIL Construction" />
+    </a>
 
-    <details class="menu">
-        <summary>Services</summary>
-        <ul>
-            {serviceSubs.map(s => <li><a href={s.href}>{s.label}</a></li>)}
-        </ul>
-    </details>
+    <!-- Center: primary links (Services dropdown + others) -->
+    <div class="links">
+        <details class="menu">
+            <summary class="services-link">Services</summary>
+            <ul>
+                {serviceSubs.map((s) => <li><a href={s.href}>{s.label}</a></li>)}
+            </ul>
+        </details>
 
-    <a href={`${base}projects/`}>Projects</a>
-    <a href={`${base}gallery/`}>Gallery</a>
-    <a href={`${base}contact/`}>Contact</a>
+        <a href={`${base}projects/`}>Projects</a>
+        <a href={`${base}gallery/`}>Gallery</a>
+        <a href={`${base}contact/`}>Contact</a>
+    </div>
 
-    <a class="btn" href="tel:+1-715-279-1241">Call Now</a>
+    <!-- Right: CTA -->
+    <a class="btn cta" href="tel:+1-715-279-1241">Call Now</a>
 </nav>
 
 <style>
-    .nav { display:flex; gap:18px; align-items:center; justify-content:space-between; }
-    .logo img { height:44px; display:block; }
-    .menu { position:relative; }
-    .menu summary { list-style:none; cursor:pointer; }
-    .menu[open] summary { opacity:0.85; }
-    .menu ul {
+    /* 3-column header inside the component so it’s self-contained */
+    .navgrid{
+        display:grid;
+        grid-template-columns: 1fr auto 1fr; /* logo | links | CTA */
+        align-items:center;
+        gap:16px;
+    }
+
+    /* Logo left, bigger */
+    .brand{ justify-self:start; display:flex; align-items:center; }
+    .brand img{ height:58px; display:block; }
+
+    /* Center nav links */
+    .links{
+        justify-self:center;
+        display:flex; align-items:center; gap:28px;
+    }
+
+    /* CTA right */
+    .cta{ justify-self:end; }
+
+    /* Colors/typography for dark header */
+    .links a,
+    .menu summary,
+    .menu ul a { color:#fff; font-weight:700; text-decoration:none; }
+    .links a:hover,
+    .menu summary:hover,
+    .menu ul a:hover { text-decoration:underline; }
+
+    /* Services dropdown */
+    .menu{ position:relative; }
+    .menu summary{
+        list-style:none; cursor:pointer; user-select:none; outline:none;
+    }
+    .menu[open] summary{ opacity:0.9; }
+    .menu ul{
         position:absolute; top: calc(100% + 8px); left:0;
         background:#fff; border:1px solid #e6e6e6; border-radius:12px;
-        padding:8px; min-width:220px; box-shadow:0 10px 24px rgba(0,0,0,.08);
+        padding:8px; min-width:240px; box-shadow:0 10px 24px rgba(0,0,0,.12);
     }
-    .menu ul li { list-style:none; }
-    .menu ul a { display:block; padding:8px 10px; text-decoration:none; color:#111; border-radius:8px; }
-    .menu ul a:hover { background:#f5f7fa; }
-    .btn { margin-left:auto; }
+    .menu ul li{ list-style:none; }
+    .menu ul a{
+        display:block; padding:10px 12px; color:#111; border-radius:8px; text-decoration:none;
+    }
+    .menu ul a:hover{ background:#f5f7fa; }
+
+    /* Buttons from your global style system */
+    .btn{
+        display:inline-block; padding:12px 18px; border-radius:10px;
+        background:#111827; color:#fff; font-weight:700;
+    }
+
+    /* Small screens: stack CTA under nav if needed */
+    @media (max-width: 720px){
+        .navgrid{ grid-template-columns: auto 1fr auto; }
+        .links{ gap:18px; }
+        .brand img{ height:48px; }
+    }
 </style>

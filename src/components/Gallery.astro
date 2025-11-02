@@ -1,16 +1,18 @@
 ---
-interface Props {
-    images?: string[];
-    albumUrl?: string; // optional external album to embed
-}
+interface Props { images?: string[]; albumUrl?: string }
 const { images = [], albumUrl } = Astro.props;
+const embed = albumUrl ? `${albumUrl}` : null; // some share links work in an iframe; if not, we show a button
 ---
 
 {albumUrl ? (
-    // minimal responsive iframe wrapper (works when you later switch to album embeds)
-  <div class="album-embed">
-    <iframe src={albumUrl} loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-</div>
+<>
+    <div class="album-embed">
+        <iframe src={embed} loading="lazy" referrerpolicy="no-referrer" ></iframe>
+    </div>
+    <p class="fallback">
+        If the album doesn’t load, <a href={albumUrl} target="_blank" rel="noopener">open it in Google Photos</a>.
+    </p>
+</>
     ) : (
 <div class="grid">
     {images.map((src) => (
@@ -22,22 +24,8 @@ const { images = [], albumUrl } = Astro.props;
     )}
 
 <style>
-    .grid {
-        display:grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
-        gap: 14px;
-    }
-    .tile {
-        display:block;
-        border-radius: 12px;
-        overflow:hidden;
-        background:#f6f7f8;
-        box-shadow: 0 1px 2px rgba(0,0,0,.06);
-    }
-    .tile img { width:100%; height:220px; object-fit:cover; display:block; }
-    .album-embed { position:relative; padding-top: 62.5%; /* 16:10 */ }
-    .album-embed iframe {
-        position:absolute; top:0; left:0; width:100%; height:100%; border:0;
-        background:#fff;
-    }
+    /* … your existing grid styles … */
+    .album-embed{position:relative;padding-top:62.5%}
+    .album-embed iframe{position:absolute;inset:0;border:0;width:100%;height:100%}
+    .fallback{margin-top:.5rem}
 </style>
