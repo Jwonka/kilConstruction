@@ -36,13 +36,4 @@ export const services: Service[] = [
             "/images/decks/deck-2.jpg",
         ],
     },
-    {
-        slug: "concrete",
-        name: "Concrete",
-        blurb: "Pads, walkways, steps.",
-        images: [
-            "/images/concrete/con-1.jpg",
-            "/images/concrete/con-2.jpg",
-        ],
-    },
 ];

@@ -6,17 +6,16 @@ const serviceSubs = [
     { href: `${base}services/kitchens-baths/`, label: "Kitchens & Baths" },
     { href: `${base}services/framing-drywall/`, label: "Framing & Drywall" },
     { href: `${base}services/decks-exterior/`,  label: "Decks & Exterior" },
-    { href: `${base}services/concrete/`,        label: "Concrete" },
 ];
 ---
 
 <nav class="navgrid">
-    <!-- Left: brand -->
+    <!-- Left: brand (bigger + closer to left edge) -->
     <a class="brand" href={base} aria-label="KIL Construction Home">
         <img src={logo.src} alt="KIL Construction" />
     </a>
 
-    <!-- Center: primary links (Services dropdown + others) -->
+    <!-- Center: evenly spaced primary links -->
     <div class="links">
         <details class="menu">
             <summary class="services-link">Services</summary>
@@ -35,62 +34,92 @@ const serviceSubs = [
 </nav>
 
 <style>
-    /* 3-column header inside the component so it’s self-contained */
+    /* 3 columns: logo | links | CTA */
     .navgrid{
-        display:grid;
-        grid-template-columns: 1fr auto 1fr; /* logo | links | CTA */
-        align-items:center;
-        gap:16px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 16px;
+        /* give the center links room to breathe */
+        padding: 10px 0;
     }
 
-    /* Logo left, bigger */
-    .brand{ justify-self:start; display:flex; align-items:center; }
-    .brand img{ height:58px; display:block; }
+    /* Bigger logo, nudge left to fight container padding */
+    .brand{
+        justify-self: start;
+        margin-left: -8px;    /* pulls closer to header’s left edge */
+    }
+    .brand img{
+        height: 64px;
+        display: block;
+    }
 
-    /* Center nav links */
+    /* Center links: spread them out more evenly */
     .links{
-        justify-self:center;
-        display:flex; align-items:center; gap:28px;
+        justify-self: center;
+        display: flex;
+        align-items: center;
+        gap: clamp(28px, 7vw, 64px);  /* more spacing across the header */
     }
 
-    /* CTA right */
-    .cta{ justify-self:end; }
-
-    /* Colors/typography for dark header */
+    /* Make Services summary match link sizing */
     .links a,
-    .menu summary,
-    .menu ul a { color:#fff; font-weight:700; text-decoration:none; }
+    .services-link{
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.15rem;
+        text-decoration: none;               /* no underline baseline */
+        transition: transform .15s ease, opacity .15s ease;
+    }
     .links a:hover,
-    .menu summary:hover,
-    .menu ul a:hover { text-decoration:underline; }
+    .services-link:hover{
+        text-decoration: none;               /* keep it off on hover */
+        transform: scale(1.07);              /* subtle enlarge on hover */
+    }
 
     /* Services dropdown */
-    .menu{ position:relative; }
+    .menu{ position: relative; }
     .menu summary{
-        list-style:none; cursor:pointer; user-select:none; outline:none;
+        list-style: none;
+        cursor: pointer;
+        user-select: none;
+        outline: none;
     }
-    .menu[open] summary{ opacity:0.9; }
+    .menu[open] summary{ opacity: .92; }
+
     .menu ul{
-        position:absolute; top: calc(100% + 8px); left:0;
-        background:#fff; border:1px solid #e6e6e6; border-radius:12px;
-        padding:8px; min-width:240px; box-shadow:0 10px 24px rgba(0,0,0,.12);
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        background: #fff;
+        border: 1px solid #e6e6e6;
+        border-radius: 12px;
+        padding: 8px;
+        min-width: 240px;
+        box-shadow: 0 10px 24px rgba(0,0,0,.12);
     }
-    .menu ul li{ list-style:none; }
+    .menu ul li{ list-style: none; }
     .menu ul a{
-        display:block; padding:10px 12px; color:#111; border-radius:8px; text-decoration:none;
+        display: block;
+        padding: 10px 12px;
+        color: #111;
+        border-radius: 8px;
+        text-decoration: none;
+        white-space: nowrap;       /* keep on one line */
+        font-size: 1rem;           /* slightly smaller so it fits */
+        font-weight: 700;
     }
-    .menu ul a:hover{ background:#f5f7fa; }
-
-    /* Buttons from your global style system */
-    .btn{
-        display:inline-block; padding:12px 18px; border-radius:10px;
-        background:#111827; color:#fff; font-weight:700;
+    .menu ul a:hover{
+        background: #f5f7fa;
     }
 
-    /* Small screens: stack CTA under nav if needed */
+    /* CTA aligned right */
+    .cta{ justify-self: end; }
+
+    /* Small screens: tighten spacing a bit */
     @media (max-width: 720px){
-        .navgrid{ grid-template-columns: auto 1fr auto; }
-        .links{ gap:18px; }
-        .brand img{ height:48px; }
+        .brand img{ height: 52px; }
+        .links{ gap: 20px; }
     }
 </style>
+
