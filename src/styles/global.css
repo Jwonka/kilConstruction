@@ -7,13 +7,13 @@ html,body{margin:0;padding:0}
 body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
 a{color:var(--brand);text-decoration:none}
 a:hover{text-decoration:underline}
-.container{max-width:var(--max);margin:0 auto;padding:0 var(--space)}
-.header{position:sticky;top:0;background:#2A341C;border-bottom:1px solid #eee;z-index:10; text-align: center}
+.container{max-width:var(--max);margin:0 auto;padding:0 var(--space); color: #fff}
+.header{position:sticky;top:0;background:#2A341C;border-bottom:1px solid #eee;z-index:10}
 .header a{color:#fff;text-decoration:none; font-size: 1.5rem}
 .nav{display:flex;align-items:center;gap:20px;padding:12px 0}
 .nav img{height:44px}
 .spacer{flex:1}
-.nav a{font-weight:600}
+.nav a{font-weight:600;text-align: center}
 .hero{padding:64px 0}
 .hero h1{font-size:clamp(28px,5vw,44px);margin:0 0 8px}
 .btn{display:inline-block;padding:12px 18px;border-radius:10px;background:var(--brand);color:#fff;font-weight:700}
@@ -21,7 +21,6 @@ a:hover{text-decoration:underline}
 .grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .card{padding:16px;border:1px solid #eee;border-radius:var(--radius);background:#fff}
 .footer{margin-top:48px;border-top:1px solid #eee;color:var(--muted);padding:28px 0;font-size:14px;background: #000000; text-align: center}
-.footer a{color:#fff;text-decoration:none}
 form{display:grid;gap:12px;max-width:640px}
 label{font-weight:600}
 input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font:inherit}
