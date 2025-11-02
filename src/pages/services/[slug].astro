@@ -1,21 +1,22 @@
 ---
-import MainLayout from "../../layout/MainLayout.astro";
-import Gallery from "../../components/Gallery.astro";
+import "../../styles/global.css";
 import { services } from "../../data/services";
-
-export async function getStaticPaths() {
-    return services.map((s) => ({ params: { slug: s.slug } }));
-}
+import Gallery from "../../components/Gallery.astro";
 
 const { slug } = Astro.params;
-const svc = services.find((s) => s.slug === slug);
-if (!svc) throw new Error(`Unknown service: ${slug}`);
+const service = services.find(s => s.slug === slug);
+
+if (!service) {
+    throw new Error(`Service not found: ${slug}`);
+}
 ---
 
-<MainLayout title={`${svc.name} | KIL Construction`} description={svc.blurb ?? svc.name}>
-    <h1>{svc.name}</h1>
-    {svc.blurb && <p>{svc.blurb}</p>}
-    <Gallery images={svc.images} albumUrl={svc.albumUrl} />
-</MainLayout>
+<h1>{service.name}</h1>
+{service.blurb && <p>{service.blurb}</p>}
 
+<Gallery
+        title={service.name + " Photos"}
+        images={service.images}
+        albumUrl={service.albumUrl}
+/>
 

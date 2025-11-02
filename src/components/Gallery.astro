@@ -1,31 +1,77 @@
 ---
-interface Props { images?: string[]; albumUrl?: string }
-const { images = [], albumUrl } = Astro.props;
-const embed = albumUrl ? `${albumUrl}` : null; // some share links work in an iframe; if not, we show a button
+interface Props {
+    title?: string;
+    images?: string[];
+    albumUrl?: string;
+}
+const { title, images = [], albumUrl } = Astro.props;
 ---
 
-{albumUrl ? (
-<>
-    <div class="album-embed">
-        <iframe src={embed} loading="lazy" referrerpolicy="no-referrer" ></iframe>
-    </div>
-    <p class="fallback">
-        If the album doesn’t load, <a href={albumUrl} target="_blank" rel="noopener">open it in Google Photos</a>.
-    </p>
-</>
+<section class="gallery">
+    {title && <h2>{title}</h2>}
+
+    {albumUrl ? (
+            <div class="album-card">
+                <div class="album-art">
+                    <!-- If you have a local cover, pass it in the parent as first image
+                         or add a separate `cover` prop. Fallback to a generic icon UI. -->
+                    {images?.[0] ? <img src={images[0]} alt={title ?? "Album cover"} loading="lazy" /> : <div class="cover-fallback">Album</div>}
+                </div>
+                <div class="album-meta">
+                    <p>This album is hosted on Google Photos for easy phone uploads.</p>
+                    <a class="btn" href={albumUrl} target="_blank" rel="noopener noreferrer">
+                        View album on Google Photos
+                    </a>
+                </div>
+            </div>
     ) : (
-<div class="grid">
-    {images.map((src) => (
-            <a class="tile" href={src} target="_blank" rel="noopener">
-                <img src={src} alt="" loading="lazy" />
-            </a>
-    ))}
-</div>
+            <div class="grid">
+                {images.map((src) => (
+                        <figure>
+                            <img src={src} alt={title ? `${title} photo` : "Project photo"} loading="lazy" />
+                        </figure>
+                ))}
+            </div>
     )}
+</section>
 
 <style>
-    /* … your existing grid styles … */
-    .album-embed{position:relative;padding-top:62.5%}
-    .album-embed iframe{position:absolute;inset:0;border:0;width:100%;height:100%}
-    .fallback{margin-top:.5rem}
+    .gallery h2 { margin: 0 0 12px; }
+    .grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .grid img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-radius: 10px;
+        display: block;
+    }
+    .album-card {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 16px;
+        align-items: center;
+        border: 1px solid #eee;
+        padding: 16px;
+        border-radius: 12px;
+        background: #fff;
+    }
+    .album-art img { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; }
+    .cover-fallback {
+        width: 100%; height: 220px; border-radius: 10px;
+        display:flex; align-items:center; justify-content:center;
+        background: #f3f4f6; color: #374151; font-weight: 700;
+    }
+    .album-meta .btn {
+        display:inline-block; margin-top: 8px; padding: 10px 14px; border-radius: 10px;
+        background: #111827; color: #fff; text-decoration: none; font-weight: 700;
+    }
+    .album-meta .btn:hover { transform: translateY(-1px); }
+    @media (max-width: 720px){
+        .album-card { grid-template-columns: 1fr; }
+        .album-art img, .cover-fallback { height: 180px; }
+    }
 </style>

@@ -1,21 +1,24 @@
 ---
-import MainLayout from "../../layout/MainLayout.astro";
-import Gallery from "../../components/Gallery.astro";
+import "../../styles/global.css";
 import { projects } from "../../data/projects";
-
-export async function getStaticPaths() {
-    return projects.map((p) => ({ params: { slug: p.slug } }));
-}
+import Gallery from "../../components/Gallery.astro";
 
 const { slug } = Astro.params;
-const project = projects.find((p) => p.slug === slug);
-if (!project) throw new Error(`Unknown project: ${slug}`);
+const project = projects.find(p => p.slug === slug);
+
+if (!project) {
+    throw new Error(`Project not found: ${slug}`);
+}
 ---
 
-<MainLayout title={`${project.name} | Projects`} description={`${project.name} project photos`}>
-    <h1>{project.name}</h1>
-    {(project.location || project.year) && <p>{[project.location, project.year].filter(Boolean).join(" · ")}</p>}
-    <Gallery images={project.images} albumUrl={project.albumUrl} />
-</MainLayout>
+<h1>{project.name}</h1>
+<p>
+    {project.location ? `${project.location} · ` : ""}{project.year ?? ""}
+</p>
 
+<Gallery
+        title={project.name + " Photos"}
+        images={project.images}
+        albumUrl={project.albumUrl}
+/>
 
