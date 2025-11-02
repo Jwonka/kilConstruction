@@ -9,7 +9,7 @@ a{color:var(--brand);text-decoration:none}
 a:hover{text-decoration:underline}
 .container{max-width:var(--max);margin:0 auto;padding:0 var(--space)}
 .header{position:sticky;top:0;background:#2A341C;border-bottom:1px solid #eee;z-index:10}
-.header a{color:#fff;text-decoration:none; font-size: 10rem}
+.header a{color:#fff;text-decoration:none; font-size: 1.5rem}
 .nav{display:flex;align-items:center;gap:20px;padding:12px 0}
 .nav img{height:44px}
 .spacer{flex:1}
@@ -21,6 +21,7 @@ a:hover{text-decoration:underline}
 .grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .card{padding:16px;border:1px solid #eee;border-radius:var(--radius);background:#fff}
 .footer{margin-top:48px;border-top:1px solid #eee;color:var(--muted);padding:28px 0;font-size:14px;background: #000000}
+.footer a{color:#fff;text-decoration:none; text-align: center}
 form{display:grid;gap:12px;max-width:640px}
 label{font-weight:600}
 input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font:inherit}
