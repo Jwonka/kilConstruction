@@ -120,8 +120,19 @@ const serviceSubs = [
     @media (max-width: 900px){  .brand .image{ height:92px; } }
     @media (max-width: 640px){
         .navgrid{ grid-template-columns: auto 1fr auto; }
-        .links{ gap: 28px; }
-        .menu .dropdown{ min-width:150px; }
+
+        .brand .image{ height: 64px; }
+
+        .links{ gap: 20px; }
+
+        .cta{
+            font-size: .95rem;
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-right: calc(var(--space) * -1 - 12px);
+        }
+
+        .menu .dropdown{ min-width: 150px; }
     }
 </style>
 
