@@ -117,7 +117,21 @@ const serviceSubs = [
 
     /* Responsive trims */
     @media (max-width: 1024px){ .brand .image{ height:104px; } }
-    @media (max-width: 900px){  .brand .image{ height:92px; } }
+    @media (max-width: 900px){
+        .navgrid{ grid-template-columns: auto 1fr auto; }
+        .brand{ margin-left: 0; }
+        .brand .image{ height: 60px; }
+        .links{ gap: 22px; }
+
+        .cta{
+            margin-right: 0;
+            font-size: 1rem;
+            padding: 8px 12px;
+            border-radius: 10px;
+        }
+
+        .menu .dropdown{ min-width: 150px; }
+    }
     @media (max-width: 640px){
         .navgrid{ grid-template-columns: auto 1fr auto; }
 
