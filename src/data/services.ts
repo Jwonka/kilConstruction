@@ -2,38 +2,27 @@ export type Service = {
     slug: string;
     name: string;
     blurb?: string;
-    // Either local images OR an external album embed (Google Photos share link) later
-    images?: string[];           // paths under /public/images/...
+    images?: string[];
     albumUrl?: string;
 };
 
 export const services: Service[] = [
     {
-        slug: "kitchens-baths",
-        name: "Kitchens & Baths",
-        blurb: "Remodels, tiling, fixtures, cabinetry.",
-        images: [
-            "/images/kitchens/kit-1.jpg",
-            "/images/kitchens/kit-2.jpg",
-            "/images/kitchens/kit-3.jpg",
-        ],
+        slug: "new-construction",
+        name: "New Construction",
+        blurb: "Ground-up builds: framing, drywall, decks, siding, exteriors.",
+        images: ["/images/new-construction/1.jpg"]
     },
     {
-        slug: "framing-drywall",
-        name: "Framing & Drywall",
-        blurb: "Walls, ceilings, finishing.",
-        images: [
-            "/images/drywall/dw-1.jpg",
-            "/images/drywall/dw-2.jpg",
-        ],
+        slug: "remodels",
+        name: "Remodels",
+        blurb: "Kitchens, baths, basements, trim, doors/windows.",
+        images: ["/images/remodels/1.jpg"]
     },
     {
-        slug: "decks-exterior",
-        name: "Decks & Exterior",
-        blurb: "Deck builds, repairs, siding.",
-        images: [
-            "/images/decks/deck-1.jpg",
-            "/images/decks/deck-2.jpg",
-        ],
+        slug: "furniture",
+        name: "Furniture",
+        blurb: "Custom cabinetry, built-ins, tables, and fine carpentry.",
+        images: ["/images/furniture/1.jpg"]
     },
 ];
