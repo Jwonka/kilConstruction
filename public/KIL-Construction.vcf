@@ -1,0 +1,12 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Kaden;Litchfield;;;
+FN:Kaden Litchfield
+ORG:KIL Construction
+TITLE:Owner
+TEL;TYPE=CELL,VOICE:+1-715-279-1241
+EMAIL;TYPE=INTERNET:kil.con.contact@gmail.com
+URL:https://kilcon.work/
+ADR;TYPE=WORK:;;Mondovi, WI;;;
+NOTE:Residential & light commercial construction, repairs, and remodels.
+END:VCARD

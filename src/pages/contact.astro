@@ -1,6 +1,7 @@
 ---
 import MainLayout from "../layout/MainLayout.astro";
-
+import bizcard from "../assets/bizcard-front.jpg";
+const base = import.meta.env.BASE_URL;
 /** CONTACT FORM via Web3Forms (free tier)
  * 1) Sign up at https://web3forms.com and get an access_key.
  * 2) Replace YOUR_ACCESS_KEY below.
@@ -10,31 +11,52 @@ import MainLayout from "../layout/MainLayout.astro";
 const ACCESS_KEY = "YOUR_ACCESS_KEY";
 ---
 <MainLayout title="Contact | KIL Construction">
-    <h1>Get a Free Quote</h1>
-    <p>Prefer phone? <a href="tel:+1-555-555-5555">Call us</a>. Otherwise, send details below.</p>
+    <h1 class="contact-title">Request a Free Quote</h1>
 
-    <form id="contact-form">
-        <input type="hidden" name="access_key" value={ACCESS_KEY} />
-        <input type="hidden" name="from_name" value="kilcon.work website" />
-        <input type="hidden" name="subject" value="New Quote Request from kilcon.work" />
-        <label for="name">Name</label>
-        <input id="name" name="name" required />
+    <div class="contact-grid">
+        <!-- LEFT: quick info -->
+        <section class="card contact-panel">
+            <h2 class="heading2">Reach us directly</h2>
+            <p><strong>Call / Text:</strong> <a href="tel:+17152791241">(715) 279-1241</a></p>
+            <p><strong>Email:</strong> <a href="mailto:kil.con.contact@gmail.com">kil.con.contact@gmail.com</a></p>
+            <p><strong>Facebook:</strong> <a href="https://www.facebook.com/profile.php?id=61559555097375" target="_blank" rel="noopener">KIL Construction</a></p>
+            <p><a class="btn btn-vcard" href={`${base}KIL-Construction.vcf`} download>Download vCard</a></p>
 
-        <label for="email">Email</label>
-        <input id="email" name="email" type="email" required />
+            <a class="vcard-click" href={`${base}KIL-Construction.vcf`} download>
+                <figure class="bizcard">
+                    <img class="image-card" src={bizcard.src} alt="KIL Construction business card" loading="lazy" />
+                </figure>
+            </a>
+        </section>
 
-        <label for="phone">Phone (optional)</label>
-        <input id="phone" name="phone" />
+        <!-- RIGHT: form -->
+        <section class="card contact-panel">
+            <h2>Tell us about your project</h2>
+            <form id="contact-form" class="contact-form">
+                <input type="hidden" name="access_key" value={ACCESS_KEY} />
+                <input type="hidden" name="from_name" value="kilcon.work website" />
+                <input type="hidden" name="subject" value="New Quote Request from kilcon.work" />
 
-        <label for="address">Job Address (optional)</label>
-        <input id="address" name="address" />
+                <label for="name">Name</label>
+                <input id="name" name="name" required />
 
-        <label for="message">Project Details</label>
-        <textarea id="message" name="message" rows="5" required></textarea>
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" required />
 
-        <button class="btn" type="submit">Send</button>
-        <div id="result" aria-live="polite"></div>
-    </form>
+                <label for="phone">Phone (optional)</label>
+                <input id="phone" name="phone" inputmode="tel" />
+
+                <label for="address">Job Address (optional)</label>
+                <input id="address" name="address" />
+
+                <label for="message">Project Details</label>
+                <textarea id="message" name="message" rows="6" required></textarea>
+
+                <button class="btn" type="submit">Send</button>
+                <div id="result" class="result" aria-live="polite"></div>
+            </form>
+        </section>
+    </div>
 
     <script is:inline>
         const form = document.getElementById('contact-form');
@@ -57,9 +79,66 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 } else {
                     result.textContent = data.message || 'Something went wrong.';
                 }
-            } catch (err) {
+            } catch {
                 result.textContent = 'Network error. Please try again.';
             }
         });
     </script>
+
+    <style>
+        .contact-title{
+            text-align:center;
+            margin: 28px 0 18px;
+        }
+        .contact-grid{
+            display:grid;
+            gap: clamp(16px, 2.5vw, 28px);
+            grid-template-columns: 1fr 1fr;
+            align-items:start;
+            margin-bottom: 24px;
+        }
+        .contact-panel{padding: clamp(14px, 2vw, 20px);}
+        .contact-panel .heading2{margin: 0 0 8px;font-size: clamp(1.1rem, 1.3vw + .9rem, 1.6rem);}
+        .contact-grid > .contact-panel:first-child{position: sticky;top: calc(var(--header-h, 84px) + 16px);}
+        .contact-grid > .contact-panel:last-child{margin-bottom: 40px;}
+        .bizcard{margin: 14px 0 0;}
+        .bizcard .image-card{
+            display:block;
+            max-width: 520px;
+            width:100%;
+            border-radius:12px;
+            border:1px solid #e9ecef;
+            box-shadow:0 2px 12px rgba(0,0,0,.06);
+        }
+        .btn{
+            display:inline-block;
+            padding:5px 10px;
+            border-radius:10px;
+            background:#0d1726;
+            color:#fff;
+            font-weight:700;
+        }
+        .btn-vcard {padding: 12px 18px; border-radius: 10px; font-weight: 700;}
+        .btn.btn-vcard{font-size: clamp(.5rem, 0.7vw + 0.45rem, 1.3rem);padding: 5px 10px;}
+        .vcard-click { display:block; text-decoration:none; }
+        .vcard-click .bizcard .image-card{transition: transform .15s ease, box-shadow .15s ease;}
+        .vcard-click:hover .bizcard .image-card{
+            transform: translateY(-1px);
+            box-shadow: 0 8px 28px rgba(0,0,0,.12);
+        }
+        .contact-form{
+            display:grid;
+            gap: 10px;
+        }
+        .result{
+            margin-top: 6px;
+            font-size: .95rem;
+            color: var(--muted);
+        }
+
+        /* Mobile: stack */
+        @media (max-width: 840px){
+            .contact-grid{ grid-template-columns: 1fr; }
+        }
+    </style>
 </MainLayout>
