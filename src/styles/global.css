@@ -1,24 +1,31 @@
 :root{
     --bg:#ffffff; --ink:#1f2937; --muted:#6b7280; --brand:#111827; --accent:#f59e0b;
-    --radius:16px; --space:clamp(16px,2.5vw,28px); --max:1100px;
+    --radius:16px; --space:clamp(16px,2.5vw,28px); --max:1200px;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+html,body{height: 100%;margin:0;padding:0}
+body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;display: flex;flex-direction: column;min-height: 100svh;}
 a{color:var(--brand);text-decoration:none}
 a:hover{text-decoration: ghostwhite}
 .container{max-width:var(--max);margin:0 auto;padding:0 var(--space)}
-.header{position:sticky;top:0;background:#506631;border-bottom:1px solid #eee;z-index:10}
-.header a{color:#fff;text-decoration:none; font-size: 1.5rem}
+.header{position:sticky;top:0;background:#506631;border-bottom:1px solid #1d2713;z-index:10}
+.header .container{padding-block: clamp(8px, 1.2vw, 10px);}
+.header a{color:#fff;text-decoration:none}
+main { flex: 1; }
 .spacer{flex:1}
 .nav a{font-weight:600;text-align: center}
 .hero{padding:64px 0}
 .hero h1{font-size:clamp(28px,5vw,44px);margin:0 0 8px}
-.btn{display:inline-block;padding:12px 18px;border-radius:10px;background:var(--brand);color:#fff;font-weight:700}
+.btn{display:inline-block;padding:12px 18px;border-radius:10px;background:#0d1726;color:#fff;font-weight:700}
 .btn.outline{background:#fff;color:var(--brand);border:2px solid var(--brand)}
 .grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .card{padding:16px;border:1px solid #eee;border-radius:var(--radius);background:#fff}
-.footer{margin-top:48px;border-top:1px solid #eee;color: #fff;padding:28px 0;font-size:14px;background: #000000; text-align: center}
+.footer{margin-top:auto;border-top:1px solid #0a0a0a20;color: #fff;padding:28px 0;font-size:14px;background: #000000; text-align: center}
+.footer-inner {display: flex;align-items: center;justify-content: center;gap: 14px;flex-wrap: wrap;line-height:1}
+.foot-copy{ line-height: 1; }
+.footer .fb {color: #9ec5ff;display: inline-flex;align-items: center; line-height:1; transition: transform 0.2s ease;}
+.footer .fb:hover {transform: scale(1.12);}
+.footer .fb svg {display:block;width: 2.1em;height: 2.1em;fill: currentColor;}
 form{display:grid;gap:12px;max-width:640px}
 label{font-weight:600}
 input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font:inherit}

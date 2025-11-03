@@ -3,125 +3,125 @@ import logo from "../assets/logo.png";
 const base = import.meta.env.BASE_URL;
 
 const serviceSubs = [
-    { href: `${base}services/kitchens-baths/`, label: "Kitchens & Baths" },
+    { href: `${base}services/kitchens-baths/`,  label: "Kitchens & Baths" },
     { href: `${base}services/framing-drywall/`, label: "Framing & Drywall" },
     { href: `${base}services/decks-exterior/`,  label: "Decks & Exterior" },
 ];
 ---
 
-<nav class="navgrid">
-    <!-- Left: brand (bigger + closer to left edge) -->
+<nav class="navgrid" role="navigation" aria-label="Primary">
+    <!-- Left: brand (bigger, hugged to left edge) -->
     <a class="brand" href={base} aria-label="KIL Construction Home">
-        <img src={logo.src} alt="KIL Construction" />
+        <img class="image" src={logo.src} alt="KIL Construction logo" />
     </a>
 
-    <!-- Center: evenly spaced primary links -->
+    <!-- Center: evenly spaced links -->
     <div class="links">
         <details class="menu">
-            <summary class="services-link">Services</summary>
-            <ul>
-                {serviceSubs.map((s) => <li><a href={s.href}>{s.label}</a></li>)}
+            <summary class="nav-link">Services</summary>
+            <ul class="dropdown">
+                {serviceSubs.map((s) => (
+                        <li class="drop-item"><a class="drop-link" href={s.href}>{s.label}</a></li>
+                ))}
             </ul>
         </details>
-
-        <a href={`${base}projects/`}>Projects</a>
-        <a href={`${base}contact/`}>Contact</a>
+        <a class="nav-link" href={`${base}projects/`}>Projects</a>
+        <a class="nav-link" href={`${base}contact/`}>Contact</a>
     </div>
 
-    <!-- Right: CTA -->
+    <!-- Right: CTA (hugged to right edge) -->
     <a class="btn cta" href="tel:+1-715-279-1241">Call Now</a>
 </nav>
 
 <style>
-    /* 3 columns: logo | links | CTA */
     .navgrid{
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        align-items: center;
-        gap: 24px;
-        padding: 10px 0;
+        display:grid;
+        grid-template-columns: minmax(140px,1fr) auto minmax(140px,1fr);
+        align-items:center;
+        gap: clamp(16px,2vw,24px);
     }
 
-    /* Bigger logo, nudge left to fight container padding */
-    .brand{
-        justify-self: start;
-        margin-left: -180px;
-    }
-    .brand img{
-        height: 120px;
-        display: block;
-    }
+    /* Hug to left edge by cancelling container padding */
+    .brand{ justify-self:start; margin-left: calc(var(--space) * -1 - 80px); }
+    .brand .image{ height: 124px; display:block; }
 
-    /* Center links: spread them out more evenly */
     .links{
-        justify-self: center;
-        display: flex;
-        align-items: center;
-        gap: clamp(36px, 6vw, 80px);
+        justify-self:center;
+        display:flex;
+        align-items:center;
+        gap: clamp(64px, 10vw, 160px);
     }
 
-    /* Make Services summary match link sizing */
-    .links a,
-    .services-link{
-        color: #fff;
-        font-weight: 700;
-        font-size: 2.1rem;
-        text-decoration: none;
+    .nav-link,
+    .menu > .nav-link{
+        color:#fff;
+        font-weight:700;
+        font-size: clamp(1.2rem, 1.5vw + 0.9rem, 2.1rem);
+        text-decoration:none;
         transition: transform .15s ease, opacity .15s ease;
-    }
-    .links a:hover,
-    .services-link:hover{
-        text-decoration: none;
-        transform: scale(1.07);
-    }
-
-    /* Services dropdown */
-    .menu{ position: relative; }
-    .menu summary{
+        display:inline-block;
         list-style: none;
         cursor: pointer;
         user-select: none;
         outline: none;
+        margin: 0;
+        padding: 6px 0;
+        line-height: 1.2;
     }
-    .menu[open] summary{ opacity: .92; }
+    .nav-link:hover,
+    .menu > .nav-link:hover{
+        text-decoration:none;
+        transform: scale(1.06);
+    }
 
-    .menu ul{
-        position: absolute;
+    .menu{ position:relative; }
+    .menu > .nav-link{ list-style:none; cursor:pointer; user-select:none; outline:none; margin:0; padding:0; }
+    .menu > .nav-link::-webkit-details-marker{ display:none; }
+    .menu[open] > .nav-link{ opacity:.96; }
+
+    .dropdown{
+        position:absolute;
         top: calc(100% + 10px);
-        left: -10px;
-        background: #fff;
-        border: 1px solid #e6e6e6;
-        border-radius: 12px;
-        padding: 8px;
-        min-width: 240px;
-        box-shadow: 0 10px 24px rgba(0,0,0,.12);
+        left:50%;
+        transform: translateX(-50%);
+        background:#fff;
+        border:1px solid #e6e6e6;
+        border-radius:12px;
+        padding:6px;
+        min-width: 150px;
+        max-width: 210px;
+        box-shadow:0 10px 24px rgba(0,0,0,.12);
+        list-style:none;
+        margin:0;
     }
-    .menu ul li{ list-style: none; }
-    .menu ul a{
-        display: block;
-        padding: 10px 12px;
-        color: #111;
-        border-radius: 8px;
-        text-decoration: none;
-        white-space: nowrap;
-        font-size: 1.3rem;
-        font-weight: 700;
+    .drop-item{
+        list-style:none;
+        margin:0;
+        padding:0;
     }
-    .menu ul a:hover{
-        background: #f5f7fa;
+    .drop-link{
+        display:block;
+        padding:9px 12px;
+        color:#111;
+        border-radius:8px;
+        white-space:nowrap;
+        font-size:1.03rem;
+        font-weight:700;
+        text-decoration:none;
     }
+    .drop-link:hover{ background:#f5f7fa; }
 
-    /* CTA aligned right */
-    .cta{
-        justify-self: end;
-        margin-right: -150px;
-    }
+    /* Hug CTA to right edge by cancelling container padding */
+    .cta{ justify-self:end; margin-right: calc(var(--space) * -1 - 80px); font-size: clamp(.8rem, 1vw + 0.75rem, 1.6rem); padding: 5px 10px; border-radius: 10px;}
+    .cta:hover {transform: scale(1.06); }
 
-    /* Small screens: tighten spacing a bit */
-    @media (max-width: 720px){
-        .brand img { height: 70px; }
-        .links { gap: 22px; }
-        .links a, .services-link { font-size: 1.1rem; }
+    /* Responsive trims */
+    @media (max-width: 1024px){ .brand .image{ height:104px; } }
+    @media (max-width: 900px){  .brand .image{ height:92px; } }
+    @media (max-width: 640px){
+        .navgrid{ grid-template-columns: auto 1fr auto; }
+        .links{ gap: 28px; }
+        .menu .dropdown{ min-width:150px; }
     }
 </style>
 
