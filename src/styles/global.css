@@ -8,7 +8,7 @@ body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background
 a{color:var(--brand);text-decoration:none}
 a:hover{text-decoration: ghostwhite}
 .container{max-width:var(--max);margin:0 auto;padding:0 var(--space)}
-.header{position:sticky;top:0;background:#2A341C;border-bottom:1px solid #eee;z-index:10}
+.header{position:sticky;top:0;background:#506631;border-bottom:1px solid #eee;z-index:10}
 .header a{color:#fff;text-decoration:none; font-size: 1.5rem}
 .spacer{flex:1}
 .nav a{font-weight:600;text-align: center}
