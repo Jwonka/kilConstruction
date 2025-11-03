@@ -1,24 +1,27 @@
 ---
 import "../../styles/global.css";
 import { projects } from "../../data/projects";
-import Gallery from "../../components/Gallery.astro";
 
-const { slug } = Astro.params;
-const project = projects.find(p => p.slug === slug);
-
-if (!project) {
-    throw new Error(`Project not found: ${slug}`);
+export function getStaticPaths() {
+    return projects.map((p) => ({
+        params: { slug: p.slug },
+        props: { project: p },
+    }));
 }
+
+const { project } = Astro.props;
+export const prerender = true;
 ---
+<main class="container">
+    <h1>{project.name}</h1>
+    {project.location && <p>{project.location}{project.year ? ` · ${project.year}` : ""}</p>}
 
-<h1>{project.name}</h1>
-<p>
-    {project.location ? `${project.location} · ` : ""}{project.year ?? ""}
-</p>
-
-<Gallery
-        title={project.name + " Photos"}
-        images={project.images}
-        albumUrl={project.albumUrl}
-/>
+    {project.images?.length ? (
+            <div class="grid">
+                {project.images.map((src) => <img src={src} alt={project.name} loading="lazy" />)}
+            </div>
+    ) : (
+            <p>No images yet.</p>
+    )}
+</main>
 

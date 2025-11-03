@@ -1,22 +1,38 @@
 ---
 import "../../styles/global.css";
 import { services } from "../../data/services";
-import Gallery from "../../components/Gallery.astro";
 
-const { slug } = Astro.params;
-const service = services.find(s => s.slug === slug);
-
-if (!service) {
-    throw new Error(`Service not found: ${slug}`);
+export function getStaticPaths() {
+    return services.map((s) => ({
+        params: { slug: s.slug },
+        props: { service: s },
+    }));
 }
+
+const { service } = Astro.props;
+export const prerender = true;
 ---
 
-<h1>{service.name}</h1>
-{service.blurb && <p>{service.blurb}</p>}
+<main class="container">
+    <h1>{service.name}</h1>
+    {service.blurb && <p>{service.blurb}</p>}
 
-<Gallery
-        title={service.name + " Photos"}
-        images={service.images}
-        albumUrl={service.albumUrl}
-/>
+    {service.images?.length ? (
+            <div class="grid">
+                {service.images.map((src) => (
+                        <img src={src} alt={service.name} loading="lazy" />
+                ))}
+            </div>
+    ) : (
+            <p>No images yet.</p>
+    )}
+
+    {service.albumUrl && (
+            <p>
+                <a class="btn" href={service.albumUrl} target="_blank" rel="noopener noreferrer">
+                    View Photo Album
+                </a>
+            </p>
+    )}
+</main>
 
