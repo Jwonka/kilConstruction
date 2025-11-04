@@ -1,6 +1,7 @@
 :root{
     --bg:#ffffff; --ink:#1f2937; --muted:#6b7280; --brand:#111827; --accent:#f59e0b;
     --radius:16px; --space:clamp(16px,2.5vw,28px); --max:1200px; --header-h: 96px;
+    --btn-bg: #0d1726; --btn-hover: #152a43; --btn-text: #fff; --btn-shadow: 0 6px 20px rgba(0,0,0,.25);
 }
 *{box-sizing:border-box}
 html,body{height: 100%;margin:0;padding:0;overflow-x: hidden;}
@@ -16,8 +17,29 @@ main { flex: 1; }
 .nav a{font-weight:600;text-align: center}
 .hero{padding:64px 0}
 .hero h1{font-size:clamp(28px,5vw,44px);margin:0 0 8px}
-.btn{display:inline-block;padding:12px 18px;border-radius:10px;background:#0d1726;color:#fff;font-weight:700}
+.btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    padding:12px 18px;
+    background:var(--btn-bg);
+    color:var(--btn-text);
+    font-weight:700;
+    text-decoration:none;
+    border:0;
+    border-radius:10px;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+    will-change:transform,background;
+}
+.btn:hover{background:var(--btn-hover); transform:scale(1.06); box-shadow:var(--btn-shadow); }
+.btn:active{ transform:scale(.98); }
+.btn:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
 .btn.outline{background:#fff;color:var(--brand);border:2px solid var(--brand)}
+.cta{ padding: 8px 16px; border-radius:10px; }
+.btn-vcard{ padding: 8px 16px; border-radius:10px; }
+.contact-form .btn{width:auto;justify-self:start;padding:8px 16px;margin-top: 8px;border-radius:12px;font-size:clamp(1rem, .6vw + .9rem, 1.25rem);max-width:100%;}
 .grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .card{
     position: relative;
@@ -74,6 +96,13 @@ button{all:unset}
 button.btn{cursor:pointer;text-align:center}
 .gallery-embed{aspect-ratio:16/9;width:100%;border:0;border-radius:12px;overflow:hidden}
 @media (max-width:900px){ :root{ --header-h: 76px; } }
+@media (max-width: 840px) {
+    .contact-form .btn {
+        width: 100%;
+        justify-self: stretch;
+        max-width:100%;
+    }
+}
 @media (max-width: 700px){
     .hero{ padding: 40px 0 24px; }
     .hero h1{ margin: 0 0 6px; }
@@ -81,4 +110,9 @@ button.btn{cursor:pointer;text-align:center}
     .card::before{ height: 4px; }
     main{ padding-bottom: 18px; }
 }
-@media (max-width:640px){ :root{ --header-h: 64px; } }
+@media (max-width:640px){ :root{ --header-h: 64px; }.btn{padding:8px 14px;} }
+
+/* Respect users that prefer less motion */
+@media (prefers-reduced-motion: reduce){
+    .btn{ transition: none; }
+}

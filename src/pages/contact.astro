@@ -1,6 +1,6 @@
 ---
 import MainLayout from "../layout/MainLayout.astro";
-import bizcard from "../assets/bizcard-front.jpg";
+import bizcard from "../assets/bizcard-front-new.jpg";
 const base = import.meta.env.BASE_URL;
 /** CONTACT FORM via Web3Forms (free tier)
  * 1) Sign up at https://web3forms.com and get an access_key.
@@ -101,14 +101,27 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
         .contact-panel .heading2{margin: 0 0 8px;font-size: clamp(1.1rem, 1.3vw + .9rem, 1.6rem);}
         .contact-grid > .contact-panel:first-child{position: sticky;top: calc(var(--header-h, 84px) + 16px);}
         .contact-grid > .contact-panel:last-child{margin-bottom: 40px;}
-        .bizcard{margin: 14px 0 0;}
+        .bizcard{
+            margin:14px 0 0;
+            border-radius:12px;
+            overflow:hidden;
+            background: transparent;
+            box-shadow:
+                    -10px 12px 18px rgba(0,0,0,.28),
+                    0 0 0 1px rgba(0,0,0,.06);
+            transform: translateZ(0);
+            will-change: transform, box-shadow;
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
         .bizcard .image-card{
             display:block;
-            max-width: 520px;
-            width:100%;
-            border-radius:12px;
-            border:1px solid #e9ecef;
-            box-shadow:0 2px 12px rgba(0,0,0,.06);
+            width: calc(100% + 4px);
+            height:auto;
+            margin: -2px;
+            border:0;
+            border-radius: inherit;
+            image-rendering: auto;
+            transform: none;
         }
         .btn{
             display:inline-block;
@@ -118,13 +131,17 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
             color:#fff;
             font-weight:700;
         }
-        .btn-vcard {padding: 12px 18px; border-radius: 10px; font-weight: 700;}
+        .btn-vcard {padding: 8px 16px;}
         .btn.btn-vcard{font-size: clamp(.5rem, 0.7vw + 0.45rem, 1.3rem);padding: 5px 10px;}
         .vcard-click { display:block; text-decoration:none; }
         .vcard-click .bizcard .image-card{transition: transform .15s ease, box-shadow .15s ease;}
-        .vcard-click:hover .bizcard .image-card{
-            transform: translateY(-1px);
-            box-shadow: 0 8px 28px rgba(0,0,0,.12);
+        .vcard-click:hover .bizcard,
+        .vcard-click:focus-visible .bizcard{
+            transform: translate(-1px,-2px);
+            box-shadow:
+                    -16px 18px 26px rgba(0,0,0,.38),
+                    0 0 0 1px rgba(0,0,0,.06);
+            cursor: pointer;
         }
         .contact-form{
             display:grid;
