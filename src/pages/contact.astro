@@ -123,16 +123,6 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
             image-rendering: auto;
             transform: none;
         }
-        .btn{
-            display:inline-block;
-            padding:5px 10px;
-            border-radius:10px;
-            background:#0d1726;
-            color:#fff;
-            font-weight:700;
-        }
-        .btn-vcard {padding: 8px 16px;}
-        .btn.btn-vcard{font-size: clamp(.5rem, 0.7vw + 0.45rem, 1.3rem);padding: 5px 10px;}
         .vcard-click { display:block; text-decoration:none; }
         .vcard-click .bizcard .image-card{transition: transform .15s ease, box-shadow .15s ease;}
         .vcard-click:hover .bizcard,
@@ -143,6 +133,8 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                     0 0 0 1px rgba(0,0,0,.06);
             cursor: pointer;
         }
+        .card { overflow: hidden; }
+        .contact-form, .contact-form .btn { min-width: 0; }
         .contact-form{
             display:grid;
             gap: 10px;
@@ -155,6 +147,12 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
 
         /* Mobile: stack */
         @media (max-width: 840px){
+            .contact-form .btn {
+                display: block;
+                width: 100%;
+                max-width: 100%;
+                justify-self: stretch;
+            }
             .contact-grid{ grid-template-columns: 1fr; }
         }
     </style>

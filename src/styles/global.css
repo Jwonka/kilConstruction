@@ -27,6 +27,7 @@ main { flex: 1; }
     color:var(--btn-text);
     font-weight:700;
     text-decoration:none;
+    box-sizing:border-box;
     border:0;
     border-radius:10px;
     cursor:pointer;
@@ -92,8 +93,8 @@ main { flex: 1; }
 form{display:grid;gap:12px;max-width:640px}
 label{font-weight:600}
 input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font:inherit}
-button{all:unset}
 button.btn{cursor:pointer;text-align:center}
+button{ all:unset; box-sizing:border-box; }
 .gallery-embed{aspect-ratio:16/9;width:100%;border:0;border-radius:12px;overflow:hidden}
 @media (max-width:900px){ :root{ --header-h: 76px; } }
 @media (max-width: 840px) {
