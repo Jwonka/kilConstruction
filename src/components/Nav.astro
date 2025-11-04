@@ -31,6 +31,27 @@ const serviceSubs = [
 
     <!-- Right: CTA (hugged to right edge) -->
     <a class="btn cta" href="tel:+1-715-279-1241">Call Now</a>
+
+    <!-- Mobile hamburger (hidden on desktop) -->
+    <details class="nav-mobile">
+        <summary class="hambtn" aria-label="Open menu" aria-controls="mobile-panel" aria-expanded="false">
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </summary>
+
+        <div id="mobile-panel" class="panel">
+            <details class="menu">
+                <summary class="item">Services</summary>
+                <ul class="sub">
+                    {serviceSubs.map((s) => (
+                            <li class="sub-link"><a class="phone-link" href={s.href}>{s.label}</a></li>
+                    ))}
+                </ul>
+            </details>
+            <a class="item" href={`${base}projects/`}>Projects</a>
+            <a class="item" href={`${base}contact/`}>Contact</a>
+            <a class="item" href="tel:+1-715-279-1241">Call Now</a>
+        </div>
+    </details>
 </nav>
 
 <style>
@@ -115,8 +136,64 @@ const serviceSubs = [
     .cta{ justify-self:end; margin-right: calc(var(--space) * -1 - 80px); font-size: clamp(.8rem, 1vw + 0.75rem, 1.6rem); padding: 5px 10px; border-radius: 10px;}
     .cta:hover {transform: scale(1.06); }
 
+    .nav-mobile{ display:none; position:relative; justify-self: end;}
+    .hambtn{
+        display:inline-flex; align-items:center; justify-content:center;
+        width:44px; height:44px; border-radius:10px; cursor:pointer;
+        list-style:none; outline:0; border:1px solid rgba(255,255,255,.25);
+    }
+    .hambtn::-webkit-details-marker{ display:none; }
+    .hambtn .bar{
+        display:block; width:22px; height:2px; background:#fff; border-radius:2px;
+        margin:3px 0; transition:transform .15s ease, opacity .15s ease;
+    }
+    /* X animation */
+    .nav-mobile[open] .hambtn .bar:nth-child(1){ transform: translateY(5px) rotate(45deg); }
+    .nav-mobile[open] .hambtn .bar:nth-child(2){ opacity:0; }
+    .nav-mobile[open] .hambtn .bar:nth-child(3){ transform: translateY(-5px) rotate(-45deg); }
+
+    /* Slide-down panel */
+    .nav-mobile .panel{
+        position:absolute; inset-inline-end: 0; inset-inline-start: auto;  top:calc(100% + 8px);
+        display: inline-block; width: max-content; max-width: 75vw;
+        background:#fff; color:#111; border:1px solid #e6e6e6;
+        border-radius:12px; padding:6px 4px; box-shadow:0 10px 24px rgba(0,0,0,.12);
+        max-height: calc(100vh - 16px - var(--header-h, 72px));
+        overflow:auto; overscroll-behavior: contain;
+    }
+    .nav-mobile .item{
+        display:block; padding:10px 10px; border-radius:8px; font-weight:700; color:#111; text-decoration:none; text-align:right;
+    }
+    .nav-mobile .item:hover, .nav-mobile .sub .phone-link:hover{ background:#f5f7fa; }
+
+    /* Services submenu inside mobile panel */
+    .nav-mobile .menu{ position:relative; }
+    .nav-mobile .menu > .item{ list-style:none; cursor:pointer; }
+    .nav-mobile .menu > .item::-webkit-details-marker{ display:none; }
+
+    .nav-mobile .panel .sub, .nav-mobile .panel .sub .sub-link{ list-style:none; margin:0; padding:0; }
+    .nav-mobile .sub .phone-link{ display:block; padding:8px 12px; border-radius:8px; color:#111; text-decoration:none; }
+    .nav-mobile .sub .phone-link:hover{ background:#f5f7fa; }
+
     /* Responsive trims */
+    @media (max-width: 700px){
+        .navgrid{ grid-template-columns: auto 1fr auto ; column-gap: 12px; }
+        .links{ display:none !important; }
+        .cta{ display:none !important; }
+        .brand{ margin-left:0; }
+        .brand .image{ height:60px; }
+        .nav-mobile{ display:block; }
+    }
+
+    @media (min-width:701px) and (max-width:1024px){
+        .links{ display:flex; }
+        .nav-mobile{ display:none; }
+        .brand{ margin-left:0; }
+        .cta{ margin-right:0; }
+    }
+
     @media (max-width: 1024px){ .brand .image{ height:104px; } }
+
     @media (max-width: 900px){
         .navgrid{ grid-template-columns: auto 1fr auto; }
         .brand{ margin-left: 0; }
@@ -132,20 +209,9 @@ const serviceSubs = [
 
         .menu .dropdown{ min-width: 150px; }
     }
+
     @media (max-width: 640px){
-        .navgrid{ grid-template-columns: auto 1fr auto; }
-
         .brand .image{ height: 64px; }
-
-        .links{ gap: 20px; }
-
-        .cta{
-            font-size: .95rem;
-            padding: 8px 12px;
-            border-radius: 10px;
-            margin-right: calc(var(--space) * -1 - 12px);
-        }
-
         .menu .dropdown{ min-width: 150px; }
     }
 </style>
