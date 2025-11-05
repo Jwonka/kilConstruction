@@ -57,27 +57,26 @@ const serviceSubs = [
 <style>
     .navgrid{
         display:grid;
-        grid-template-columns: minmax(140px,1fr) auto minmax(140px,1fr);
+        grid-template-columns: auto 1fr auto;
         align-items:center;
         gap: clamp(16px,2vw,24px);
     }
-
-    /* Hug to left edge by cancelling container padding */
-    .brand{ justify-self:start; margin-left: calc(var(--space) * -1 - 80px); }
-    .brand .image{ height: 124px; display:block; }
+    .brand{ justify-self:start; }
+    .brand .image{ height: clamp(56px, 6vw, 88px); display:block; }
 
     .links{
         justify-self:center;
         display:flex;
         align-items:center;
-        gap: clamp(64px, 10vw, 160px);
+        flex-wrap: wrap;
+        gap: clamp(14px, 4vw, 64px);
     }
 
     .nav-link,
     .menu > .nav-link{
         color:#fff;
         font-weight:700;
-        font-size: clamp(1.2rem, 1.5vw + 0.9rem, 2.1rem);
+        font-size: clamp(.95rem, 1vw + .6rem, 1.4rem);
         text-decoration:none;
         transition: transform .15s ease, opacity .15s ease;
         display:inline-block;
@@ -88,6 +87,7 @@ const serviceSubs = [
         margin: 0;
         padding: 6px 0;
         line-height: 1.2;
+        white-space:nowrap;
     }
     .nav-link:hover,
     .menu > .nav-link:hover{
@@ -132,47 +132,12 @@ const serviceSubs = [
     }
     .drop-link:hover{ background:#f5f7fa; }
 
-    /* Hug CTA to right edge by cancelling container padding */
-    .cta{ justify-self:end; margin-right: calc(var(--space) * -1 - 80px); font-size: clamp(.8rem, 1vw + 0.75rem, 1.6rem); padding: 5px 10px; border-radius: 10px;}
-    .nav-mobile{ display:none; position:relative; justify-self: end;}
-    .hambtn{
-        display:inline-flex; align-items:center; justify-content:center;
-        width:44px; height:44px; border-radius:10px; cursor:pointer;
-        list-style:none; outline:0; border:1px solid rgba(255,255,255,.25);
+    .cta{
+        justify-self:end; white-space:nowrap;
+        font-size:clamp(.9rem,.7vw + .8rem,1.1rem);
+        padding:clamp(6px,.8vw,10px) clamp(10px,1vw,16px);
+        border-radius:10px;
     }
-    .hambtn::-webkit-details-marker{ display:none; }
-    .hambtn .bar{
-        display:block; width:22px; height:2px; background:#fff; border-radius:2px;
-        margin:3px 0; transition:transform .15s ease, opacity .15s ease;
-    }
-    /* X animation */
-    .nav-mobile[open] .hambtn .bar:nth-child(1){ transform: translateY(5px) rotate(45deg); }
-    .nav-mobile[open] .hambtn .bar:nth-child(2){ opacity:0; }
-    .nav-mobile[open] .hambtn .bar:nth-child(3){ transform: translateY(-5px) rotate(-45deg); }
-
-    /* Slide-down panel */
-    .nav-mobile .panel{
-        position:absolute; inset-inline-end: 0; inset-inline-start: auto;  top:calc(100% + 8px);
-        display: inline-block; width: max-content; max-width: 75vw;
-        background:#fff; color:#111; border:1px solid #e6e6e6;
-        border-radius:12px; padding:6px 4px; box-shadow:0 10px 24px rgba(0,0,0,.12);
-        max-height: calc(100vh - 16px - var(--header-h, 72px));
-        overflow:auto; overscroll-behavior: contain;
-    }
-    .nav-mobile .item{
-        display:block; padding:10px 10px; border-radius:8px; font-weight:700; color:#111; text-decoration:none; text-align:right;
-    }
-    .nav-mobile .item:hover, .nav-mobile .sub .phone-link:hover{ background:#f5f7fa; }
-
-    /* Services submenu inside mobile panel */
-    .nav-mobile .menu{ position:relative; }
-    .nav-mobile .menu > .item{ list-style:none; cursor:pointer; }
-    .nav-mobile .menu > .item::-webkit-details-marker{ display:none; }
-
-    .nav-mobile .panel .sub, .nav-mobile .panel .sub .sub-link{ list-style:none; margin:0; padding:0; }
-    .nav-mobile .sub .phone-link{ display:block; padding:8px 12px; border-radius:8px; color:#111; text-decoration:none; }
-    .nav-mobile .sub .phone-link:hover{ background:#f5f7fa; }
-
     .nav-mobile{ display:none; position:relative; justify-self: end;}
     .hambtn{
         display:inline-flex; align-items:center; justify-content:center;
@@ -227,24 +192,6 @@ const serviceSubs = [
         .nav-mobile{ display:none; }
         .brand{ margin-left:0; }
         .cta{ margin-right:0; }
-    }
-
-    @media (max-width: 1024px){ .brand .image{ height:104px; } }
-
-    @media (max-width: 900px){
-        .navgrid{ grid-template-columns: auto 1fr auto; }
-        .brand{ margin-left: 0; }
-        .brand .image{ height: 60px; }
-        .links{ gap: 22px; }
-
-        .cta{
-            margin-right: 0;
-            font-size: 1rem;
-            padding: 8px 12px;
-            border-radius: 10px;
-        }
-
-        .menu .dropdown{ min-width: 150px; }
     }
 
     @media (max-width: 640px){
