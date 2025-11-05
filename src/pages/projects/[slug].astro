@@ -10,7 +10,7 @@ type Photo = {
 };
 
 const API = import.meta.env.PUBLIC_GALLERY_API as string;
-export const prerender = false;
+export const prerender = true;
 
 /** Build-time: tell Astro which /projects/:slug pages exist */
 export async function getStaticPaths() {
@@ -31,7 +31,7 @@ let items: Photo[] = [];
 let loadError: string | null = null;
 
 try {
-    const res = await fetch(`${API}?project=${slug}`, { cache: 'reload' });
+    const res = await fetch(`${API}?project=${slug}`, { cache: 'force-cache' });
     if (res.ok) {
         const json = (await res.json()) as { items?: Photo[] };
         items = json.items ?? [];

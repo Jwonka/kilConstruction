@@ -18,7 +18,7 @@ let projects: Project[] = [];
 let loadError: string | null = null;
 
 try {
-    const res = await fetch(`${api}?list=projects`, { cache: 'reload' });
+    const res = await fetch(`${api}?list=projects`, { cache: 'force-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = (await res.json()) as { projects?: Project[] };
     projects = json.projects ?? [];
@@ -59,16 +59,39 @@ try {
     </section>
         <script>
             (function () {
-                const els = document.querySelectorAll('.rotatable img.photo[data-rot-srcs]');
-                els.forEach((img) => {
+                const cards = document.querySelectorAll('.rotatable img.photo[data-rot-srcs]');
+                const preload = (url) => { const i = new Image(); i.referrerPolicy = 'no-referrer'; i.src = url; };
+
+                const start = (img) => {
                     const list = JSON.parse(img.getAttribute('data-rot-srcs') || '[]');
                     if (!Array.isArray(list) || list.length < 2) return;
                     let i = 0;
-                    setInterval(() => {
-                        i = (i + 1) % list.length;
-                        img.src = list[i];
-                    }, 4000);
-                });
+                    let t;
+                    const tick = () => {
+                        const next = list[(i + 1) % list.length];
+                        preload(next);
+                        t = setTimeout(() => {
+                            i = (i + 1) % list.length;
+                            img.src = next;
+                            tick();
+                        }, 4000);
+                    };
+                    tick();
+                    return () => clearTimeout(t);
+                };
+
+                const io = new IntersectionObserver((entries) => {
+                    entries.forEach((e) => {
+                        const img = e.target;
+                        if (e.isIntersecting) {
+                            if (!img._stop) img._stop = start(img);
+                        } else {
+                            if (img._stop) { img._stop(); img._stop = null; }
+                        }
+                    });
+                }, { rootMargin: '100px' });
+
+                cards.forEach((img) => io.observe(img));
             })();
-        </script>
+            </script>
 </MainLayout>
