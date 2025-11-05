@@ -25,7 +25,7 @@ main { flex: 1 0 auto; }
 .nav { font-size: clamp(16px, 1.4vw, 22px); }
 .nav a{font-weight:600;text-align: center; white-space: nowrap}
 .nav a,
-.nav-link{white-space: nowrap;font-size: clamp(.95rem, 1vw + .6rem, 1.4rem); /* <— shrinks sooner */}
+.nav-link{white-space: nowrap;font-size: clamp(.95rem, 1vw + .6rem, 1.4rem);}
 .hero{padding:64px 0}
 .hero h1{font-size:clamp(28px,5vw,44px);margin:0 0 8px}
 .btn{
@@ -153,7 +153,6 @@ button{ all:unset; box-sizing:border-box; }
     letter-spacing: .2px;
 }
 .page-section {margin-bottom: clamp(24px, 4vw, 48px);padding-block-end: clamp(24px, 4vw, 56px);}
-.projects-page .grid-cards { }
 .no-sticky header { position: static !important; top: auto; }
 @media (max-width:900px){ :root{ --header-h: 76px; } }
 @media (max-width: 840px) {

@@ -59,9 +59,9 @@ const serviceSubs = [
         display:grid;
         grid-template-columns: auto 1fr auto;
         align-items:center;
-        gap: clamp(16px,2vw,24px);
+        gap: clamp(12px,2vw,32px);
     }
-    .brand{ justify-self:start; }
+    .brand{ justify-self:start;margin:0; }
     .brand .image{ height: clamp(56px, 6vw, 88px); display:block; }
 
     .links{
@@ -69,7 +69,7 @@ const serviceSubs = [
         display:flex;
         align-items:center;
         flex-wrap: wrap;
-        gap: clamp(14px, 4vw, 64px);
+        gap: clamp(14px, 4vw, 72px);
     }
 
     .nav-link,
@@ -136,7 +136,7 @@ const serviceSubs = [
         justify-self:end; white-space:nowrap;
         font-size:clamp(.9rem,.7vw + .8rem,1.1rem);
         padding:clamp(6px,.8vw,10px) clamp(10px,1vw,16px);
-        border-radius:10px;
+        border-radius:10px;margin:0;
     }
     .nav-mobile{ display:none; position:relative; justify-self: end;}
     .hambtn{
