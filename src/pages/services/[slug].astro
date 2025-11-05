@@ -1,61 +1,20 @@
 ---
 import "../../styles/global.css";
+import MainLayout from '../../layout/MainLayout.astro';
+import { services, type Service } from '../../data/services';
 
-type Project = {
-    slug: string; name: string; location?: string; year?: string;
-    summary?: string; images: {full:string; thumb:string; name:string}[];
-    };
+export const prerender = true;
 
-const api = import.meta.env.PUBLIC_GALLERY_API as string;
-const { slug } = Astro.params;
-
-let project: Project | null = null;
-let images: Project["images"] = [];
-let items: Photo[] = [];
-let loadError: string | null = null;
-
-
-const res = await fetch(api, { cache: 'reload' }).catch((e: unknown) => {
-    loadError = e instanceof Error ? e.message : 'Network error';
-    return null; // so the rest of the code can branch safely
-});
-
-if (res) {
-    if (res.ok) {
-        // 2) Try to parse JSON; if that fails, still avoid throw
-        const json = (await res
-            .json()
-            .catch(() => ({ items: [] }))) as { items?: Photo[] };
-
-        items = json.items ?? [];
-    } else {
-        loadError = `HTTP ${res.status}`;
+export async function getStaticPaths() {
+    return services.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
     }
-}
+
+const { service } = Astro.props as { service: Service };
 ---
-<main class="container">
-    {project ? (
-            <>
-                <h1>{project.name}</h1>
-                {(project.location || project.year) && <p>{[project.location, project.year].filter(Boolean).join(' · ')}</p>}
-                {project.summary && <p class="summary">{project.summary}</p>}
-
-                {images.length ? (
-                        <div class="grid">
-                            {images.map(i => <img src={i.thumb} alt={project!.name} loading="lazy" />)}
-                        </div>
-                ) : (
-                        <p>No images yet.</p>
-                )}
-            </>
-    ) : (
-            <p class="error">Project not found{loadError ? ` — ${loadError}` : ''}.</p>
-    )}
-</main>
-
-<style>
-    .container { max-width: 980px; margin: 0 auto; padding: 1rem; }
-    .grid { display:grid; gap:14px; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); }
-    .summary { color:#4b5563; margin-top:8px; }
-    .error { color:#b91c1c; margin-top:12px; }
-</style>
+<MainLayout title={service.name}>
+    <section class="container">
+        <h1 class="page-head">{service.name}</h1>
+        {service.blurb && <p class="muted">{service.blurb}</p>}
+        <div class="card">Details for {service.name} coming soon.</div>
+    </section>
+</MainLayout>
