@@ -1,5 +1,6 @@
 ---
 import MainLayout from '../../layout/MainLayout.astro';
+import type { Project } from '../../utils/projectCards';
 
 type Photo = {
     id: string;
@@ -7,23 +8,23 @@ type Photo = {
     thumb: string;
     full: string;
     createdTime: string;
-};
+    };
 
-const API = import.meta.env.PUBLIC_GALLERY_API as string;
 export const prerender = true;
 
 /** Build-time: tell Astro which /projects/:slug pages exist */
 export async function getStaticPaths() {
-    try {
-        const res = await fetch(`${API}?list=projects`, { cache: 'no-store' });
-        const json = (await res.json()) as { projects?: { slug: string }[] };
-        const list = json.projects ?? [];
-        return list.map((p) => ({ params: { slug: p.slug } }));
-    } catch {
-        // If the API is down at build time, don’t generate any pages.
-        return [];
+    const base = import.meta.env.PUBLIC_GALLERY_API as string | undefined;
+    if (!base) return [];
+
+    const res = await fetch(`${base}?list=projects`, { cache: 'force-cache' });
+    if (!res.ok) return [];
+
+    const json = (await res.json()) as { projects?: Project[] };
+    const projects = json.projects ?? [];
+
+    return projects.map((p) => ({ params: { slug: p.slug }, props: { slug: p.slug } }));
     }
-}
 
 const { slug } = Astro.params;
 
@@ -31,16 +32,23 @@ let items: Photo[] = [];
 let loadError: string | null = null;
 
 try {
-    const res = await fetch(`${API}?project=${slug}`, { cache: 'force-cache' });
-    if (res.ok) {
-        const json = (await res.json()) as { items?: Photo[] };
-        items = json.items ?? [];
-    } else {
-        loadError = `HTTP ${res.status}`;
+    const base = import.meta.env.PUBLIC_GALLERY_API as string | undefined;
+    if (!base) {
+        console.warn('PUBLIC_GALLERY_API missing, no project pages will be built.');
+        return [];
     }
-} catch (e: any) {
+
+    const res = await fetch(`${base}?project=${slug}`, { cache: 'force-cache' });
+    if (res.ok) {
+    const json = (await res.json()) as { items?: Photo[] };
+    items = json.items ?? [];
+    } else {
+    loadError = `HTTP ${res.status}`;
+    }
+    } catch (e: any) {
     loadError = e?.message ?? 'Network error';
-}
+    }
+
 const sized = (url: string, w = 2000) => url.replace(/=s0$/, `=w${w}`);
 ---
 
@@ -65,4 +73,3 @@ const sized = (url: string, w = 2000) => url.replace(/=s0$/, `=w${w}`);
         )}
     </section>
 </MainLayout>
-

@@ -1,0 +1,32 @@
+---
+export interface Props {
+    p: {
+        slug: string;
+        name: string;
+        summary?: string;
+        year?: string;
+        location?: string;
+    };
+    first?: { name?: string };
+    src: string;
+    rotList: string[];
+}
+const { p, first, src, rotList } = Astro.props;
+---
+
+<a class="card card-photo rotatable" href={`/projects/${p.slug}`} aria-label={p.name}>
+    <img
+            class="photo"
+            loading="lazy"
+            decoding="async"
+            referrerpolicy="no-referrer"
+            src={src}
+            alt={first?.name ?? p.name}
+            data-rot-srcs={JSON.stringify(rotList)}
+    />
+    <h3 class="mt-2">{p.name}</h3>
+    {p.summary && <p class="muted">{p.summary}</p>}
+    {(p.location || p.year) && (
+            <p class="muted">{[p.location, p.year].filter(Boolean).join(' · ')}</p>
+    )}
+</a>

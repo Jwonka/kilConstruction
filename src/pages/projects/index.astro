@@ -1,16 +1,7 @@
 ---
 import MainLayout from '../../layout/MainLayout.astro';
-
-type Preview = { thumb?: string; full?: string; name?: string };
-type Project = {
-    slug: string;
-    name: string;
-    summary?: string;
-    year?: string;
-    location?: string;
-    previews?: Preview[];
-    images?: Preview | null;
-};
+import ProjectCard from '../../components/ProjectCard.astro';
+import { toCards, type Project } from '../../utils/projectCards';
 
 const api = import.meta.env.PUBLIC_GALLERY_API as string;
 
@@ -19,79 +10,32 @@ let loadError: string | null = null;
 
 try {
     const res = await fetch(`${api}?list=projects`, { cache: 'force-cache' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = (await res.json()) as { projects?: Project[] };
-    projects = json.projects ?? [];
+    if (res.ok) {
+        const json = (await res.json()) as { projects?: Project[] };
+        projects = json.projects ?? [];
+    } else {
+        loadError = `HTTP ${res.status}`;
+    }
 } catch (e: any) {
     loadError = e?.message ?? 'Network error';
 }
+
+const cards = toCards(projects);
 ---
 
 <MainLayout title="Projects">
     <section class="grid-cards">
         {loadError && <p class="error">Failed to load: {loadError}</p>}
 
-        {projects.length > 0 ? (
-            projects.map((p) => {
-                const imgs = p.previews && p.previews.length ? p.previews : (p.images ? [p.images] : []);
-                const first = imgs[0];
-                const src = first?.thumb || first?.full || '/placeholder-600x400.png';
-                const rotList = imgs.map(i => i.thumb || i.full || '/placeholder-600x400.png');
+        {cards.length > 0 &&
+            cards.map(({ p, first, src, rotList }) => (
+                    <ProjectCard p={p} first={first} src={src} rotList={rotList} />
+            ))}
 
-                return (
-                    <a class="card card-photo rotatable" href={`/projects/${p.slug}`} aria-label={p.name}>
-                        <img
-                            class="photo"
-                            loading="lazy"
-                            decoding="async"
-                            referrerpolicy="no-referrer"
-                            src={src}
-                            alt={first?.name ?? p.name}
-                            data-rot-srcs={JSON.stringify(rotList)}
-                        />
-                        <h3 class="mt-2">{p.name}</h3>
-                        {p.summary && <p class="muted">{p.summary}</p>}
-                        {(p.location || p.year) && (<p class="muted">{[p.location, p.year].filter(Boolean).join(' · ')}</p>)}
-                    </a>
-                );
-            })) : (!loadError && <p>No images uploaded yet.</p>)
-        }
+        {!loadError && cards.length === 0 && (
+                <p>No images uploaded yet.</p>
+        )}
     </section>
-        <script>
-            (function () {
-                const cards = document.querySelectorAll('.rotatable img.photo[data-rot-srcs]');
-                const preload = (url) => { const i = new Image(); i.referrerPolicy = 'no-referrer'; i.src = url; };
 
-                const start = (img) => {
-                    const list = JSON.parse(img.getAttribute('data-rot-srcs') || '[]');
-                    if (!Array.isArray(list) || list.length < 2) return;
-                    let i = 0;
-                    let t;
-                    const tick = () => {
-                        const next = list[(i + 1) % list.length];
-                        preload(next);
-                        t = setTimeout(() => {
-                            i = (i + 1) % list.length;
-                            img.src = next;
-                            tick();
-                        }, 4000);
-                    };
-                    tick();
-                    return () => clearTimeout(t);
-                };
-
-                const io = new IntersectionObserver((entries) => {
-                    entries.forEach((e) => {
-                        const img = e.target;
-                        if (e.isIntersecting) {
-                            if (!img._stop) img._stop = start(img);
-                        } else {
-                            if (img._stop) { img._stop(); img._stop = null; }
-                        }
-                    });
-                }, { rootMargin: '100px' });
-
-                cards.forEach((img) => io.observe(img));
-            })();
-            </script>
+    <script src="/js/rotator.js" is:inline></script>
 </MainLayout>
