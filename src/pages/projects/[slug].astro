@@ -7,6 +7,7 @@ type Photo = {
     thumb: string;
     full: string;
     createdTime: string;
+    description?: string;
     };
 
 export const prerender = true;
@@ -106,6 +107,7 @@ try {
 } catch (e: any) {
     loadError = e?.message ?? 'Network error';
 }
+// noinspection JSUnusedGlobalSymbols
 const sized = (url: string, w = 2000) => url.replace(/=s0$/, `=w${w}`);
 ---
 
