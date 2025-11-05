@@ -62,6 +62,8 @@ const { slug } = Astro.params;
 
 let items: Photo[] = [];
 let loadError: string | null = null;
+let projectName: string = slug!.replace(/-/g, ' ').replace(/\b\w/g, s => s.toUpperCase());
+let projectDesc: string | undefined;
 
 try {
     const base = import.meta.env.PUBLIC_GALLERY_API as string | undefined;
@@ -72,21 +74,32 @@ try {
         let api: URL;
         try {
             api = new URL(base);
-            api.searchParams.set('project', slug);
         } catch {
-            loadError = 'Bad API URL';
+            throw new Error('Bad API URL');
         }
 
-        if (!loadError) {
-            const res = await fetch(api!, { cache: 'force-cache' });
-            if (!res.ok) {
-                loadError = `HTTP ${res.status}`;
-            } else if (!res.headers.get('content-type')?.includes('application/json')) {
-                loadError = 'Bad response (not JSON)';
-            } else {
-                const json = (await res.json()) as { items?: Photo[]; error?: string; message?: string };
-                if (json.error) loadError = json.message || json.error;
-                else items = json.items ?? [];
+        const apiItems = new URL(api);
+        apiItems.searchParams.set('project', slug!);
+        const res = await fetch(apiItems, { cache: 'force-cache' });
+
+        if (!res.ok) loadError = `HTTP ${res.status}`;
+        else if (!res.headers.get('content-type')?.includes('application/json')) loadError = 'Bad response (not JSON)';
+        else {
+            const json = (await res.json()) as { items?: Photo[]; project?: { name?: string; description?: string } };
+            items = json.items ?? [];
+            if (json.project?.name) projectName = json.project.name;
+            if (json.project?.description) projectDesc = json.project.description;
+        }
+
+        if (!projectDesc) {
+            const apiList = new URL(api);
+            apiList.searchParams.set('list', 'projects');
+            const res2 = await fetch(apiList, { cache: 'force-cache' });
+            if (res2.ok && res2.headers.get('content-type')?.includes('application/json')) {
+                const j2 = (await res2.json()) as { projects?: { slug: string; name?: string; description?: string }[] };
+                const m = j2.projects?.find(p => p.slug === slug);
+                if (m?.name) projectName = m.name;
+                if (m?.description) projectDesc = m.description;
             }
         }
     }
@@ -96,12 +109,14 @@ try {
 const sized = (url: string, w = 2000) => url.replace(/=s0$/, `=w${w}`);
 ---
 
-<MainLayout title="Project">
-    <section class="gallery grid-cards">
-        {loadError && <p class="error">Failed to load photos: {loadError}</p>}
+<MainLayout title={projectName}>
+    <h1 class="page-head container">{projectName}</h1>
+    {projectDesc && <p class="container muted" style="margin-top:-6px;margin-bottom:14px;">{projectDesc}</p>}
+
+    <section class="container page-section project-photos">
         {items.length > 0 ? (
             items.map((i) => (
-                    <a class="card card-photo" href={sized(i.full)} target="_blank" rel="noopener">
+                    <figure class="card card-media">
                         <img
                                 class="photo"
                                 loading="lazy"
@@ -109,8 +124,10 @@ const sized = (url: string, w = 2000) => url.replace(/=s0$/, `=w${w}`);
                                 referrerpolicy="no-referrer"
                                 src={i.thumb || i.full}
                                 alt={i.name}
+                                sizes="(max-width: 520px) 100vw, (max-width: 900px) 50vw, (max-width: 1280px) 33vw, 25vw"
                         />
-                    </a>
+                        {(i.description || i.name) && <figcaption class="caption">{i.description || i.name.replace(/\.[^/.]+$/, "")}</figcaption>}
+                    </figure>
             ))
         ) : (
             !loadError && <p>No images uploaded yet.</p>

@@ -30,18 +30,15 @@ const cards = toCards(projects);
 ---
 
 <MainLayout title="Projects">
-    <section class="grid-cards">
+    <h1 class="page-head container">Projects</h1>
+    <section class="container page-section grid-cards projects-page">
         {loadError && <p class="error">Failed to load: {loadError}</p>}
-
         {cards.length > 0 &&
             cards.map(({ p, first, src, rotList }) => (
                     <ProjectCard p={p} first={first} src={src} rotList={rotList} />
-            ))}
-
-        {!loadError && cards.length === 0 && (
-                <p>No images uploaded yet.</p>
-        )}
+            ))
+        }
+        {!loadError && cards.length === 0 && <p>No images uploaded yet.</p>}
     </section>
-
     <script src="/js/rotator.js" is:inline></script>
 </MainLayout>
