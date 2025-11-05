@@ -109,30 +109,35 @@ try {
 }
 // noinspection JSUnusedGlobalSymbols
 const sized = (url: string, w = 2000) => url.replace(/=s0$/, `=w${w}`);
+const cropName = (s: string) => s.replace(/\.[^.]+$/, '').replace(/_/g, ' ');
 ---
 
-<MainLayout title={projectName}>
+<MainLayout title={projectName} noSticky>
     <h1 class="page-head container">{projectName}</h1>
     {projectDesc && <p class="container muted" style="margin-top:-6px;margin-bottom:14px;">{projectDesc}</p>}
 
-    <section class="container page-section project-photos">
+    <section class="container page-section">
         {items.length > 0 ? (
-            items.map((i) => (
+            <div class="grid grid--album">
+                {items.map((i) => (
                     <figure class="card card-media">
                         <img
-                                class="photo"
-                                loading="lazy"
-                                decoding="async"
-                                referrerpolicy="no-referrer"
-                                src={i.thumb || i.full}
-                                alt={i.name}
-                                sizes="(max-width: 520px) 100vw, (max-width: 900px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                        />
-                        {(i.description || i.name) && <figcaption class="caption">{i.description || i.name.replace(/\.[^/.]+$/, "")}</figcaption>}
+                            class="photo"
+                            loading="lazy"
+                            decoding="async"
+                            referrerpolicy="no-referrer"
+                            src={i.thumb || i.full}
+                            alt={i.name}
+                            sizes="(max-width: 560px) 90vw, (max-width: 1200px) 45vw, 28vw" />
+                        {(i.description || i.name) && (
+                            <figcaption class="caption">{i.description || cropName(i.name)}</figcaption>
+                        )}
                     </figure>
-            ))
-        ) : (
+                ))}
+            </div>
+    ) : (
             !loadError && <p>No images uploaded yet.</p>
         )}
+        {loadError && <p class="error">Failed to load: {loadError}</p>}
     </section>
 </MainLayout>

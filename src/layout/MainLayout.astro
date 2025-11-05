@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import Nav from "../components/Nav.astro";
 import logo from "../assets/logo.png";
-const { title = "KIL Construction", description = "Quality construction & contracting." } = Astro.props;
+const { title = "KIL Construction", description = "Quality construction & contracting.", noSticky = false } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -13,7 +13,7 @@ const { title = "KIL Construction", description = "Quality construction & contra
     <meta name="description" content={description} />
     <link rel="icon" href={logo.src} />
 </head>
-<body>
+<body class={`site ${noSticky ? 'no-sticky' : ''}`}>
 <header class="header"><div class="container"><Nav /></div></header>
 
 <main class="container">

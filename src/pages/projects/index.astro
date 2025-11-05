@@ -29,9 +29,9 @@ if (!api) {
 const cards = toCards(projects);
 ---
 
-<MainLayout title="Projects">
+<MainLayout title="Projects" noSticky>
     <h1 class="page-head container">Projects</h1>
-    <section class="container page-section grid-cards projects-page">
+    <section class="container page-section grid grid--projects">
         {loadError && <p class="error">Failed to load: {loadError}</p>}
         {cards.length > 0 &&
             cards.map(({ p, first, src, rotList }) => (
