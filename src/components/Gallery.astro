@@ -1,77 +1,38 @@
 ---
-interface Props {
-    title?: string;
-    images?: string[];
-    albumUrl?: string;
+type Photo = {
+    id: string;
+    name: string;
+    full: string;
+    thumb: string;
+    createdTime: string;
+};
+
+const api = import.meta.env.PUBLIC_GALLERY_API as string;
+
+let items: Photo[] = [];
+let loadError: string | null = null;
+try {
+    const res = await fetch(api, { cache: 'reload' });
+    if (res.ok) {
+        const json = (await res.json()) as { items?: Photo[] };
+        items = json.items ?? [];
+    } else {
+        loadError = `HTTP ${res.status}`;
+    }
+} catch (err: any) {
+    loadError = err?.message ?? 'Network error';
 }
-const { title, images = [], albumUrl } = Astro.props;
 ---
 
-<section class="gallery">
-    {title && <h2>{title}</h2>}
-
-    {albumUrl ? (
-            <div class="album-card">
-                <div class="album-art">
-                    <!-- If you have a local cover, pass it in the parent as first image
-                         or add a separate `cover` prop. Fallback to a generic icon UI. -->
-                    {images?.[0] ? <img src={images[0]} alt={title ?? "Album cover"} loading="lazy" /> : <div class="cover-fallback">Album</div>}
-                </div>
-                <div class="album-meta">
-                    <p>This album is hosted on Google Photos for easy phone uploads.</p>
-                    <a class="btn" href={albumUrl} target="_blank" rel="noopener noreferrer">
-                        View album on Google Photos
-                    </a>
-                </div>
-            </div>
+<section class="gallery grid-cards">
+    {items.length > 0 ? (
+        items.map((i) => (
+                <a class="card card-photo" href={i.full} target="_blank" rel="noopener">
+                    <img class="photo" loading="lazy" src={i.thumb} alt={i.name} />
+                </a>
+        ))
     ) : (
-            <div class="grid">
-                {images.map((src) => (
-                        <figure>
-                            <img src={src} alt={title ? `${title} photo` : "Project photo"} loading="lazy" />
-                        </figure>
-                ))}
-            </div>
+            <p>No images uploaded yet.</p>
     )}
 </section>
 
-<style>
-    .gallery h2 { margin: 0 0 12px; }
-    .grid {
-        display: grid;
-        gap: 12px;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-    .grid img {
-        width: 100%;
-        height: 220px;
-        object-fit: cover;
-        border-radius: 10px;
-        display: block;
-    }
-    .album-card {
-        display: grid;
-        grid-template-columns: 280px 1fr;
-        gap: 16px;
-        align-items: center;
-        border: 1px solid #eee;
-        padding: 16px;
-        border-radius: 12px;
-        background: #fff;
-    }
-    .album-art img { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; }
-    .cover-fallback {
-        width: 100%; height: 220px; border-radius: 10px;
-        display:flex; align-items:center; justify-content:center;
-        background: #f3f4f6; color: #374151; font-weight: 700;
-    }
-    .album-meta .btn {
-        display:inline-block; margin-top: 8px; padding: 10px 14px; border-radius: 10px;
-        background: #111827; color: #fff; text-decoration: none; font-weight: 700;
-    }
-    .album-meta .btn:hover { transform: translateY(-1px); }
-    @media (max-width: 720px){
-        .album-card { grid-template-columns: 1fr; }
-        .album-art img, .cover-fallback { height: 180px; }
-    }
-</style>

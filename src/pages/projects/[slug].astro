@@ -1,27 +1,68 @@
 ---
-import "../../styles/global.css";
-import { projects } from "../../data/projects";
+import MainLayout from '../../layout/MainLayout.astro';
 
-export function getStaticPaths() {
-    return projects.map((p) => ({
-        params: { slug: p.slug },
-        props: { project: p },
-    }));
+type Photo = {
+    id: string;
+    name: string;
+    thumb: string;
+    full: string;
+    createdTime: string;
+};
+
+const API = import.meta.env.PUBLIC_GALLERY_API as string;
+export const prerender = false;
+
+/** Build-time: tell Astro which /projects/:slug pages exist */
+export async function getStaticPaths() {
+    try {
+        const res = await fetch(`${API}?list=projects`, { cache: 'no-store' });
+        const json = (await res.json()) as { projects?: { slug: string }[] };
+        const list = json.projects ?? [];
+        return list.map((p) => ({ params: { slug: p.slug } }));
+    } catch {
+        // If the API is down at build time, don’t generate any pages.
+        return [];
+    }
 }
 
-const { project } = Astro.props;
-export const prerender = true;
----
-<main class="container">
-    <h1>{project.name}</h1>
-    {project.location && <p>{project.location}{project.year ? ` · ${project.year}` : ""}</p>}
+const { slug } = Astro.params;
 
-    {project.images?.length ? (
-            <div class="grid">
-                {project.images.map((src) => <img src={src} alt={project.name} loading="lazy" />)}
-            </div>
-    ) : (
-            <p>No images yet.</p>
-    )}
-</main>
+let items: Photo[] = [];
+let loadError: string | null = null;
+
+try {
+    const res = await fetch(`${API}?project=${slug}`, { cache: 'reload' });
+    if (res.ok) {
+        const json = (await res.json()) as { items?: Photo[] };
+        items = json.items ?? [];
+    } else {
+        loadError = `HTTP ${res.status}`;
+    }
+} catch (e: any) {
+    loadError = e?.message ?? 'Network error';
+}
+const sized = (url: string, w = 2000) => url.replace(/=s0$/, `=w${w}`);
+---
+
+<MainLayout title="Project">
+    <section class="gallery grid-cards">
+        {loadError && <p class="error">Failed to load photos: {loadError}</p>}
+        {items.length > 0 ? (
+            items.map((i) => (
+                    <a class="card card-photo" href={sized(i.full)} target="_blank" rel="noopener">
+                        <img
+                                class="photo"
+                                loading="lazy"
+                                decoding="async"
+                                referrerpolicy="no-referrer"
+                                src={i.thumb || i.full}
+                                alt={i.name}
+                        />
+                    </a>
+            ))
+        ) : (
+            !loadError && <p>No images uploaded yet.</p>
+        )}
+    </section>
+</MainLayout>
 

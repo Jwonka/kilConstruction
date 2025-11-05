@@ -1,30 +1,74 @@
 ---
-import MainLayout from "../../layout/MainLayout.astro";
-import { projects } from "../../data/projects";
-const base = import.meta.env.BASE_URL;
+import MainLayout from '../../layout/MainLayout.astro';
+
+type Preview = { thumb?: string; full?: string; name?: string };
+type Project = {
+    slug: string;
+    name: string;
+    summary?: string;
+    year?: string;
+    location?: string;
+    previews?: Preview[];
+    images?: Preview | null;
+};
+
+const api = import.meta.env.PUBLIC_GALLERY_API as string;
+
+let projects: Project[] = [];
+let loadError: string | null = null;
+
+try {
+    const res = await fetch(`${api}?list=projects`, { cache: 'reload' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = (await res.json()) as { projects?: Project[] };
+    projects = json.projects ?? [];
+} catch (e: any) {
+    loadError = e?.message ?? 'Network error';
+}
 ---
 
-<MainLayout title="Projects | KIL Construction" description="Recent project photo albums">
-    <h1>Projects</h1>
-    <p>Browse recent jobs and results.</p>
+<MainLayout title="Projects">
+    <section class="grid-cards">
+        {loadError && <p class="error">Failed to load: {loadError}</p>}
 
-    <div class="grid">
-        {projects.map(p => (
-                <a class="card" href={`${base}projects/${p.slug}/`}>
-                    {p.cover && <img src={p.cover} alt="" loading="lazy" />}
-                    <div class="meta">
-                        <h3>{p.name}</h3>
-                        {(p.location || p.year) && <p class="small">{[p.location, p.year].filter(Boolean).join(" · ")}</p>}
-                    </div>
-                </a>
-        ))}
-    </div>
+        {projects.length > 0 ? (
+            projects.map((p) => {
+                const imgs = p.previews && p.previews.length ? p.previews : (p.images ? [p.images] : []);
+                const first = imgs[0];
+                const src = first?.thumb || first?.full || '/placeholder-600x400.png';
+                const rotList = imgs.map(i => i.thumb || i.full || '/placeholder-600x400.png');
 
-    <style>
-        .grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); }
-        .card { border:1px solid #e6e6e6; border-radius:12px; overflow:hidden; text-decoration:none; color:inherit; background:#fff; }
-        .card img { width:100%; height:180px; object-fit:cover; display:block; }
-        .meta { padding:12px 14px; }
-        .small { color:#667085; margin:6px 0 0; }
-    </style>
+                return (
+                    <a class="card card-photo rotatable" href={`/projects/${p.slug}`} aria-label={p.name}>
+                        <img
+                            class="photo"
+                            loading="lazy"
+                            decoding="async"
+                            referrerpolicy="no-referrer"
+                            src={src}
+                            alt={first?.name ?? p.name}
+                            data-rot-srcs={JSON.stringify(rotList)}
+                        />
+                        <h3 class="mt-2">{p.name}</h3>
+                        {p.summary && <p class="muted">{p.summary}</p>}
+                        {(p.location || p.year) && (<p class="muted">{[p.location, p.year].filter(Boolean).join(' · ')}</p>)}
+                    </a>
+                );
+            })) : (!loadError && <p>No images uploaded yet.</p>)
+        }
+    </section>
+        <script>
+            (function () {
+                const els = document.querySelectorAll('.rotatable img.photo[data-rot-srcs]');
+                els.forEach((img) => {
+                    const list = JSON.parse(img.getAttribute('data-rot-srcs') || '[]');
+                    if (!Array.isArray(list) || list.length < 2) return;
+                    let i = 0;
+                    setInterval(() => {
+                        i = (i + 1) % list.length;
+                        img.src = list[i];
+                    }, 4000);
+                });
+            })();
+        </script>
 </MainLayout>

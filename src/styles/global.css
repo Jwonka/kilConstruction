@@ -96,6 +96,9 @@ input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;
 button.btn{cursor:pointer;text-align:center}
 button{ all:unset; box-sizing:border-box; }
 .gallery-embed{aspect-ratio:16/9;width:100%;border:0;border-radius:12px;overflow:hidden}
+.gallery {display: grid;grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));gap: 14px;}
+.card-photo .photo {width: 100%;height: 220px;object-fit: cover;display: block;border-radius: 6px;box-shadow: 0 2px 8px rgba(0,0,0,0.15);transition: transform 0.2s ease;}
+.card-photo:hover .photo {transform: scale(1.03);}
 @media (max-width:900px){ :root{ --header-h: 76px; } }
 @media (max-width: 840px) {
     .contact-form .btn {
@@ -111,9 +114,14 @@ button{ all:unset; box-sizing:border-box; }
     .card::before{ height: 4px; }
     main{ padding-bottom: 18px; }
 }
-@media (max-width:640px){ :root{ --header-h: 64px; }.btn{padding:8px 14px;} }
+@media (max-width:640px){
+    :root{ --header-h: 64px; }
+    .btn{padding:8px 14px;}
+    .card:hover, .card:focus-within{
+        transform:none;
+        box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    }
+}
 
 /* Respect users that prefer less motion */
-@media (prefers-reduced-motion: reduce){
-    .btn{ transition: none; }
-}
+@media (prefers-reduced-motion: reduce){  .btn{ transition: none; }  }
