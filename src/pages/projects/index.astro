@@ -3,21 +3,27 @@ import MainLayout from '../../layout/MainLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { toCards, type Project } from '../../utils/projectCards';
 
-const api = import.meta.env.PUBLIC_GALLERY_API as string;
+const api = import.meta.env.PUBLIC_GALLERY_API as string | undefined;
 
 let projects: Project[] = [];
 let loadError: string | null = null;
 
-try {
-    const res = await fetch(`${api}?list=projects`, { cache: 'force-cache' });
-    if (res.ok) {
-        const json = (await res.json()) as { projects?: Project[] };
-        projects = json.projects ?? [];
-    } else {
-        loadError = `HTTP ${res.status}`;
+if (!api) {
+    loadError = 'Missing PUBLIC_GALLERY_API';
+} else {
+    try {
+        const res = await fetch(`${api}?list=projects`, { cache: 'force-cache' });
+        if (!res.ok) {
+            loadError = `HTTP ${res.status}`;
+        } else if (!res.headers.get('content-type')?.includes('application/json')) {
+            loadError = 'Bad response (not JSON)';
+        } else {
+            const json = (await res.json()) as { projects?: Project[] };
+            projects = json.projects ?? [];
+        }
+    } catch (e: any) {
+        loadError = e?.message ?? 'Network error';
     }
-} catch (e: any) {
-    loadError = e?.message ?? 'Network error';
 }
 
 const cards = toCards(projects);
