@@ -16,13 +16,16 @@ const { p, first, src, rotList } = Astro.props;
 
 <a class="card card-photo rotatable" href={`/projects/${p.slug}`} aria-label={p.name}>
     <img
-            class="photo"
-            loading="lazy"
-            decoding="async"
-            referrerpolicy="no-referrer"
-            src={src}
-            alt={first?.name ?? p.name}
-            data-rot-srcs={JSON.stringify(rotList)}
+        class="photo"
+        loading="lazy"
+        decoding="async"
+        referrerpolicy="no-referrer"
+        width="800"
+        height="600"
+        style="aspect-ratio: 4/3; width: 100%; height: auto;"
+        src={src}
+        alt={first?.name ?? p.name}
+        data-rot-srcs={JSON.stringify(rotList)}
     />
     <h3 class="mt-2">{p.name}</h3>
     {p.summary && <p class="muted">{p.summary}</p>}

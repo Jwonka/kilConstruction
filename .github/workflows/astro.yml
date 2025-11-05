@@ -17,6 +17,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      PUBLIC_GALLERY_API: ${{ secrets.PUBLIC_GALLERY_API }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
