@@ -1,6 +1,5 @@
 ---
 import MainLayout from '../../layout/MainLayout.astro';
-import type { Project } from '../../utils/projectCards';
 
 type Photo = {
     id: string;
@@ -15,27 +14,49 @@ export const prerender = true;
 /** Build-time: tell Astro which /projects/:slug pages exist */
 export async function getStaticPaths() {
     const base = import.meta.env.PUBLIC_GALLERY_API as string | undefined;
-    if (!base) return [];
 
-    const res = await fetch(`${base}?list=projects`, { cache: 'force-cache' });
-
-    if (!res.ok) {
-        console.warn(`getStaticPaths: HTTP ${res.status}`);
-        return [];
-    }
-    if (!res.headers.get('content-type')?.includes('application/json')) {
-        console.warn('getStaticPaths: bad response (not JSON)');
+    // If missing, skip building any /projects/[slug] pages
+    if (!base) {
+        console.warn('getStaticPaths: PUBLIC_GALLERY_API missing; skipping project pages.');
         return [];
     }
 
-    const json = (await res.json()) as { projects?: Project[]; error?: string; message?: string };
-    if (json.error) {
-        console.warn(`getStaticPaths: ${json.message || json.error}`);
+    // Validate it's an absolute URL BEFORE using it
+    let api: URL;
+    try {
+        api = new URL(base); // throws if not absolute (e.g., '', 'undefined', '***')
+    } catch (e) {
+        console.warn('getStaticPaths: PUBLIC_GALLERY_API is not a valid URL; skipping.');
         return [];
     }
-    const projects = json.projects ?? [];
-    return projects.map((p) => ({ params: { slug: p.slug }, props: { slug: p.slug } }));
+
+    try {
+        api.searchParams.set('list', 'projects');
+        const res = await fetch(api, { cache: 'no-store' });
+
+        if (!res.ok) {
+            console.warn(`getStaticPaths: HTTP ${res.status}; skipping.`);
+            return [];
+        }
+        const ct = res.headers.get('content-type') || '';
+        if (!ct.includes('application/json')) {
+            console.warn('getStaticPaths: non-JSON response; skipping.');
+            return [];
+        }
+
+        const json = (await res.json()) as { projects?: { slug: string }[]; error?: string; message?: string };
+        if (json.error) {
+            console.warn('getStaticPaths:', json.message || json.error);
+            return [];
+        }
+
+        const projects = json.projects ?? [];
+        return projects.map((p) => ({ params: { slug: p.slug }, props: { slug: p.slug } }));
+    } catch (err) {
+        console.warn('getStaticPaths: fetch failed; skipping.', err);
+        return [];
     }
+}
 
 const { slug } = Astro.params;
 
@@ -45,27 +66,33 @@ let loadError: string | null = null;
 try {
     const base = import.meta.env.PUBLIC_GALLERY_API as string | undefined;
     if (!base) {
-        console.warn('PUBLIC_GALLERY_API missing, no project pages will be built.');
-        return [];
-    }
-
-    const res = await fetch(`${base}?project=${slug}`, { cache: 'force-cache' });
-    if (!res.ok) {
-        loadError = `HTTP ${res.status}`;
-    } else if (!res.headers.get('content-type')?.includes('application/json')) {
-        loadError = 'Bad response (not JSON)';
+        loadError = 'Missing PUBLIC_GALLERY_API';
     } else {
-        const json = (await res.json()) as { items?: Photo[]; error?: string; message?: string };
-        if (json.error) {
-            loadError = json.message || json.error;
-        } else {
-            items = json.items ?? [];
+        // validate URL and build ?project param safely
+        let api: URL;
+        try {
+            api = new URL(base);
+            api.searchParams.set('project', slug);
+        } catch {
+            loadError = 'Bad API URL';
+        }
+
+        if (!loadError) {
+            const res = await fetch(api!, { cache: 'force-cache' });
+            if (!res.ok) {
+                loadError = `HTTP ${res.status}`;
+            } else if (!res.headers.get('content-type')?.includes('application/json')) {
+                loadError = 'Bad response (not JSON)';
+            } else {
+                const json = (await res.json()) as { items?: Photo[]; error?: string; message?: string };
+                if (json.error) loadError = json.message || json.error;
+                else items = json.items ?? [];
+            }
         }
     }
 } catch (e: any) {
     loadError = e?.message ?? 'Network error';
 }
-
 const sized = (url: string, w = 2000) => url.replace(/=s0$/, `=w${w}`);
 ---
 
