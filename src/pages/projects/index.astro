@@ -10,7 +10,7 @@ let loadError: string | null = null;
 
 
 try {
-    const res = await fetch(`${API}?list=projects`, { cache: 'force-cache' });
+    const res = await fetch(`${API}?list=projects`, { cache: 'no-store' });
     if (!res.ok) {
         loadError = `HTTP ${res.status}`;
     } else if (!res.headers.get('content-type')?.includes('application/json')) {

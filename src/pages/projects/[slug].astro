@@ -81,13 +81,14 @@ try {
 
         const apiItems = new URL(api);
         apiItems.searchParams.set('project', slug!);
-        const res = await fetch(apiItems, { cache: 'force-cache' });
+        const res = await fetch(apiItems, { cache: 'no-store' });
 
         if (!res.ok) loadError = `HTTP ${res.status}`;
         else if (!res.headers.get('content-type')?.includes('application/json')) loadError = 'Bad response (not JSON)';
         else {
             const json = (await res.json()) as { items?: Photo[]; project?: { name?: string; description?: string } };
             items = json.items ?? [];
+            items.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
             if (json.project?.name) projectName = json.project.name;
             if (json.project?.description) projectDesc = json.project.description;
         }
@@ -95,7 +96,7 @@ try {
         if (!projectDesc) {
             const apiList = new URL(api);
             apiList.searchParams.set('list', 'projects');
-            const res2 = await fetch(apiList, { cache: 'force-cache' });
+            const res2 = await fetch(apiList, { cache: 'no-store' });
             if (res2.ok && res2.headers.get('content-type')?.includes('application/json')) {
                 const j2 = (await res2.json()) as { projects?: { slug: string; name?: string; description?: string }[] };
                 const m = j2.projects?.find(p => p.slug === slug);
