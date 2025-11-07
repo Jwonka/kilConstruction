@@ -1,42 +1,33 @@
 ---
 import MainLayout from '../../layout/MainLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
-import { toCards, type Project } from '../../utils/projectCards';
+import { toCards, type Card } from "../../utils/projectCards";
 
-const API = 'https://kilcon.work/api/gallery';
+const API = "https://kilcon.work/api/gallery";
 
-let projects: Project[] = [];
-let loadError: string | null = null;
+type ListResponse = { projects?: any[] };
 
-
+let cards: Card[]= [];
 try {
-    const res = await fetch(`${API}?list=projects`, { cache: 'no-store' });
-    if (!res.ok) {
-        loadError = `HTTP ${res.status}`;
-    } else if (!res.headers.get('content-type')?.includes('application/json')) {
-        loadError = 'Bad response (not JSON)';
-    } else {
-        const json = (await res.json()) as { projects?: Project[] };
-        projects = json.projects ?? [];
+    const res = await fetch(`${API}?list=projects`, { cache: "no-store" });
+    if (res.ok && res.headers.get("content-type")?.includes("application/json")) {
+        const json = (await res.json()) as ListResponse;
+        cards = toCards(json.projects ?? []);
     }
-} catch (e: any) {
-    loadError = e?.message ?? 'Network error';
-}
-
-
-const cards = toCards(projects);
+} catch {}
 ---
 
-<MainLayout title="Projects" noSticky>
+<MainLayout title="Projects">
     <h1 class="page-head container">Projects</h1>
-    <section class="container page-section grid grid--projects">
-        {loadError && <p class="error">Failed to load: {loadError}</p>}
-        {cards.length > 0 &&
-            cards.map(({ p, first, src, rotList }) => (
-                    <ProjectCard p={p} first={first} src={src} rotList={rotList} />
-            ))
-        }
-        {!loadError && cards.length === 0 && <p>No images uploaded yet.</p>}
+    <section class="container page-section">
+        <div class="grid grid--cards">
+            {cards.map((c) => <ProjectCard p={c.p}
+                first={c.first}
+                src={c.src}
+                rotList={c.rotList} />)}
+        </div>
     </section>
-    <script src="/js/rotator.js" is:inline></script>
+
+    <!-- load the rotator -->
+    <script src="/js/rotator.js" defer></script>
 </MainLayout>

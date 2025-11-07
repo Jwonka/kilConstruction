@@ -1,17 +1,17 @@
-import type { Project, PreviewItem } from "../utils/projects"; // adjust path
+import type { Project, PreviewItem } from "./projects.ts";
 
-const pickCover = (p: Project, samples: string[]): string => {
-    return (
-        p.coverThumb ||
-        p.coverFull ||
-        samples[0] ||
-        "/img/placeholder-project.jpg"
-    );
+export type Card = {
+    p: Pick<Project, "slug" | "name" | "summary" | "location" | "year">;
+    first?: { name?: string };
+    src: string;
+    rotList: string[];
 };
 
-export function toCards(projects: Project[]) {
+const pickCover = (p: Project, samples: string[]): string =>
+    p.coverThumb || p.coverFull || samples[0] || "/img/placeholder-project.jpg";
+
+export function toCards(projects: Project[]): Card[] {
     return (projects ?? []).map((p) => {
-        // Prefer items (detail payload) then samples (list payload)
         const sampleUrls: string[] = (p.items ?? p.samples ?? [])
             .map((i: PreviewItem) => i?.thumb || i?.full || "")
             .filter(Boolean);
