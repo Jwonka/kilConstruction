@@ -32,7 +32,7 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
         <!-- RIGHT: form -->
         <section class="card contact-panel">
             <h2>Tell us about your project</h2>
-            <div id="result" class="result" aria-live="polite"></div>
+
             <form class="contact-form" method="POST" action={import.meta.env.PUBLIC_CONTACT_ENDPOINT}>
                 <input type="hidden" name="access_key" value={ACCESS_KEY} />
                 <input type="hidden" name="from_name" value="kilcon.work website" />
@@ -60,6 +60,7 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
 
                 <button class="btn" type="submit">Send</button>
+                <div id="result" class="result" aria-live="polite"></div>
 
             </form>
         </section>
@@ -75,7 +76,6 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 res.textContent = "Thanks! We’ll be in touch shortly.";
                 res.classList.add('ok');
                 url.searchParams.delete('sent');
-                // silence the IntelliJ warning: explicitly ignore return value
                 void window.history.replaceState(null, "", url.pathname + url.search);
             } else if (err) {
                 res.textContent = err === 'captcha'
@@ -141,8 +141,11 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
             display:grid;
             gap: 10px;
         }
-
-        .result { font-size: .95rem;color: var(--muted);margin: 12px 0; padding: 10px 12px; border-radius: 8px; font-weight: 600; }
+        .result{
+            margin: 12px 0; padding: 10px 12px; border-radius: 8px; font-weight: 600;
+            font-size: .95rem;
+            color: var(--muted);
+        }
         .result.ok    { background: #ecfdf3; color: #065f46; border: 1px solid #a7f3d0; }
         .result.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
