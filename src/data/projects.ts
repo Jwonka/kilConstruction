@@ -3,9 +3,21 @@ export type Project = {
     name: string;
     location?: string;
     year?: string;
-    cover?: string;        // thumbnail
-    images?: string[];     // local images
+    cover?: string;
+    coverThumb?: string;
+    coverFull?: string;
+    images?: string[];
     albumUrl?: string;
+    summary?: string;
+    samples?: PreviewItem[];
+    items?: PreviewItem[];
+};
+
+export type PreviewItem = {
+    name?: string;
+    thumb?: string;
+    full?: string;
+    createdTime?: string;
 };
 
 export const projects: Project[] = [

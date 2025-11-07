@@ -1,20 +1,24 @@
-export type Preview = { thumb?: string; full?: string; name?: string };
-export type Project = {
-    slug: string;
-    name: string;
-    summary?: string;
-    year?: string;
-    location?: string;
-    previews?: Preview[];
-    images?: Preview | null;
+import type { Project, PreviewItem } from "../utils/projects"; // adjust path
+
+const pickCover = (p: Project, samples: string[]): string => {
+    return (
+        p.coverThumb ||
+        p.coverFull ||
+        samples[0] ||
+        "/img/placeholder-project.jpg"
+    );
 };
 
 export function toCards(projects: Project[]) {
-    return projects.map((p) => {
-        const imgs = p.previews?.length ? p.previews : (p.images ? [p.images] : []);
-        const first = imgs[0];
-        const src = first?.thumb || first?.full || '/placeholder-600x400.png';
-        const rotList = imgs.map((i) => i.thumb || i.full || '/placeholder-600x400.png');
-        return { p, first, src, rotList };
+    return (projects ?? []).map((p) => {
+        // Prefer items (detail payload) then samples (list payload)
+        const sampleUrls: string[] = (p.items ?? p.samples ?? [])
+            .map((i: PreviewItem) => i?.thumb || i?.full || "")
+            .filter(Boolean);
+
+        const cover = pickCover(p, sampleUrls);
+        const rotList = sampleUrls.slice(0, 8);
+
+        return { p, first: { name: p.name }, src: cover, rotList };
     });
 }

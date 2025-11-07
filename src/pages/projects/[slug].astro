@@ -108,6 +108,15 @@ try {
 } catch (e: any) {
     loadError = e?.message ?? 'Network error';
 }
+
+if (Array.isArray(items) && items.length) {
+    // By filename with numeric sorting (1,2,10 is correct)
+    items.sort((a, b) =>
+        String(a.name || "").localeCompare(String(b.name || ""), undefined, {
+            numeric: true, sensitivity: "base"
+        })
+    );
+}
 // noinspection JSUnusedGlobalSymbols
 const sized = (url: string, w = 2000) => url.replace(/=s0$/, `=w${w}`);
 const cropName = (s: string) => s.replace(/\.[^.]+$/, '').replace(/_/g, ' ');
