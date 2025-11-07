@@ -1,11 +1,12 @@
 ---
 import MainLayout from '../../layout/MainLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
-import { toCards, type Card } from "../../utils/projectCards";
+import { toCards } from "../../utils/projectCards";
 
 const API = "https://kilcon.work/api/gallery";
 
 type ListResponse = { projects?: any[] };
+type Card = ReturnType<typeof toCards>[number];
 
 let cards: Card[]= [];
 try {
