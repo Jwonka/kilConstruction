@@ -32,7 +32,7 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
         <!-- RIGHT: form -->
         <section class="card contact-panel">
             <h2>Tell us about your project</h2>
-            <form id="contact-form" class="contact-form">
+            <form class="contact-form" method="POST" action={import.meta.env.PUBLIC_CONTACT_ENDPOINT}>
                 <input type="hidden" name="access_key" value={ACCESS_KEY} />
                 <input type="hidden" name="from_name" value="kilcon.work website" />
                 <input type="hidden" name="subject" value="New Quote Request from kilcon.work" />
@@ -50,41 +50,32 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 <input id="address" name="address" />
 
                 <label for="message">Project Details</label>
-                <textarea id="message" name="message" rows="6" required></textarea>
+                <textarea id="message" name="message" rows="6" required minlength="10"></textarea>
+
+                <input type="text" name="company" tabindex="-1" autocomplete="off" style="display:none" />
+
+                <!-- Turnstile widget  -->
+                <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div>
+                <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
                 <button class="btn" type="submit">Send</button>
                 <div id="result" class="result" aria-live="polite"></div>
+
             </form>
         </section>
     </div>
-
     <script is:inline>
-        const form = document.getElementById('contact-form');
-        const result = document.getElementById('result');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            result.textContent = 'Sending…';
-            const formData = new FormData(form);
-            const payload = Object.fromEntries(formData);
-            try {
-                const r = await fetch('https://api.web3forms.com/submit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await r.json();
-                if (r.ok) {
-                    result.textContent = 'Thanks! We received your message.';
-                    form.reset();
-                } else {
-                    result.textContent = data.message || 'Something went wrong.';
-                }
-            } catch {
-                result.textContent = 'Network error. Please try again.';
+        (function () {
+            const res = document.getElementById('result');
+            const url = new URL(window.location.href);
+            if (url.searchParams.get('sent') === '1') {
+                res.textContent = "Thanks! We’ll be in touch shortly.";
+                url.searchParams.delete('sent');
+                // silence the IntelliJ warning: explicitly ignore return value
+                void window.history.replaceState(null, "", url.pathname + url.search);
             }
-        });
+        })();
     </script>
-
     <style>
         .contact-title{
             text-align:center;
