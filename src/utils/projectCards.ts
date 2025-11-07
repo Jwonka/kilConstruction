@@ -8,7 +8,7 @@ export type Card = {
 };
 
 const pickCover = (p: Project, samples: string[]): string =>
-    p.coverThumb || p.coverFull || samples[0] || "/img/placeholder-project.jpg";
+    p.coverThumb || p.coverFull || samples[0];
 
 export function toCards(projects: Project[]): Card[] {
     return (projects ?? []).map((p) => {

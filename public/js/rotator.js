@@ -8,7 +8,7 @@
             const i = new Image();
             i.referrerPolicy = 'no-referrer';
             i.src = url;
-        }, Math.random() * 2000);
+        }, Math.random() * 1000);
     };
 
     const start = (img) => {

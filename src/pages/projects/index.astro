@@ -3,7 +3,7 @@ import MainLayout from '../../layout/MainLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { toCards } from "../../utils/projectCards";
 
-const API = "https://kilcon.work/api/gallery";
+const API = "/api/gallery";
 
 type ListResponse = { projects?: any[] };
 type Card = ReturnType<typeof toCards>[number];
@@ -13,7 +13,9 @@ try {
     const res = await fetch(`${API}?list=projects`, { cache: "no-store" });
     if (res.ok && res.headers.get("content-type")?.includes("application/json")) {
         const json = (await res.json()) as ListResponse;
-        cards = toCards(json.projects ?? []);
+        const list = (json.projects ?? []);
+
+        cards = toCards(list);
     }
 } catch {}
 ---

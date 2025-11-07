@@ -1,44 +1,55 @@
 (() => {
-    const API_URL = "https://kilcon.work/api/gallery";
-    const cardEls = document.querySelectorAll(".card.card-media");
+    const API = "https://kilcon.work/api/gallery";
+    const cards = [...document.querySelectorAll(".card.card-media")];
+    if (!("IntersectionObserver" in window) || !cards.length) return;
 
-    if (!("IntersectionObserver" in window)) return;
+    let inFlight = 0, MAX = 3;
+    const q = [];
 
-    const io = new IntersectionObserver(async (entries, obs) => {
-        for (const entry of entries) {
-            if (!entry.isIntersecting) continue;
+    const pump = () => {
+        while (inFlight < MAX && q.length) {
+            const fn = q.shift();
+            inFlight++; fn().finally(() => { inFlight--; pump(); });
+        }
+    };
 
-            const card = entry.target;
-            const anchor = card.closest('a[href^="/projects/"]');
-            if (!anchor) { obs.unobserve(card); continue; }
+    const withTimeout = (p, ms = 8000) =>
+        Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error("timeout")), ms))]);
 
-            const href = anchor.getAttribute("href") || "";
-            const slug = href.split("/").filter(Boolean).pop();
-            const img = card.querySelector("img.photo");
-            if (!slug || !img) { obs.unobserve(card); continue; }
+    const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            const card = e.target;
+            io.unobserve(card);
 
-            try {
-                const resp = await fetch(`${API_URL}?project=${encodeURIComponent(slug)}`, { cache: "no-store" });
-                if (!resp.ok) { obs.unobserve(card); continue; }
-                const data = await resp.json();
+            q.push(async () => {
+                const a = card.closest('a[href^="/projects/"]'); if (!a) return;
+                const slug = (a.getAttribute("href") || "").split("/").filter(Boolean).pop();
+                const img = card.querySelector("img.photo"); if (!slug || !img) return;
 
-                const urls = (data?.items ?? [])
-                    .map(i => i?.thumb || i?.full)
-                    .filter(Boolean)
-                    .slice(0, 8);
+                try {
+                    const r = await withTimeout(fetch(`${API}?project=${encodeURIComponent(slug)}`, { cache: "no-store" }));
+                    if (!r.ok) return;
+                    const j = await r.json();
+                    const urls = (j?.items ?? [])
+                        .map(i => i?.thumb || i?.full)
+                        .filter(Boolean)
+                        .slice(0, 8);
+                    if (!urls.length) return;
 
-                if (urls.length) {
-                    if (!img.getAttribute("src")) img.src = urls[0]; // visible cover
+                    if (!img.getAttribute("src")) {
+                        img.src = urls[0];
+                        img.setAttribute("fetchpriority", "high"); // draw the cover faster
+                    }
                     if (urls.length > 1) {
-                        img.dataset.rotSrcs = JSON.stringify(urls);     // enable rotation
+                        img.dataset.rotSrcs = JSON.stringify(urls);
                         img.closest(".card-media")?.classList.add("rotatable");
                     }
-                }
-            } catch { /* ignore network errors */ }
-
-            obs.unobserve(card);
+                } catch { /* ignore */ }
+            });
+            pump();
         }
-    }, { rootMargin: "200px 0px" });
+    }, { rootMargin: "300px 0px" });
 
-    cardEls.forEach(el => io.observe(el));
+    cards.forEach(el => io.observe(el));
 })();

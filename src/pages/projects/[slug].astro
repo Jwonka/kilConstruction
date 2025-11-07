@@ -67,7 +67,7 @@ let projectName: string = slug!.replace(/-/g, ' ').replace(/\b\w/g, s => s.toUpp
 let projectDesc: string | undefined;
 
 try {
-    const API = 'https://kilcon.work/api/gallery';
+    const API = '/api/gallery';
     if (!API) {
         loadError = 'Missing PUBLIC_GALLERY_API';
     } else {
@@ -131,14 +131,16 @@ const cropName = (s: string) => s.replace(/\.[^.]+$/, '').replace(/_/g, ' ');
             <div class="grid grid--album">
                 {items.map((i) => (
                     <figure class="card card-media">
-                        <img
-                            class="photo"
-                            loading="lazy"
-                            decoding="async"
-                            referrerpolicy="no-referrer"
-                            src={i.thumb || i.full}
-                            alt={i.name}
-                            sizes="(max-width: 560px) 90vw, (max-width: 1200px) 45vw, 28vw" />
+                        <a href={i.full || i.thumb} target="_blank" rel="noopener">
+                            <img
+                                class="photo"
+                                loading="lazy"
+                                decoding="async"
+                                referrerpolicy="no-referrer"
+                                src={i.thumb || i.full}
+                                alt={i.name}
+                                sizes="(max-width: 560px) 90vw, (max-width: 1200px) 45vw, 28vw" />
+                        </a>
                         {(i.description || i.name) && (
                             <figcaption class="caption">{i.description || cropName(i.name)}</figcaption>
                         )}
