@@ -22,10 +22,14 @@ try {
     <h1 class="page-head container">Projects</h1>
     <section class="container page-section">
         <div class="grid grid--cards">
-            {cards.map((c) => <ProjectCard p={c.p}
-                first={c.first}
-                src={c.src}
-                rotList={c.rotList} />)}
+            {cards.map((c) => (
+                <ProjectCard
+                    p={c.p}
+                    first={c.first}
+                    src={c.src}
+                    rotList={c.rotList}
+                />
+            ))}
         </div>
     </section>
 
