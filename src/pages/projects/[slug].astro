@@ -14,10 +14,10 @@ export const prerender = true;
 
 /** Build-time: tell Astro which /projects/:slug pages exist */
 export async function getStaticPaths() {
-    const base = import.meta.env.PUBLIC_GALLERY_API as string | undefined;
+    const API = 'https://kilcon.work/api/gallery';
 
     // If missing, skip building any /projects/[slug] pages
-    if (!base) {
+    if (!API) {
         console.warn('getStaticPaths: PUBLIC_GALLERY_API missing; skipping project pages.');
         return [];
     }
@@ -25,7 +25,7 @@ export async function getStaticPaths() {
     // Validate it's an absolute URL BEFORE using it
     let api: URL;
     try {
-        api = new URL(base); // throws if not absolute (e.g., '', 'undefined', '***')
+        api = new URL(API);
     } catch (e) {
         console.warn('getStaticPaths: PUBLIC_GALLERY_API is not a valid URL; skipping.');
         return [];
@@ -67,14 +67,14 @@ let projectName: string = slug!.replace(/-/g, ' ').replace(/\b\w/g, s => s.toUpp
 let projectDesc: string | undefined;
 
 try {
-    const base = import.meta.env.PUBLIC_GALLERY_API as string | undefined;
-    if (!base) {
+    const API = 'https://kilcon.work/api/gallery';
+    if (!API) {
         loadError = 'Missing PUBLIC_GALLERY_API';
     } else {
         // validate URL and build ?project param safely
         let api: URL;
         try {
-            api = new URL(base);
+            api = new URL(API);
         } catch {
             throw new Error('Bad API URL');
         }
