@@ -32,7 +32,7 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
         <!-- RIGHT: form -->
         <section class="card contact-panel">
             <h2>Tell us about your project</h2>
-
+            <div id="result" class="result" aria-live="polite"></div>
             <form class="contact-form" method="POST" action={import.meta.env.PUBLIC_CONTACT_ENDPOINT}>
                 <input type="hidden" name="access_key" value={ACCESS_KEY} />
                 <input type="hidden" name="from_name" value="kilcon.work website" />
@@ -60,7 +60,7 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
 
                 <button class="btn" type="submit">Send</button>
-                <div id="result" class="result" aria-live="polite"></div>
+
 
             </form>
         </section>
