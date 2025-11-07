@@ -44,7 +44,7 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 <label for="email">Email</label>
                 <input id="email" name="email" type="email" required />
 
-                <label for="phone">Phone (optional)</label>
+                <label for="phone">Phone (optional)${esc(phoneClean)}</label>
                 <input id="phone" name="phone" inputmode="tel" />
 
                 <label for="address">Job Address (optional)</label>
@@ -56,7 +56,7 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 <input type="text" name="company" tabindex="-1" autocomplete="off" style="display:none" />
 
                 <!-- Turnstile widget  -->
-                <div class="cf-turnstile" data-sitekey={String(import.meta.env.PUBLIC_TURNSTILE_SITE_KEY)}></div>
+                <div class="cf-turnstile" data-sitekey={String(import.meta.env.PUBLIC_TURNSTILE_SITE_KEY)} data-refresh-expired="auto" data-refresh-timeout="auto"></div>
                 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
 
                 <button class="btn" type="submit">Send</button>
@@ -69,9 +69,9 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
         (function () {
             const res = document.getElementById('result');
             if (!res) return;
+            const url = new URL(window.location.href);
             const sent = url.searchParams.get('sent');
             const err  = url.searchParams.get('err');
-            const url = new URL(window.location.href);
             if (url.searchParams.get('sent') === '1') {
                 res.textContent = "Thanks! We’ll be in touch shortly.";
                 res.classList.add('ok');
@@ -85,6 +85,19 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 url.searchParams.delete('err');
                 history.replaceState({}, "", url.pathname + url.search);
             }
+        })();
+    </script>
+    <script is:inline>
+        (function(){
+            const form = document.querySelector('form.contact-form');
+            form?.addEventListener('submit', (e) => {
+                const token = document.querySelector('input[name="cf-turnstile-response"]')?.value || "";
+                if (!token) {
+                    e.preventDefault();
+                    const res = document.getElementById('result');
+                    if (res) { res.textContent = "Please complete the CAPTCHA."; res.classList.add('error'); }
+                }
+            });
         })();
     </script>
     <style>
