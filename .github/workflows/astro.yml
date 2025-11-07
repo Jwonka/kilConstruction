@@ -37,6 +37,7 @@ jobs:
           PUBLIC_GALLERY_API: ${{ vars.PUBLIC_GALLERY_API }}
           # Cloudflare Worker route
           PUBLIC_CONTACT_ENDPOINT: ${{ vars.PUBLIC_CONTACT_ENDPOINT }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
