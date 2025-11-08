@@ -1,6 +1,9 @@
 ---
 import MainLayout from '../../layout/MainLayout.astro';
 
+const SITE = new URL(import.meta.env.DEV ? 'https://kilcon.work' : 'https://kilcon.work');
+const API = new URL('/api/gallery', SITE);
+
 type Photo = {
     id: string;
     name: string;
@@ -12,12 +15,6 @@ type Photo = {
 
 /** Build static pages for every project folder */
 export const prerender = true;
-
-const SITE =
-      (typeof Astro !== 'undefined' && (Astro as any)?.site)
-        ? new URL((Astro as any).site)
-            : new URL('https://kilcon.work');
-const API = new URL('/api/gallery', SITE);
 
 /** Tell Astro which /projects/:slug pages exist at build time */
 export async function getStaticPaths() {

@@ -3,10 +3,7 @@ import MainLayout from '../../layout/MainLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { toCards } from "../../utils/projectCards";
 
-const SITE =
-      (typeof Astro !== 'undefined' && (Astro as any)?.site)
-        ? new URL((Astro as any).site)
-            : new URL('https://kilcon.work');
+const SITE = new URL(import.meta.env.DEV ? 'https://kilcon.work' : 'https://kilcon.work');
 const API = new URL('/api/gallery', SITE);
 
 type ListResponse = { projects?: any[] };
