@@ -13,16 +13,15 @@ type Photo = {
 /** Build static pages for every project folder */
 export const prerender = true;
 
-function siteOrigin() {
-    // Use configured site first (Astro 4 exposes Astro.site when `site` is set),
-    // otherwise fall back to your production origin.
-    try { if ((Astro as any).site) return new URL((Astro as any).site); } catch {}
-    return new URL('https://kilcon.work');
-}
+const SITE =
+      (typeof Astro !== 'undefined' && (Astro as any)?.site)
+        ? new URL((Astro as any).site)
+            : new URL('https://kilcon.work');
+const API = new URL('/api/gallery', SITE);
 
 /** Tell Astro which /projects/:slug pages exist at build time */
 export async function getStaticPaths() {
-    const API = new URL('/api/gallery', siteOrigin());
+    const API = new URL('/api/gallery', SITE);
     API.searchParams.set('list', 'projects');
 
     try {
@@ -44,7 +43,7 @@ let projectName = slug.replace(/-/g, ' ').replace(/\b\w/g, s => s.toUpperCase())
 let projectDesc: string | undefined;
 
 try {
-    const API = new URL('/api/gallery', siteOrigin());
+    const API = new URL('/api/gallery', SITE);
 
     // Fetch album items
     const apiItems = new URL(API);
