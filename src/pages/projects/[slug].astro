@@ -10,115 +10,74 @@ type Photo = {
     description?: string;
     };
 
+/** Build static pages for every project folder */
 export const prerender = true;
 
-/** Build-time: tell Astro which /projects/:slug pages exist */
+function siteOrigin() {
+    // Use configured site first (Astro 4 exposes Astro.site when `site` is set),
+    // otherwise fall back to your production origin.
+    try { if ((Astro as any).site) return new URL((Astro as any).site); } catch {}
+    return new URL('https://kilcon.work');
+}
+
+/** Tell Astro which /projects/:slug pages exist at build time */
 export async function getStaticPaths() {
-    const API = 'https://kilcon.work/api/gallery';
-
-    // If missing, skip building any /projects/[slug] pages
-    if (!API) {
-        console.warn('getStaticPaths: PUBLIC_GALLERY_API missing; skipping project pages.');
-        return [];
-    }
-
-    // Validate it's an absolute URL BEFORE using it
-    let api: URL;
-    try {
-        api = new URL(API);
-    } catch (e) {
-        console.warn('getStaticPaths: PUBLIC_GALLERY_API is not a valid URL; skipping.');
-        return [];
-    }
+    const API = new URL('/api/gallery', siteOrigin());
+    API.searchParams.set('list', 'projects');
 
     try {
-        api.searchParams.set('list', 'projects');
-        const res = await fetch(api, { cache: 'no-store' });
-
-        if (!res.ok) {
-            console.warn(`getStaticPaths: HTTP ${res.status}; skipping.`);
-            return [];
-        }
-        const ct = res.headers.get('content-type') || '';
-        if (!ct.includes('application/json')) {
-            console.warn('getStaticPaths: non-JSON response; skipping.');
-            return [];
-        }
-
-        const json = (await res.json()) as { projects?: { slug: string }[]; error?: string; message?: string };
-        if (json.error) {
-            console.warn('getStaticPaths:', json.message || json.error);
-            return [];
-        }
-
+        const res = await fetch(API, { cache: 'no-store' });
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return [];
+        const json = (await res.json()) as { projects?: { slug: string }[] };
         const projects = json.projects ?? [];
-        return projects.map((p) => ({ params: { slug: p.slug }, props: { slug: p.slug } }));
-    } catch (err) {
-        console.warn('getStaticPaths: fetch failed; skipping.', err);
+        return projects.map(p => ({ params: { slug: p.slug }, props: { slug: p.slug } }));
+    } catch {
         return [];
     }
 }
 
-const { slug } = Astro.params;
+const { slug } = Astro.params as { slug: string };
 
 let items: Photo[] = [];
 let loadError: string | null = null;
-let projectName: string = slug!.replace(/-/g, ' ').replace(/\b\w/g, s => s.toUpperCase());
+let projectName = slug.replace(/-/g, ' ').replace(/\b\w/g, s => s.toUpperCase());
 let projectDesc: string | undefined;
 
 try {
-    const API = '/api/gallery';
-    if (!API) {
-        loadError = 'Missing PUBLIC_GALLERY_API';
+    const API = new URL('/api/gallery', siteOrigin());
+
+    // Fetch album items
+    const apiItems = new URL(API);
+    apiItems.searchParams.set('project', slug);
+    const r1 = await fetch(apiItems, { cache: 'no-store' });
+    if (!r1.ok) {
+        loadError = `HTTP ${r1.status}`;
+    } else if (!r1.headers.get('content-type')?.includes('application/json')) {
+        loadError = 'Bad response (not JSON)';
     } else {
-        // validate URL and build ?project param safely
-        let api: URL;
-        try {
-            api = new URL(API);
-        } catch {
-            throw new Error('Bad API URL');
-        }
+        const j1 = (await r1.json()) as { items?: Photo[]; project?: { name?: string; description?: string } };
+        items = j1.items ?? [];
+        items.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+        if (j1.project?.name) projectName = j1.project.name;
+        if (j1.project?.description) projectDesc = j1.project.description;
+    }
 
-        const apiItems = new URL(api);
-        apiItems.searchParams.set('project', slug!);
-        const res = await fetch(apiItems, { cache: 'no-store' });
-
-        if (!res.ok) loadError = `HTTP ${res.status}`;
-        else if (!res.headers.get('content-type')?.includes('application/json')) loadError = 'Bad response (not JSON)';
-        else {
-            const json = (await res.json()) as { items?: Photo[]; project?: { name?: string; description?: string } };
-            items = json.items ?? [];
-            items.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
-            if (json.project?.name) projectName = json.project.name;
-            if (json.project?.description) projectDesc = json.project.description;
-        }
-
-        if (!projectDesc) {
-            const apiList = new URL(api);
-            apiList.searchParams.set('list', 'projects');
-            const res2 = await fetch(apiList, { cache: 'no-store' });
-            if (res2.ok && res2.headers.get('content-type')?.includes('application/json')) {
-                const j2 = (await res2.json()) as { projects?: { slug: string; name?: string; description?: string }[] };
-                const m = j2.projects?.find(p => p.slug === slug);
-                if (m?.name) projectName = m.name;
-                if (m?.description) projectDesc = m.description;
-            }
+    // Optionally look up friendly name/description from the projects list
+    if (!projectDesc) {
+        const apiList = new URL(API);
+        apiList.searchParams.set('list', 'projects');
+        const r2 = await fetch(apiList, { cache: 'no-store' });
+        if (r2.ok && r2.headers.get('content-type')?.includes('application/json')) {
+            const j2 = (await r2.json()) as { projects?: { slug: string; name?: string; description?: string }[] };
+            const m = j2.projects?.find(p => p.slug === slug);
+            if (m?.name) projectName = m.name;
+            if (m?.description) projectDesc = m.description;
         }
     }
 } catch (e: any) {
     loadError = e?.message ?? 'Network error';
 }
 
-if (Array.isArray(items) && items.length) {
-    // By filename with numeric sorting (1,2,10 is correct)
-    items.sort((a, b) =>
-        String(a.name || "").localeCompare(String(b.name || ""), undefined, {
-            numeric: true, sensitivity: "base"
-        })
-    );
-}
-// noinspection JSUnusedGlobalSymbols
-const sized = (url: string, w = 2000) => url.replace(/=s0$/, `=w${w}`);
 const cropName = (s: string) => s.replace(/\.[^.]+$/, '').replace(/_/g, ' ');
 ---
 

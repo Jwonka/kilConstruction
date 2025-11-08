@@ -3,19 +3,19 @@ import MainLayout from '../../layout/MainLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { toCards } from "../../utils/projectCards";
 
-const API = "/api/gallery";
+const API = new URL('/api/gallery', Astro.url);
 
 type ListResponse = { projects?: any[] };
 type Card = ReturnType<typeof toCards>[number];
 
 let cards: Card[]= [];
 try {
-    const res = await fetch(`${API}?list=projects`, { cache: "no-store" });
-    if (res.ok && res.headers.get("content-type")?.includes("application/json")) {
+    const u = new URL(API);
+    u.searchParams.set('list', 'projects');
+    const res = await fetch(u, { cache: 'no-store' });
+    if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
         const json = (await res.json()) as ListResponse;
-        const list = (json.projects ?? []);
-
-        cards = toCards(list);
+        cards = toCards(json.projects ?? []);
     }
 } catch {}
 ---
