@@ -1,48 +1,57 @@
-
 (function () {
-    if (typeof window === 'undefined' || typeof document === 'undefined') return;
-
-    const cards = document.querySelectorAll('.rotatable img.photo[data-rot-srcs]');
-    const preload = (url) => {
-        setTimeout(() => {
-            const i = new Image();
-            i.referrerPolicy = 'no-referrer';
-            i.src = url;
-        }, Math.random() * 1000);
+    const parseList = (el) => {
+        const raw = el.getAttribute('data-rot-srcs') || el.getAttribute('data-rot') || '';
+        try { return JSON.parse(raw); } catch { return raw.split(',').map(s => s.trim()).filter(Boolean); }
     };
 
     const start = (img) => {
-    const list = JSON.parse(img.getAttribute('data-rot-srcs') || '[]').slice(0, 4);
-    if (!Array.isArray(list) || list.length < 2) return;
-    let i = 0;
-    let t;
-    const tick = () => {
-        const next = list[(i + 1) % list.length];
-        preload(next);
-        t = setTimeout(() => {
-            i = (i + 1) % list.length;
-            img.src = next;
-            tick();
-        }, 10000);
-    };
-    tick();
-    return () => clearTimeout(t);
-};
-const io = new IntersectionObserver((entries) => {
-    entries.forEach((e) => {
-        const img = e.target;
-        if (e.isIntersecting) {
-            if (!img._stop) {
-                img._stop = start(img);
-            }
-        } else {
-            if (img._stop) {
-                img._stop();
-                img._stop = null;
-            }
-        }
-    });
-    }, { rootMargin: '100px' });
+        if (img._rotating) return;            // avoid double-start
+        const urls = parseList(img);
+        if (!urls || urls.length < 2) return;
 
-    cards.forEach((img) => io.observe(img));
+        img._rotating = true;
+        let i = Math.max(0, urls.findIndex(u => img.src.includes(u)));
+        const next = () => (i + 1) % urls.length;
+
+        const pre = new Image();
+        const swap = () => {
+            i = next();
+            pre.src = urls[next()];
+            img.src = urls[i];
+        };
+
+        // prime and go
+        pre.src = urls[next()];
+        setTimeout(() => {
+            swap();
+            const id = setInterval(swap, 5000);
+            // optional: pause when page hidden
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) clearInterval(id);
+            }, { once: true });
+        }, 5000);
+    };
+
+    const attach = () => {
+        const imgs = Array.from(document.querySelectorAll('img[data-rot-srcs], img[data-rot]'));
+        if (!imgs.length) return;
+        if ('IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        start(e.target);
+                        io.unobserve(e.target);
+                    }
+                });
+            }, { rootMargin: '200px' });
+            imgs.forEach(img => io.observe(img));
+        } else {
+            imgs.forEach(start);
+        }
+    };
+
+    // run once DOM is ready, and again if the grid announces readiness
+    document.addEventListener('DOMContentLoaded', attach);
+    window.addEventListener('grid-ready', attach);
 })();
+

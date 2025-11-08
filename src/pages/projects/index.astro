@@ -3,8 +3,9 @@ import MainLayout from '../../layout/MainLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { toCards } from "../../utils/projectCards";
 
-const API_ORIGIN = 'https://kilcon.work';
-const API = new URL('/api/gallery', API_ORIGIN);
+const PROD_ORIGIN = Astro.site?.origin || 'https://kilcon.work';
+const API_BASE = import.meta.env.DEV ? 'https://kilcon.work' : PROD_ORIGIN;
+const API = new URL('/api/gallery', API_BASE);
 
 type ListResponse = { projects?: any[] };
 type Card = ReturnType<typeof toCards>[number];
@@ -13,30 +14,55 @@ let cards: Card[]= [];
 try {
     const u = new URL(API);
     u.searchParams.set('list', 'projects');
-    const res = await fetch(u, { cache: 'no-store' });
+    let res = await fetch(u, { cache: 'no-store' });
+    if (!res.ok || res.status === 404) {
+        const fallback = new URL('/api/gallery?list=projects', 'https://kilcon.work');
+        res = await fetch(fallback, { cache: 'no-store' });
+    }
     if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
         const json = (await res.json()) as ListResponse;
         cards = toCards(json.projects ?? []);
     }
 } catch {}
+// small helpers used only in the head <preload> links:
+const sized = (src?: string, w = 1200) => src
+    ? (src.includes('=s0') ? src.replace('=s0', `=w${w}`) : src)
+    : undefined;
+const srcsetOf = (src?: string) => !src ? undefined
+    : `${sized(src,600)} 600w, ${sized(src,1200)} 1200w, ${sized(src,2000)} 2000w`;
+
 ---
 
 <MainLayout title="Projects">
+    <Fragment slot="head">
+        <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
+        <link rel="preconnect" href="https://kilcon.work" crossorigin>
+        {cards.slice(0, 4).map((c) => {
+            if (!c.src) return null;
+            return (
+                <link
+                    rel="preload"
+                    as="image"
+                    href={c.src}
+                    imagesrcset={`${c.src.replace('=s0','=w600')} 600w, ${c.src.replace('=s0','=w1200')} 1200w, ${c.src.replace('=s0','=w2000')} 2000w`}
+                    imagesizes="680px" />
+            );
+        })}
+    </Fragment>
     <h1 class="page-head container">Projects</h1>
     <section class="container page-section">
-        <div class="grid grid--cards">
-            {cards.map((c) => (
-                <ProjectCard
-                    p={c.p}
-                    first={c.first}
-                    src={c.src}
-                    rotList={c.rotList}
+        <div class="grid grid--projects">
+            {cards.map((c, i) => (
+                    <ProjectCard
+                        p={c.p}
+                        first={c.first}
+                        src={c.src}
+                        rotList={c.rotList}
+                        eager={i < 4}
                 />
-            ))}
+                ))}
         </div>
     </section>
-
-    <!-- load the rotator -->
-    <script src="/js/rotator.js" defer></script>
-    <script src="/js/grid-enhancer.js" defer></script>
+    <script src="/js/rotator.js?v=3" defer></script>
+    <script src="/js/grid-enhancer.js" defer onload="window.dispatchEvent(new Event('grid-ready'))"></script>
 </MainLayout>

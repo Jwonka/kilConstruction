@@ -8,12 +8,17 @@ export type Card = {
 };
 
 const pickCover = (p: Project, samples: string[]): string =>
-    p.coverThumb || p.coverFull || samples[0];
+    p.coverThumb || p.coverFull || samples[0] || "";
+
+function toUrl(i: PreviewItem | string): string {
+    if (typeof i === "string") return i;
+    return i?.thumb || i?.full || "";
+}
 
 export function toCards(projects: Project[]): Card[] {
     return (projects ?? []).map((p) => {
         const sampleUrls: string[] = (p.items ?? p.samples ?? [])
-            .map((i: PreviewItem) => i?.thumb || i?.full || "")
+            .map(toUrl)
             .filter(Boolean);
 
         const cover = pickCover(p, sampleUrls);

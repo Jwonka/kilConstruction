@@ -4,32 +4,45 @@ export interface Props {
         slug: string;
         name: string;
         summary?: string;
-        year?: string;
+        year?: string|number;
         location?: string;
     };
     first?: { name?: string };
-    src: string;
-    rotList: string[];
+    src?: string;
+    rotList?: string[];
+    eager?: boolean;
 }
-const { p, first, src, rotList } = Astro.props;
+const { p, first, src, rotList = [], eager = false } = Astro.props;
+const sized = (u?: string, w = 1200) =>
+    u ? (u.includes('=s0') ? u.replace('=s0', `=w${w}`) : u) : undefined;
+
+const srcsetOf = (u?: string) =>
+    !u ? undefined : `${sized(u,600)} 600w, ${sized(u,1200)} 1200w, ${sized(u,2000)} 2000w`;
+
+const mainSrc = sized(src, 1200);  // pick a good default width
+const srcset = srcsetOf(src);
+const sizes = "(max-width: 700px) 92vw, (max-width: 1200px) 45vw, 680px";
+
+// only set data-rot if there are multiple images
+const dataRot = Array.isArray(rotList) && rotList.length > 1 ? rotList.join(',') : undefined;
 ---
 
-<a class:list={['card','card-media', rotList?.length > 1 && 'rotatable']} href={`/projects/${p.slug}`} aria-label={p.name}>
-    <img
-        class="photo"
-        loading="lazy"
-        decoding="async"
-        referrerpolicy="no-referrer"
-        width="800"
-        height="600"
-        style="aspect-ratio: 4/3; width: 100%; height: auto;"
-        src={src}
-        alt={first?.name ?? p.name}
-        data-rot-srcs={rotList?.length > 1 ? JSON.stringify(rotList) : undefined}
-    />
-    <h3 class="mt-2">{p.name}</h3>
-    {p.summary && <p class="muted">{p.summary}</p>}
-    {(p.location || p.year) && (
-            <p class="muted">{[p.location, p.year].filter(Boolean).join(' · ')}</p>
-    )}
-</a>
+<figure class="card card-media">
+    <a href={`/projects/${p.slug}/`} aria-label={p.name}>
+        <img
+            class="photo"
+            src={mainSrc}
+            alt={first?.name || p.name}
+            srcset={srcset}
+            sizes={sizes}
+            width="1200" height="900"
+            style="aspect-ratio: var(--ratio-projects); object-fit: cover;"
+            loading={eager ? 'eager' : 'lazy'}
+            fetchpriority={eager ? 'high' : 'auto'}
+            decoding={eager ? 'sync' : 'async'}
+            referrerpolicy="no-referrer"
+            data-rot-srcs={rotList?.length > 1 ? JSON.stringify(rotList) : undefined}
+            data-rot={dataRot} />
+    </a>
+    <figcaption class="caption">{p.name}</figcaption>
+</figure>

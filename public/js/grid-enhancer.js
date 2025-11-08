@@ -39,7 +39,7 @@
 
                     if (!img.getAttribute("src")) {
                         img.src = urls[0];
-                        img.setAttribute("fetchpriority", "high"); // draw the cover faster
+                        img.setAttribute("fetchpriority", "high");
                     }
                     if (urls.length > 1) {
                         img.dataset.rotSrcs = JSON.stringify(urls);
@@ -49,7 +49,7 @@
             });
             pump();
         }
-    }, { rootMargin: "300px 0px" });
+    }, { rootMargin: "200px 0px" });
 
     cards.forEach(el => io.observe(el));
 })();
