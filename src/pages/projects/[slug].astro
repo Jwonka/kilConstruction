@@ -1,8 +1,8 @@
 ---
 import MainLayout from '../../layout/MainLayout.astro';
 
-const SITE = new URL(import.meta.env.DEV ? 'https://kilcon.work' : 'https://kilcon.work');
-const API = new URL('/api/gallery', SITE);
+const API_ORIGIN = 'https://kilcon.work';
+const API = new URL('/api/gallery', API_ORIGIN);
 
 type Photo = {
     id: string;
@@ -18,7 +18,7 @@ export const prerender = true;
 
 /** Tell Astro which /projects/:slug pages exist at build time */
 export async function getStaticPaths() {
-    const API = new URL('/api/gallery', SITE);
+
     API.searchParams.set('list', 'projects');
 
     try {
@@ -40,7 +40,6 @@ let projectName = slug.replace(/-/g, ' ').replace(/\b\w/g, s => s.toUpperCase())
 let projectDesc: string | undefined;
 
 try {
-    const API = new URL('/api/gallery', SITE);
 
     // Fetch album items
     const apiItems = new URL(API);
