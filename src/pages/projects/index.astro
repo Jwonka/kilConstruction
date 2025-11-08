@@ -24,6 +24,10 @@ try {
         cards = toCards(json.projects ?? []);
     }
 } catch {}
+
+function hasUrl(x: unknown): x is { url: string } {
+    return !!x && typeof (x as any).url === 'string';
+}
 // small helpers used only in the head <preload> links:
 const sized = (src?: string, w = 1200) => src
     ? (src.includes('=s0') ? src.replace('=s0', `=w${w}`) : src)
@@ -37,7 +41,7 @@ const srcsetOf = (src?: string) => !src ? undefined
     <Fragment slot="head">
         <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
         <link rel="preconnect" href="https://kilcon.work" crossorigin>
-        {cards.slice(0, 4).map((c) => {
+        {cards.slice(0, 6).map((c) => {
             if (!c.src) return null;
             return (
                 <link
@@ -58,11 +62,12 @@ const srcsetOf = (src?: string) => !src ? undefined
                         first={c.first}
                         src={c.src}
                         rotList={c.rotList}
-                        eager={i < 4}
+                        eager={i < 6}
+                        cover={c.src ?? (typeof c.first === 'string' ? c.first : hasUrl(c.first) ? c.first.url : undefined)}
                 />
                 ))}
         </div>
     </section>
-    <script src="/js/rotator.js?v=3" defer></script>
-    <script src="/js/grid-enhancer.js" defer onload="window.dispatchEvent(new Event('grid-ready'))"></script>
+    <script src="/js/rotator.js?v=12" defer></script>
+    <script src="/js/grid-enhancer.js?v=6" defer></script>
 </MainLayout>

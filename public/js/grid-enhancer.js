@@ -16,6 +16,17 @@
     const withTimeout = (p, ms = 8000) =>
         Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error("timeout")), ms))]);
 
+    // Normalize Google/Drive URLs (remove size suffixes etc.)
+    const normGE = (u) => (u || '')
+        .split('#')[0].split('?')[0]
+        .replace(/=(?:s\d+|w\d+)(?:-h\d+)?(?:-p)?(?:-no)?$/, '');
+
+    // Extract Drive file id from ".../d/<id>/..."
+    const idOf = (u) => {
+        const m = normGE(u).match(/\/d\/([^/]+)/);
+        return m ? m[1] : normGE(u); // fall back to normalized URL
+    };
+
     const io = new IntersectionObserver((entries) => {
         for (const e of entries) {
             if (!e.isIntersecting) continue;
@@ -31,16 +42,33 @@
                     const r = await withTimeout(fetch(`${API}?project=${encodeURIComponent(slug)}`, { cache: "no-store" }));
                     if (!r.ok) return;
                     const j = await r.json();
-                    const urls = (j?.items ?? [])
+                    const urlsRaw = (j?.items ?? [])
                         .map(i => i?.thumb || i?.full)
                         .filter(Boolean)
                         .slice(0, 8);
-                    if (!urls.length) return;
+                    if (!urlsRaw.length) return;
 
-                    if (!img.getAttribute("src")) {
-                        img.src = urls[0];
-                        img.setAttribute("fetchpriority", "high");
+                    // de-dup by file id (or normalized URL) so we only keep unique photos
+                    const seen = new Set();
+                    const urls = [];
+                    for (const u of urlsRaw) {
+                        const k = idOf(u);
+                        if (!k || seen.has(k)) continue;
+                        seen.add(k);
+                        urls.push(u);
                     }
+                    const cover = img.dataset.cover;
+                    if (!urls.length) {
+                        if (cover && !img.src) {
+                            img.src = cover;
+                            img.setAttribute("fetchpriority", "high");
+                        }
+                        return;
+                    }
+
+                    img.src = urls[0];
+                    img.setAttribute("fetchpriority", "high");
+
                     if (urls.length > 1) {
                         img.dataset.rotSrcs = JSON.stringify(urls);
                         img.closest(".card-media")?.classList.add("rotatable");
@@ -49,7 +77,7 @@
             });
             pump();
         }
-    }, { rootMargin: "200px 0px" });
+    }, { rootMargin: "700px 0px" });
 
     cards.forEach(el => io.observe(el));
 })();

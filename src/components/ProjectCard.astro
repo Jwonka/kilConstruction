@@ -7,42 +7,44 @@ export interface Props {
         year?: string|number;
         location?: string;
     };
-    first?: { name?: string };
+    first?: { name?: string; url?: string } | string;
     src?: string;
     rotList?: string[];
     eager?: boolean;
+    cover?: string;
 }
-const { p, first, src, rotList = [], eager = false } = Astro.props;
+const { p, first, src, rotList = [], eager = false, cover } = Astro.props;
 const sized = (u?: string, w = 1200) =>
     u ? (u.includes('=s0') ? u.replace('=s0', `=w${w}`) : u) : undefined;
 
 const srcsetOf = (u?: string) =>
     !u ? undefined : `${sized(u,600)} 600w, ${sized(u,1200)} 1200w, ${sized(u,2000)} 2000w`;
 
-const mainSrc = sized(src, 1200);  // pick a good default width
+const mainSrc = sized(src, 1200);
 const srcset = srcsetOf(src);
-const sizes = "(max-width: 700px) 92vw, (max-width: 1200px) 45vw, 680px";
-
+const sizes = "(max-width: 720px) 96vw, (max-width: 1200px) 45vw, 680px";
+const firstUrl  = typeof first === 'string' ? first : first?.url;
+const firstName = typeof first === 'string' ? undefined : first?.name;
 // only set data-rot if there are multiple images
 const dataRot = Array.isArray(rotList) && rotList.length > 1 ? rotList.join(',') : undefined;
 ---
 
-<figure class="card card-media">
+<figure class="card card-media" style="object-fit: cover">
     <a href={`/projects/${p.slug}/`} aria-label={p.name}>
         <img
             class="photo"
-            src={mainSrc}
-            alt={first?.name || p.name}
+            {...(dataRot ? { 'data-rot-srcs': JSON.stringify(rotList) } : {})}
+            src={mainSrc || firstUrl || cover}
+            alt={firstName || p.name}
             srcset={srcset}
+            data-cover={cover || firstUrl || ''}
             sizes={sizes}
             width="1200" height="900"
             style="aspect-ratio: var(--ratio-projects); object-fit: cover;"
             loading={eager ? 'eager' : 'lazy'}
             fetchpriority={eager ? 'high' : 'auto'}
             decoding={eager ? 'sync' : 'async'}
-            referrerpolicy="no-referrer"
-            data-rot-srcs={rotList?.length > 1 ? JSON.stringify(rotList) : undefined}
-            data-rot={dataRot} />
+            referrerpolicy="no-referrer"/>
     </a>
     <figcaption class="caption">{p.name}</figcaption>
 </figure>

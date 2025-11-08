@@ -2,7 +2,7 @@
     --bg:#ffffff; --ink:#1f2937; --muted:#6b7280; --brand:#111827; --accent:#f59e0b;
     --radius:10px; --space:clamp(16px,2.5vw,28px); --max:1200px; --header-h: 96px; --footer-h: 80px;
     --btn-bg: #0d1726; --btn-hover: #152a43; --btn-text: #fff; --btn-shadow: 0 6px 20px rgba(0,0,0,.25); --gap: clamp(12px, 2vw, 24px);
-    --card-min-projects: clamp(520px, 44vw, 640px); --card-min-album: clamp(340px, 30vw, 420px); --ratio-projects: 4 / 3; --ratio-album: 4 / 3;
+    --card-min-projects: clamp(520px, 44vw, 640px); --ratio-projects: 4 / 3; --ratio-album: 4 / 3;
 }
 *{ min-width: 0; min-height: 0; }
 *{box-sizing:border-box}
@@ -55,7 +55,7 @@ main { flex: 1 0 auto; }
 }
 .btn-vcard{ padding: 8px 16px; border-radius:10px; }
 .contact-form .btn{width:auto;justify-self:start;padding:8px 16px;margin-top: 8px;border-radius:12px;font-size:clamp(1rem, .6vw + .9rem, 1.25rem);max-width:100%;}
-.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(var(--card-min-album),1fr))}
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(var(--card-min-projects),1fr))}
 .grid--projects {grid-template-columns: repeat(2, minmax(var(--card-min-projects), 1fr));}
 .card{
     position: relative;
@@ -100,7 +100,7 @@ main { flex: 1 0 auto; }
 }
 .card .btn.inline:hover { transform: none; }
 .card.card-media { padding: 12px; }
-.card.card-media .photo { width: 100%; height: auto; display: block; aspect-ratio: 4/3; object-fit: cover; border-radius: 10px; }
+.card.card-media img.photo {width: 100%;height: 100%;object-fit: cover;display: block;}
 .card.card-media .caption { margin-top: 8px; font-size: .95rem; color: var(--muted); }
 .grid-cards{
     --min: 280px;
@@ -109,15 +109,10 @@ main { flex: 1 0 auto; }
     gap: clamp(12px, 2vw, 24px);
     align-items: start;
 }
-
 .project-card .card-media{ aspect-ratio: 16/10; overflow: hidden; }
 .project-card img{ width:100%; height:100%; object-fit:cover; display:block; }
-.project-photos{
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: clamp(8px, 1.2vw, 16px);
-    padding-bottom: clamp(40px, 6vw, 96px);
-}
+.project-photos{display: grid;grid-template-columns: repeat(4, 1fr);gap: clamp(8px, 1.2vw, 16px);padding-bottom: clamp(40px, 6vw, 96px);}
+@media (min-width: 721px) {  .grid--projects {grid-template-columns: repeat(2, minmax(var(--card-min-projects), 1fr));}  }
 @media (max-width: 1280px){ .project-photos{ grid-template-columns: repeat(3, 1fr); } .grid--projects { grid-template-columns: repeat(2, 1fr);} }
 @media (max-width: 900px) { .project-photos{ grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 720px) {  .grid--projects { grid-template-columns: 1fr; }  }
@@ -128,8 +123,9 @@ main { flex: 1 0 auto; }
 .project-photos .photo{width:100%; height:100%; display:block;aspect-ratio: 4/3; object-fit: cover;}
 .card .card-media,
 .card figure.card-media {margin: 0;}
-.card .photo {width: 100%;height: auto;display: block;border-radius: 10px;object-fit: cover;}
-.grid--projects .photo { aspect-ratio: var(--ratio-projects); }
+.card .photo { width: 100%; height: 100%; display: block; }
+.card.card-media a { display: block; overflow: hidden; border-radius: 10px; background: #eef1f3; width: 100%;}
+.card.card-media img.photo { width: 100%; height: 100%; aspect-ratio: var(--ratio-projects); object-fit: cover;}
 .footer{flex: 0 0 auto;margin-top:auto;border-top:1px solid #0a0a0a20;color: #fff;padding: 28px 0 calc(28px + env(safe-area-inset-bottom, 0px));font-size:14px;background: #000000; text-align: center}
 .footer-inner {display: flex;align-items: center;justify-content: center;gap: 14px;flex-wrap: wrap;line-height:1}
 .foot-copy{ line-height: 1; }
@@ -160,7 +156,12 @@ button{ all:unset; box-sizing:border-box; }
         max-width:100%;
     }
 }
-@media (max-width: 720px){ .card.card-media { padding: 10px; }  }
+@media (max-width: 720px){
+    .card.card-media { padding: 10px; }
+    :root {
+        --card-min-projects: clamp(340px, 30vw, 420px);
+    }
+}
 @media (max-width: 700px){
     .hero{ padding: 40px 0 24px; }
     .hero h1{ margin: 0 0 6px; }
@@ -182,7 +183,7 @@ button{ all:unset; box-sizing:border-box; }
     .grid--projects .card-media .photo{
         display: block;
         width: 100%;
-        height: auto;
+        height: 100%;
         object-fit: cover;
     }
 }
