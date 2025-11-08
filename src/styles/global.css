@@ -1,8 +1,8 @@
 :root{
     --bg:#ffffff; --ink:#1f2937; --muted:#6b7280; --brand:#111827; --accent:#f59e0b;
-    --radius:10px; --space:clamp(16px,2.5vw,28px); --max:1200px; --header-h: 96px; --footer-h: 80px;
-    --btn-bg: #0d1726; --btn-hover: #152a43; --btn-text: #fff; --btn-shadow: 0 6px 20px rgba(0,0,0,.25); --gap: clamp(12px, 2vw, 24px);
-    --card-min-projects: clamp(40px, 30vw, 420px); --ratio-projects: 4 / 3; --ratio-album: 4 / 3;
+    --radius:10px; --space:clamp(16px,2.5vw,28px); --max:1200px; --header-h: 96px; --footer-h: 80px; --gap: clamp(8px, 1.2vw, 16px);
+    --btn-bg: #0d1726; --btn-hover: #152a43; --btn-text: #fff; --btn-shadow: 0 6px 20px rgba(0,0,0,.25); --card-max: 640px;
+    --card-min-projects: clamp(40px, 30vw, 420px); --ratio-projects: 4 / 3; --ratio-album: 4 / 3; --card-min: 340px;
 }
 *{ min-width: 0; min-height: 0; }
 *{box-sizing:border-box}
@@ -55,8 +55,14 @@ main { flex: 1 0 auto; }
 }
 .btn-vcard{ padding: 8px 16px; border-radius:10px; }
 .contact-form .btn{width:auto;justify-self:start;padding:8px 16px;margin-top: 8px;border-radius:12px;font-size:clamp(1rem, .6vw + .9rem, 1.25rem);max-width:100%;}
-.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fit,minmax(var(--card-min-projects),1fr))}
-.grid--projects { grid-template-columns: 1fr; }
+.grid{
+    display:grid;gap: var(--gap);
+    justify-content: center;
+    grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
+    max-width: var(--max);
+    margin-inline: auto;
+}
+.grid--projects { grid-template-columns: 1fr; gap: var(--gap);}
 .card{
     position: relative;
     background: #fff;
@@ -93,23 +99,23 @@ main { flex: 1 0 auto; }
 .card .card-media,
 .card figure.card-media {margin: 0;}
 .card.card-media a { display: block; overflow: hidden; border-radius: 10px; background: #eef1f3; width: 100%; aspect-ratio: var(--ratio-projects);}
-.card.card-media img.photo { width: 100%; height: calc(90vw * 3 / 4); aspect-ratio: var(--ratio-projects); display: block; object-fit: cover;}
+.card.card-media img.photo { width: 100%; height: auto; aspect-ratio: var(--ratio-projects); display: block; object-fit: cover;}
 .grid-cards{
     --min: 280px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(var(--min), 1fr));
-    gap: clamp(12px, 2vw, 24px);
+    grid-template-columns: repeat(auto-fit, minmax( min(100%, var(--card-max)), 1fr ));
     align-items: start;
 }
-.project-photos{display: grid;grid-template-columns: repeat(4, 1fr);gap: clamp(8px, 1.2vw, 16px);padding-bottom: clamp(40px, 6vw, 96px);}
+.project-photos{display: grid; gap: var(--gap);grid-template-columns: repeat(auto-fit, minmax( min(100%, var(--card-max)), 1fr ));gap: var(--gap); padding-bottom: clamp(40px, 6vw, 96px);}
 .project-photos .card-photo{ border-radius: 10px; overflow: hidden; background: transparent; }
-.project-photos .photo{width:100%; height:100%; display:block;aspect-ratio: 4/3; object-fit: cover;}
+.project-photos .photo{width:100%; height:auto; display:block;aspect-ratio: 4/3; object-fit: cover;}
 @media (min-width: 721px) {
-    .grid--projects { grid-template-columns: repeat(2, 1fr); }
+    .grid--projects { grid-template-columns: repeat(2, minmax(var(--card-min), var(--card-max))); }
     :root { --card-min-projects: clamp(520px, 44vw, 640px); }
+    .card.card-media a { aspect-ratio: 4 / 3; }
     .card.card-media img.photo {
         width: 100%;
-        height: auto;
+        height: 100%;
         aspect-ratio: var(--ratio-projects);
         object-fit: cover;
         display: block;
@@ -138,6 +144,12 @@ button{ all:unset; box-sizing:border-box; }
     margin: clamp(14px, 3vw, 28px) 0 clamp(8px, 1.6vw, 16px);
     font-weight: 800;
     letter-spacing: .2px;
+}
+.grid,
+.grid--projects,
+.project-photos {
+    row-gap: var(--gap);
+    column-gap: clamp(1px, 0.15vw, 3px);
 }
 .page-section {margin-bottom: clamp(24px, 4vw, 48px);padding-block-end: clamp(24px, 4vw, 56px);}
 .no-sticky header { position: static !important; top: auto; }
@@ -190,8 +202,6 @@ button{ all:unset; box-sizing:border-box; }
         object-fit: cover;
     }
 }
-
-@media (max-width: 480px) {  :root { --gap: 24px; }  }
 
 /* Respect users that prefer less motion */
 @media (prefers-reduced-motion: reduce){  .btn{ transition: none; }  }
