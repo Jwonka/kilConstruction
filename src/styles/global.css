@@ -147,10 +147,7 @@ button{ all:unset; box-sizing:border-box; }
 }
 .grid,
 .grid--projects,
-.project-photos {
-    row-gap: var(--gap);
-    column-gap: clamp(1px, 0.15vw, 3px);
-}
+.project-photos {row-gap: var(--gap);column-gap: clamp(1px, 0.15vw, 3px);}
 .page-section {margin-bottom: clamp(24px, 4vw, 48px);padding-block-end: clamp(24px, 4vw, 56px);}
 .no-sticky header { position: static !important; top: auto; }
 @media (max-width:900px){ :root{ --header-h: 76px; } }
