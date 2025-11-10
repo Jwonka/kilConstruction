@@ -4,8 +4,7 @@ import bizcard from "../assets/bizcard-front-new.jpg";
 const base = import.meta.env.BASE_URL;
 /** CONTACT FORM via Web3Forms (free tier)
  * 1) Sign up at https://web3forms.com and get an access_key.
- * 2) Replace YOUR_ACCESS_KEY below.
- * 3) Set the "from_name" and "subject" to something recognizable in the owner's inbox.
+ * 2) Set the "from_name" and "subject" to something recognizable in the owner's inbox.
  */
 
 const ACCESS_KEY = "YOUR_ACCESS_KEY";
@@ -53,16 +52,62 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 <label for="message">Project Details</label>
                 <textarea id="message" name="message" rows="6" required minlength="10" placeholder="A brief description of your project."></textarea>
 
-                <input type="text" name="company" tabindex="-1" autocomplete="off" style="display:none" />
+                <!-- Honeypot -->
+                <label>
+                    <input type="text" name="company" tabindex="-1" autocomplete="off" style="display:none" />
+                </label>
 
                 <!-- Turnstile widget  -->
-                <div class="cf-turnstile" data-sitekey={String(import.meta.env.PUBLIC_TURNSTILE_SITE_KEY)} data-refresh-expired="auto" data-refresh-timeout="auto"></div>
-                <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+                <input type="hidden" id="cf-token" name="cf-turnstile-response" value="">
+                <div id="cf-container" class="cf-turnstile"></div>
 
                 <button class="btn" type="submit">Send</button>
-
-
             </form>
+            <!-- Turnstile loader -->
+            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=cfReady" async defer></script>
+
+            <script is:inline>
+                <!-- Choose visible ('render') vs invisible ('execute') -->
+                const EXECUTION_MODE = 'render'; <!-- change to 'execute' if you want invisible -->
+
+                let widgetId = null;
+
+                <!-- Called by the loader: ?onload=cfReady -->
+                window.cfReady = () => {
+                    const sitekey = String(import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '');
+                    const el = document.getElementById('cf-container');
+                    if (!sitekey || !el || !window.turnstile) return;
+
+                    widgetId = turnstile.render('#cf-container', {
+                        sitekey,
+                        callback: (token) => { document.getElementById('cf-token').value = token; },
+                        'error-callback': () => { document.getElementById('cf-token').value = ''; },
+                        'expired-callback': () => { document.getElementById('cf-token').value = ''; },
+                        retry: 'auto',
+                        'refresh-expired': 'auto',
+                        'refresh-timeout': 'auto',
+                        badge: 'inline'
+                    });
+
+                    if (EXECUTION_MODE === 'execute' && turnstile.execute) {
+                        turnstile.execute(widgetId);
+                    }
+                };
+
+                <!-- Guard form submit: if no token, re-execute (invisible) and block submit -->
+                (function () {
+                    const form = document.querySelector('form.contact-form');
+                    form?.addEventListener('submit', (e) => {
+                        const token = (document.getElementById('cf-token') || {}).value || '';
+                        if (!token) {
+                            e.preventDefault();
+                            const res = document.getElementById('result');
+                            if (res) { res.textContent = 'Please complete the CAPTCHA.'; res.classList.add('error'); }
+                            if (widgetId && window.turnstile?.execute) turnstile.execute(widgetId);
+                        }
+                    });
+                })();
+            </script>
         </section>
     </div>
     <script is:inline>
@@ -85,19 +130,6 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 url.searchParams.delete('err');
                 history.replaceState({}, "", url.pathname + url.search);
             }
-        })();
-    </script>
-    <script is:inline>
-        (function(){
-            const form = document.querySelector('form.contact-form');
-            form?.addEventListener('submit', (e) => {
-                const token = document.querySelector('input[name="cf-turnstile-response"]')?.value || "";
-                if (!token) {
-                    e.preventDefault();
-                    const res = document.getElementById('result');
-                    if (res) { res.textContent = "Please complete the CAPTCHA."; res.classList.add('error'); }
-                }
-            });
         })();
     </script>
     <style>

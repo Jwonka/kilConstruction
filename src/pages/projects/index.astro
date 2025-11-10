@@ -57,15 +57,15 @@ const srcsetOf = (src?: string) => !src ? undefined
     <section class="container page-section">
         <div class="grid grid--projects">
             {cards.map((c, i) => (
-                    <ProjectCard
-                        p={c.p}
-                        first={c.first}
-                        src={c.src}
-                        rotList={c.rotList}
-                        eager={i < 6}
-                        cover={c.src ?? (typeof c.first === 'string' ? c.first : hasUrl(c.first) ? c.first.url : undefined)}
+                <ProjectCard
+                    p={c.p}
+                    first={c.first}
+                    src={c.src}
+                    rotList={c.rotList}
+                    eager={i < 6}
+                    cover={c.src ?? (typeof c.first === 'string' ? c.first : hasUrl(c.first) ? c.first.url : undefined)}
                 />
-                ))}
+            ))}
         </div>
     </section>
     <script src="/js/rotator.js?v=12" defer></script>
