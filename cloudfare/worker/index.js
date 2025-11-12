@@ -1,7 +1,5 @@
 export default {
     async fetch(req, env, ctx) {
-        const url = new URL(req.url);
-
         if (req.method === 'GET') {
             return new Response(htmlForm, {
                 headers: { 'Content-Type': 'text/html; charset=utf-8' }
@@ -16,13 +14,17 @@ export default {
 
             const formData = await req.formData();
             const results = [];
+            const allowedDirectories = ['Highlights', 'Projects', 'Services', 'New Construction', 'Remodels', 'Furniture'];
 
-            for (const entry of formData.entries()) {
-                const [path, file] = entry;
+            for (const [path, file] of formData.entries()) {
                 if (!(file instanceof File)) continue;
 
-                const timestamp = Date.now();
-                const key = `uploads/${timestamp}_${path}`;
+                const topLevelDir = path.split('/')[0];
+                if (!allowedDirectories.includes(topLevelDir)) {
+                    return new Response(`Invalid top-level directory: ${topLevelDir}`, { status: 400 });
+                }
+
+                const key = `uploads/${path}`;
                 await env.R2_BUCKET.put(key, file.stream(), {
                     httpMetadata: { contentType: file.type }
                 });
@@ -52,8 +54,23 @@ const htmlForm = `<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <h1>Upload a Images</h1>
+  <h1>Upload Images</h1>
   <form id="upload-form">
+    <label>
+      Select Folder Category:
+      <select id="category" required>
+        <option value="Projects">Projects</option>
+        <option value="Highlights">Highlights</option>
+        <option value="Services">Services</option>
+        <option value="New Construction">New Construction</option>
+        <option value="Remodels">Remodels</option>
+        <option value="Furniture">Furniture</option>
+      </select>
+    </label>
+    <label>
+      Subfolder Name:
+      <input type="text" id="subfolder" required />
+    </label>
     <input type="file" name="files" id="upload" webkitdirectory multiple required />
     <button type="submit">Upload</button>
   </form>
@@ -64,9 +81,14 @@ const htmlForm = `<!DOCTYPE html>
       e.preventDefault();
       const input = document.getElementById('upload');
       const formData = new FormData();
+      const category = document.getElementById('category').value.trim();
+      const subfolder = document.getElementById('subfolder').value.trim().replace(/\\/+$/, '');
 
       for (const file of input.files) {
-        formData.append(file.webkitRelativePath || file.name, file);
+        const relativePath = file.webkitRelativePath || file.name;
+        const cleanPath = relativePath.split('/').slice(1).join('/');
+        const fullPath = \`\${category}/\${subfolder}/\${cleanPath}\`;
+        formData.append(fullPath, file);
       }
 
       const res = await fetch('/', {
