@@ -8,6 +8,8 @@ const base = import.meta.env.BASE_URL;
  */
 
 const ACCESS_KEY = "YOUR_ACCESS_KEY";
+const SITEKEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+const ENDPOINT = import.meta.env.PUBLIC_CONTACT_ENDPOINT;
 ---
 <MainLayout title="Contact | KIL Construction">
     <h1 class="contact-title">Request a Free Quote</h1>
@@ -44,7 +46,7 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 <input id="email" name="email" type="email" required placeholder="example@gmail.com"/>
 
                 <label for="phone">Phone (optional)</label>
-                <input id="phone" name="phone" type="tel" inputmode="tel" pattern="^[0-9()\\-+\\s]{7,20}$" autocomplete="tel" placeholder="(715) 867-5309"/>
+                <input id="phone" name="phone" type="tel" inputmode="tel" pattern="[0-9()+\-\s]{7,20}" autocomplete="tel" placeholder="(715) 867-5309"/>
 
                 <label for="address">Job Address (optional)</label>
                 <input id="address" name="address" placeholder="123 Easy St."/>
@@ -58,31 +60,34 @@ const ACCESS_KEY = "YOUR_ACCESS_KEY";
                 </label>
 
                 <!-- Turnstile widget  -->
-                <input type="hidden" id="cf-token" name="cf-turnstile-response" value="">
                 <div
+                    id="cf-container"
                     class="cf-turnstile"
-                    data-sitekey={String(import.meta.env.PUBLIC_TURNSTILE_SITE_KEY)}
-                    data-theme="light"
-                    data-size="invisible"
-                    data-callback="onCaptchaCompleted"
-                    data-refresh-expired="auto"
-                    data-refresh-timeout="auto"
-                ></div>
+                    data-sitekey={SITEKEY}
+                    data-theme="auto"
+                    data-size="normal"
+                    data-refresh-expired="auto">
+                </div>
+
 
                 <button class="btn" type="submit">Send</button>
             </form>
-            <!-- Turnstile loader -->
-            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+
             <script is:inline>
-                window.onCaptchaCompleted = (token) => {
-                document.querySelector('input[name="cf-turnstile-response"]')?.remove();
-                const hidden = document.createElement("input");
-                hidden.type = "hidden";
-                hidden.name = "cf-turnstile-response";
-                hidden.value = token;
-                document.querySelector("form.contact-form")?.appendChild(hidden);
-            };
+                function onTurnstileLoad() {
+                    const container = document.getElementById("cf-container");
+                    window.turnstileWidgetId = window.turnstile.render(container, {
+                        sitekey: container.getAttribute("data-sitekey"),
+                        theme: "light",
+                        size: "normal",
+                        callback: (token) => {
+                            document.getElementById("cf-token").value = token;
+                        }
+                    });
+                }
             </script>
+            <!-- Turnstile loader -->
+            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
         </section>
     </div>
     <script is:inline>
