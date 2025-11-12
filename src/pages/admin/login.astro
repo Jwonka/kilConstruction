@@ -1,6 +1,5 @@
 ---
-import { AstroCookies } from 'astro:middleware';
-const cookies = AstroCookies();
+const cookies = Astro.cookies;
 
 if (Astro.request.method === 'POST') {
     const formData = await Astro.request.formData();
