@@ -76,28 +76,33 @@ const htmlForm = `<!DOCTYPE html>
   </form>
   <div id="result"></div>
 
-  <script>
-    document.getElementById('upload-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const input = document.getElementById('upload');
-      const formData = new FormData();
-      const category = document.getElementById('category').value.trim();
-      const subfolder = document.getElementById('subfolder').value.trim().replace(/\\/+$/, '');
+ <script>
+  document.getElementById('upload-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('upload');
+    const formData = new FormData();
+    const category = document.getElementById('category').value.trim();
+    let subfolder = document.getElementById('subfolder').value.trim().replace(/\\/+$/, '');
 
-      for (const file of input.files) {
-        const relativePath = file.webkitRelativePath || file.name;
-        const cleanPath = relativePath.split('/').slice(1).join('/');
-        const fullPath = \`\${category}/\${subfolder}/\${cleanPath}\`;
-        formData.append(fullPath, file);
-      }
+    if (!subfolder) {
+      const firstPath = input.files[0]?.webkitRelativePath || '';
+      subfolder = firstPath.split('/')[0] || 'misc';
+    }
 
-      const res = await fetch('/', {
-        method: 'POST',
-        body: formData
-      });
+    for (const file of input.files) {
+      const relativePath = file.webkitRelativePath || file.name;
+      const cleanedPath = relativePath.split('/').slice(1).join('/');
+      const fullPath = \`${category}/${subfolder}/${cleanedPath || file.name}\`;
+      formData.append(fullPath, file);
+    }
 
-      document.getElementById('result').innerHTML = await res.text();
+    const res = await fetch('/', {
+      method: 'POST',
+      body: formData
     });
-  </script>
+
+    document.getElementById('result').innerHTML = await res.text();
+  });
+</script>
 </body>
 </html>`;

@@ -1,0 +1,27 @@
+---
+import { AstroCookies } from 'astro:middleware';
+const cookies = AstroCookies();
+const isAdmin = cookies.get('admin_auth')?.value === import.meta.env.ADMIN_SECRET;
+
+if (!isAdmin) {
+    return new Response(null, {
+        status: 302,
+        headers: { Location: '/' }
+    });
+}
+---
+
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+<h1>Admin Dashboard</h1>
+<ul>
+    <li><a href="/admin/upload">Upload Images</a></li>
+    <li><a href="/admin/manage">Manage Uploaded Files</a></li>
+    <li><a href="/admin/reviews">Moderate Reviews</a></li>
+</ul>
+</body>
+</html>
+
