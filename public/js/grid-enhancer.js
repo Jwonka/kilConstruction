@@ -16,7 +16,7 @@
     const withTimeout = (p, ms = 8000) =>
         Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error("timeout")), ms))]);
 
-    // Normalize Google/Drive URLs (remove size suffixes etc.)
+    // Normalize URLs (remove size suffixes etc.)
     const normGE = (u) => (u || '')
         .split('#')[0].split('?')[0]
         .replace(/=(?:s\d+|w\d+)(?:-h\d+)?(?:-p)?(?:-no)?$/, '');
