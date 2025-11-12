@@ -38,20 +38,40 @@ export default {
 };
 
 const htmlForm = `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Upload Photo</title>
+  <title>Upload Images</title>
   <style>
     body { font-family: sans-serif; padding: 2em; }
     form { display: flex; flex-direction: column; max-width: 400px; gap: 1em; }
   </style>
 </head>
 <body>
-  <h1>Upload a Photo</h1>
-  <form method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" required />
+  <h1>Upload a Images</h1>
+  <form id="upload-form">
+    <input type="file" name="files" id="upload" webkitdirectory multiple required />
     <button type="submit">Upload</button>
   </form>
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('upload');
+      const formData = new FormData();
+
+      for (const file of input.files) {
+        formData.append(file.webkitRelativePath || file.name, file);
+      }
+
+      const res = await fetch('/', {
+        method: 'POST',
+        body: formData
+      });
+
+      document.getElementById('result').innerHTML = await res.text();
+    });
+  </script>
 </body>
 </html>`;
