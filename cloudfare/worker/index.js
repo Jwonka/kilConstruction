@@ -36,7 +36,7 @@ export default {
                     return new Response(`Invalid top-level directory: ${topLevelDir}`, { status: 400 });
                 }
 
-                const cleanKey = `uploads/${topLevelDir}/${subfolder}/${filePath || file.name}`.replace(/\/+/g, '/');
+                const cleanKey = `${topLevelDir}/${subfolder}/${filePath || file.name}`.replace(/\/+/g, '/');
 
                 await env.R2_BUCKET.put(cleanKey, file.stream(), {
                     httpMetadata: { contentType: file.type },
