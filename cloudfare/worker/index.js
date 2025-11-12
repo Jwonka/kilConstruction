@@ -15,22 +15,26 @@ export default {
             }
 
             const formData = await req.formData();
-            const file = formData.get('file');
-            if (!(file instanceof File)) {
-                return new Response('File missing', { status: 400 });
+            const results = [];
+
+            for (const entry of formData.entries()) {
+                const [path, file] = entry;
+                if (!(file instanceof File)) continue;
+
+                const timestamp = Date.now();
+                const key = `uploads/${timestamp}_${path}`;
+                await env.R2_BUCKET.put(key, file.stream(), {
+                    httpMetadata: { contentType: file.type }
+                });
+
+                const publicUrl = `https://${env.UPLOAD_HOSTNAME}/${key}`;
+                results.push(`<li><a href="${publicUrl}" target="_blank">${publicUrl}</a></li>`);
             }
 
-            const key = `uploads/${Date.now()}_${file.name}`;
-
-            await env.R2_BUCKET.put(key, file.stream(), {
-                httpMetadata: { contentType: file.type }
-            });
-
-            const publicUrl = `https://${env.UPLOAD_HOSTNAME}/${key}`;
-
-            return new Response(`Uploaded successfully: <a href="${publicUrl}" target="_blank">${publicUrl}</a>`, {
-                headers: { 'Content-Type': 'text/html; charset=utf-8' }
-            });
+            return new Response(
+                `<p>Uploaded ${results.length} files:</p><ul>${results.join('')}</ul>`,
+                { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+            );
         }
 
         return new Response('Method not allowed', { status: 405 });
