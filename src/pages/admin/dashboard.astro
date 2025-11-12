@@ -1,5 +1,4 @@
 ---
-import { AstroCookies } from 'astro:middleware';
 const cookies = AstroCookies();
 const isAdmin = cookies.get('admin_auth')?.value === import.meta.env.ADMIN_SECRET;
 
