@@ -2,7 +2,7 @@ export default {
     async fetch(req, env, ctx) {
         if (req.method === 'GET') {
             return new Response(htmlForm, {
-                headers: { 'Content-Type': 'text/html; charset=utf-8' }
+                headers: { 'Content-Type': 'text/html; charset=utf-8' },
             });
         }
 
@@ -14,22 +14,35 @@ export default {
 
             const formData = await req.formData();
             const results = [];
-            const allowedDirectories = ['Highlights', 'Projects', 'Services', 'New Construction', 'Remodels', 'Furniture'];
+
+            const allowedDirectories = [
+                'Highlights',
+                'Projects',
+                'Services',
+                'New Construction',
+                'Remodels',
+                'Furniture',
+            ];
 
             for (const [path, file] of formData.entries()) {
                 if (!(file instanceof File)) continue;
 
-                const topLevelDir = path.split('/')[0];
+                const segments = path.split('/');
+                const topLevelDir = segments[0];
+                const subfolder = segments[1] || 'misc';
+                const filePath = segments.slice(2).join('/');
+
                 if (!allowedDirectories.includes(topLevelDir)) {
                     return new Response(`Invalid top-level directory: ${topLevelDir}`, { status: 400 });
                 }
 
-                const key = `uploads/${path}`;
-                await env.R2_BUCKET.put(key, file.stream(), {
-                    httpMetadata: { contentType: file.type }
+                const cleanKey = `uploads/${topLevelDir}/${subfolder}/${filePath || file.name}`.replace(/\/+/g, '/');
+
+                await env.R2_BUCKET.put(cleanKey, file.stream(), {
+                    httpMetadata: { contentType: file.type },
                 });
 
-                const publicUrl = `https://${env.UPLOAD_HOSTNAME}/${key}`;
+                const publicUrl = `https://${env.UPLOAD_HOSTNAME}/${cleanKey}`;
                 results.push(`<li><a href="${publicUrl}" target="_blank">${publicUrl}</a></li>`);
             }
 
@@ -40,7 +53,7 @@ export default {
         }
 
         return new Response('Method not allowed', { status: 405 });
-    }
+    },
 };
 
 const htmlForm = `<!DOCTYPE html>
@@ -69,40 +82,40 @@ const htmlForm = `<!DOCTYPE html>
     </label>
     <label>
       Subfolder Name:
-      <input type="text" id="subfolder" required />
+      <input type="text" id="subfolder" placeholder="Optional, inferred if left blank" />
     </label>
     <input type="file" name="files" id="upload" webkitdirectory multiple required />
     <button type="submit">Upload</button>
   </form>
   <div id="result"></div>
 
- <script>
-  document.getElementById('upload-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const input = document.getElementById('upload');
-    const formData = new FormData();
-    const category = document.getElementById('category').value.trim();
-    let subfolder = document.getElementById('subfolder').value.trim().replace(/\\/+$/, '');
+  <script>
+    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('upload');
+      const formData = new FormData();
+      const category = document.getElementById('category').value.trim();
+      let subfolder = document.getElementById('subfolder').value.trim().replace(/\\/+$/, '');
 
-    if (!subfolder) {
-      const firstPath = input.files[0]?.webkitRelativePath || '';
-      subfolder = firstPath.split('/')[0] || 'misc';
-    }
+      if (!subfolder) {
+        const firstPath = input.files[0]?.webkitRelativePath || '';
+        subfolder = firstPath.split('/')[0] || 'misc';
+      }
 
-    for (const file of input.files) {
-      const relativePath = file.webkitRelativePath || file.name;
-      const cleanedPath = relativePath.split('/').slice(1).join('/');
-      const fullPath = \`${category}/${subfolder}/${cleanedPath || file.name}\`;
-      formData.append(fullPath, file);
-    }
+      for (const file of input.files) {
+        const relativePath = file.webkitRelativePath || file.name;
+        const cleanedPath = relativePath.split('/').slice(1).join('/');
+        const fullPath = \`\${category}/\${subfolder}/\${cleanedPath || file.name}\`.replace(/\/+/g, '/');
+        formData.append(fullPath, file);
+      }
 
-    const res = await fetch('/', {
-      method: 'POST',
-      body: formData
+      const res = await fetch('/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      document.getElementById('result').innerHTML = await res.text();
     });
-
-    document.getElementById('result').innerHTML = await res.text();
-  });
-</script>
+  </script>
 </body>
 </html>`;
