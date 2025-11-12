@@ -13,6 +13,9 @@ export default {
             }
 
             const formData = await req.formData();
+            if (!formData || [...formData.entries()].length === 0) {
+                return new Response('No files submitted', { status: 400 });
+            }
             const results = [];
 
             const allowedDirectories = [
