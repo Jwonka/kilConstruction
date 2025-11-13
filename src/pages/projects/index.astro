@@ -39,6 +39,7 @@ const srcsetOf = (src?: string) => !src ? undefined
 
 <MainLayout title="Projects">
     <Fragment slot="head">
+        <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
         <link rel="preconnect" href="https://kilcon.work" crossorigin>
         {cards.slice(0, 6).map((c) => {
             if (!c.src) return null;
