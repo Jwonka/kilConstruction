@@ -4,7 +4,7 @@ export interface Props {
         slug: string;
         name: string;
         summary?: string;
-        year?: string|number;
+        year?: string | number;
         location?: string;
     };
     first?: { name?: string; url?: string } | string;
@@ -13,18 +13,29 @@ export interface Props {
     eager?: boolean;
     cover?: string;
 }
+
 const { p, first, src, rotList = [], eager = false, cover } = Astro.props;
+
+const firstUrl = typeof first === 'string' ? first : first?.url;
+const firstName = typeof first === 'string' ? undefined : first?.name;
+
+// pick ONE primary image URL, in this order:
+const primary =
+    cover ||
+    (Array.isArray(rotList) && rotList.length > 0 ? rotList[0] : undefined) ||
+    firstUrl ||
+    src;
+
 const sized = (u?: string, w = 1200) =>
     u ? (u.includes('=s0') ? u.replace('=s0', `=w${w}`) : u) : undefined;
 
 const srcsetOf = (u?: string) =>
-    !u ? undefined : `${sized(u,600)} 600w, ${sized(u,1200)} 1200w, ${sized(u,2000)} 2000w`;
+    !u ? undefined : `${sized(u, 600)} 600w, ${sized(u, 1200)} 1200w, ${sized(u, 2000)} 2000w`;
 
-const mainSrc = sized(src, 1200);
-const srcset = srcsetOf(src);
-const sizes = "(max-width: 720px) 96vw, (max-width: 1200px) 45vw, 680px";
-const firstUrl  = typeof first === 'string' ? first : first?.url;
-const firstName = typeof first === 'string' ? undefined : first?.name;
+const mainSrc = sized(primary, 1200);
+const srcset = srcsetOf(primary);
+const sizes = '(max-width: 720px) 96vw, (max-width: 1200px) 45vw, 680px';
+
 // only set data-rot if there are multiple images
 const dataRot = Array.isArray(rotList) && rotList.length > 1 ? rotList.join(',') : undefined;
 ---
@@ -34,10 +45,10 @@ const dataRot = Array.isArray(rotList) && rotList.length > 1 ? rotList.join(',')
         <img
             class="photo"
             {...(dataRot ? { 'data-rot-srcs': JSON.stringify(rotList) } : {})}
-            src={mainSrc || firstUrl || cover}
+            src={mainSrc}
             alt={firstName || p.name}
             srcset={srcset}
-            data-cover={cover || firstUrl || ''}
+            data-cover={primary}
             sizes={sizes}
             width="1200" height="900"
             style="aspect-ratio: var(--ratio-projects); object-fit: cover;"

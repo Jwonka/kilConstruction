@@ -1,16 +1,38 @@
 ---
 import MainLayout from '../../layout/MainLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
-import { toCards } from "../../utils/projectCards";
+
 
 const PROD_ORIGIN = Astro.site?.origin || 'https://kilcon.work';
 const API_BASE = import.meta.env.DEV ? 'https://kilcon.work' : PROD_ORIGIN;
 const API = new URL('/api/gallery', API_BASE);
 
-type ListResponse = { projects?: any[] };
-type Card = ReturnType<typeof toCards>[number];
+type ProjectFromApi = {
+    slug: string;
+    name: string;
+    summary?: string;
+    year?: string;
+    location?: string;
+    previews?: { thumb?: string; full?: string }[];
+    images?: { thumb?: string; full?: string };
+};
 
-let cards: Card[]= [];
+type Card = {
+    p: {
+        slug: string;
+        name: string;
+        summary?: string;
+        year?: string;
+        location?: string;
+    };
+    first?: { name?: string; url?: string } | string;
+    src?: string;
+    rotList: string[];
+};
+
+type ListResponse = { projects?: ProjectFromApi[] };
+
+let cards: Card[] = [];
 try {
     const u = new URL(API);
     u.searchParams.set('list', 'projects');
@@ -21,25 +43,52 @@ try {
     }
     if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
         const json = (await res.json()) as ListResponse;
-        cards = toCards(json.projects ?? []);
+        const projects = json.projects ?? [];
+
+        cards = projects.map((proj) => {
+            const previews = proj.previews ?? [];
+            const firstPreview = previews[0];
+
+            // choose a cover image for the card
+            const cover =
+                proj.images?.thumb ||
+                proj.images?.full ||
+                firstPreview?.thumb ||
+                firstPreview?.full;
+
+            // list of images for the rotator
+            const rotList = previews
+                .map((p) => p.thumb || p.full)
+                .filter((u): u is string => !!u);
+
+            return {
+                p: {
+                    slug: proj.slug,
+                    name: proj.name,
+                    summary: proj.summary,
+                    year: proj.year,
+                    location: proj.location,
+                },
+                first: firstPreview
+                    ? {
+                        name: firstPreview.full?.split('/').pop() ?? '',
+                        url: firstPreview.thumb || firstPreview.full,
+                    }
+                    : undefined,
+                src: cover,
+                rotList,
+            };
+        });
     }
 } catch {}
-
 function hasUrl(x: unknown): x is { url: string } {
     return !!x && typeof (x as any).url === 'string';
 }
-// small helpers used only in the head <preload> links:
-const sized = (src?: string, w = 1200) => src
-    ? (src.includes('=s0') ? src.replace('=s0', `=w${w}`) : src)
-    : undefined;
-const srcsetOf = (src?: string) => !src ? undefined
-    : `${sized(src,600)} 600w, ${sized(src,1200)} 1200w, ${sized(src,2000)} 2000w`;
 
 ---
 
 <MainLayout title="Projects">
     <Fragment slot="head">
-        <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
         <link rel="preconnect" href="https://kilcon.work" crossorigin>
         {cards.slice(0, 6).map((c) => {
             if (!c.src) return null;
@@ -63,7 +112,7 @@ const srcsetOf = (src?: string) => !src ? undefined
                     src={c.src}
                     rotList={c.rotList}
                     eager={i < 6}
-                    cover={c.src ?? (typeof c.first === 'string' ? c.first : hasUrl(c.first) ? c.first.url : undefined)}
+                    cover={c.src ?? (hasUrl(c.first) ? c.first.url : undefined)}
                 />
             ))}
         </div>
