@@ -1,57 +1,53 @@
 ---
-const cookies = Astro.cookies;
+import AdminLayout from "../../layout/AdminLayout.astro";
 
-if (Astro.request.method === 'POST') {
-    const contentType = Astro.request.headers.get('content-type') || '';
+const cookies = Astro.cookies;
+let error = Astro.url.searchParams.get("error");
+
+if (Astro.request.method === "POST") {
+    const formData = await Astro.request.formData();
+    const username = formData.get("username");
+    const password = formData.get("password");
 
     if (
-        contentType.includes('application/x-www-form-urlencoded') ||
-        contentType.includes('multipart/form-data')
+        username === import.meta.env.ADMIN_USER &&
+        password === import.meta.env.ADMIN_PASS
     ) {
-        const formData = await Astro.request.formData();
-        const username = formData.get('username');
-        const password = formData.get('password');
+        cookies.set("admin_auth", import.meta.env.ADMIN_SECRET, {
+            path: "/",
+            httpOnly: true,
+            secure: import.meta.env.PROD,
+            sameSite: "strict",
+            maxAge: 60 * 60 * 24,
+        });
 
-        if (username === import.meta.env.ADMIN_USER && password === import.meta.env.ADMIN_PASS) {
-            cookies.set('admin_auth', import.meta.env.ADMIN_SECRET, {
-                path: '/',
-                httpOnly: true,
-                secure: import.meta.env.PROD,
-                sameSite: 'strict',
-                maxAge: 60 * 60 * 24,
-            });
-
-            return new Response(null, {
-                status: 302,
-                headers: { Location: '/admin/dashboard' }
-            });
-        } else {
-            return new Response('Invalid credentials', { status: 401 });
-        }
+        return new Response(null, {
+            status: 302,
+            headers: { Location: "/admin/dashboard" },
+        });
     } else {
-        return new Response('Unsupported Content-Type', { status: 415 });
+        error = "Invalid username or password";
     }
 }
 ---
+<AdminLayout title="Admin Login">
+    <h1 class="admin-title">Admin Login</h1>
 
-<html>
-<head>
-    <title>Admin Login</title>
-</head>
-<body>
-<h1>Admin Login</h1>
-<form method="POST">
-    <label>
-        Username:
-        <input type="text" name="username" required />
-    </label>
-    <br />
-    <label>
-        Password:
-        <input type="password" name="password" required />
-    </label>
-    <br />
-    <button type="submit">Login</button>
-</form>
-</body>
-</html>
+    {error && <p class="admin-error">{error}</p>}
+
+    <form method="POST" class="admin-form">
+        <label class="admin-field-label">
+            <span>Username</span>
+            <input type="text" name="username" required class="admin-input" autocomplete="username"/>
+        </label>
+
+        <label class="admin-field-label">
+            <span>Password</span>
+            <input type="password" name="password" required class="admin-input" utocomplete="current-password"/>
+        </label>
+
+        <button type="submit" class="btn admin-btn">
+            Login
+        </button>
+    </form>
+</AdminLayout>

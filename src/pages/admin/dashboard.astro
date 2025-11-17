@@ -1,26 +1,33 @@
 ---
-const cookies = AstroCookies();
-const isAdmin = cookies.get('admin_auth')?.value === import.meta.env.ADMIN_SECRET;
+import AdminLayout from "../../layout/AdminLayout.astro";
 
-if (!isAdmin) {
+const cookies = Astro.cookies;
+const auth = cookies.get("admin_auth")?.value;
+
+if (auth !== import.meta.env.ADMIN_SECRET) {
     return new Response(null, {
         status: 302,
-        headers: { Location: '/' }
+        headers: { Location: "/admin/login" },
     });
 }
 ---
+<AdminLayout title="Admin Dashboard">
+    <h1 class="admin-title">Admin Dashboard</h1>
 
-<html>
-<head>
-    <title>Admin Dashboard</title>
-</head>
-<body>
-<h1>Admin Dashboard</h1>
-<ul>
-    <li><a href="/admin/upload">Upload Images</a></li>
-    <li><a href="/admin/manage">Manage Uploaded Files</a></li>
-    <li><a href="/admin/reviews">Moderate Reviews</a></li>
-</ul>
-</body>
-</html>
+    <nav class="admin-actions">
+        <a href="/admin/upload" class="btn admin-btn">
+            <span class="icon" aria-hidden="true">📤</span>
+            <span>Upload Images</span>
+        </a>
 
+        <a href="/admin/manage" class="btn admin-btn">
+            <span class="icon" aria-hidden="true">📁</span>
+            <span>Manage Uploaded Files</span>
+        </a>
+
+        <a href="/admin/reviews" class="btn admin-btn">
+            <span class="icon" aria-hidden="true">📝</span>
+            <span>Moderate Reviews</span>
+        </a>
+    </nav>
+</AdminLayout>npm

@@ -1,0 +1,60 @@
+---
+import AdminLayout from "../../layout/AdminLayout.astro";
+
+const cookies = Astro.cookies;
+const auth = cookies.get("admin_auth")?.value;
+
+if (auth !== import.meta.env.ADMIN_SECRET) {
+    return new Response(null, {
+        status: 302,
+        headers: { Location: "/admin/login" },
+    });
+}
+---
+
+<AdminLayout title="Upload Images">
+    <h1 class="admin-title">Upload Images</h1>
+
+    <form
+            method="POST"
+            action="/api/admin/upload"
+    enctype="multipart/form-data"
+    class="admin-form"
+    >
+    <label class="admin-field-label">
+        <span>Category / Folder</span>
+        <input
+                name="category"
+                class="admin-input"
+                placeholder="e.g. Projects/Ganz Re-Deck"
+                required
+        />
+    </label>
+
+    <label class="admin-field-label">
+        <span>Images</span>
+        <input
+                type="file"
+                name="files"
+                multiple
+                accept="image/*"
+                class="admin-input"
+        />
+    </label>
+
+    <label class="admin-field-label">
+        <span>Notes (optional)</span>
+        <textarea
+                name="notes"
+                rows="3"
+                class="admin-input"
+                style="resize: vertical;"
+        ></textarea>
+    </label>
+
+    <button type="submit" class="btn admin-btn">
+        📤 Upload
+    </button>
+    </form>
+</AdminLayout>
+

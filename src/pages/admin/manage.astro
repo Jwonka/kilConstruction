@@ -1,0 +1,32 @@
+---
+import AdminLayout from "../../layout/AdminLayout.astro";
+
+const cookies = Astro.cookies;
+const auth = cookies.get("admin_auth")?.value;
+
+if (auth !== import.meta.env.ADMIN_SECRET) {
+    return new Response(null, {
+        status: 302,
+        headers: { Location: "/admin/login" },
+    });
+}
+---
+
+<AdminLayout title="Manage Uploaded Files">
+    <h1 class="admin-title">Manage Uploaded Files</h1>
+
+    <p style="margin-bottom: 1.5rem; color:#4b5563; text-align:center;">
+        This will become your simple file manager: browse folders, rename projects,
+        and remove images from the gallery.
+    </p>
+
+    <div class="admin-actions" style="justify-content:center;">
+        <a href="/admin/manage/projects" class="btn admin-btn">
+            📁 Browse Projects
+        </a>
+        <a href="/admin/manage/search" class="btn admin-btn">
+            🔍 Search by file name
+        </a>
+    </div>
+</AdminLayout>
+

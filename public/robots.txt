@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /node_modules/
+Disallow: /*?*
+Allow: /
+
+Sitemap: https://kilcon.work/sitemap.xml

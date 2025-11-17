@@ -1,0 +1,257 @@
+---
+import "../styles/global.css";
+import logo from "../assets/logo.png";
+interface Props {
+    title?: string;
+}
+
+const { title = "Admin" } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} | KIL Construction</title>
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+    <header class="admin-header">
+        <div class="admin-header-inner">
+            <a href="/" class="admin-brand">
+                <img
+                    src={logo.src}
+                    alt="KIL Construction logo"
+                    class="admin-logo-img"
+                    loading="lazy"
+                    decoding="async"
+                />
+                <span class="admin-brand-text">KIL Construction</span>
+                <span class="admin-tag">Admin</span>
+            </a>
+
+
+            <a href="/" class="admin-header-link">
+                ← Back to site
+            </a>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="admin-card">
+            <slot />
+        </div>
+    </main>
+
+    <footer class="admin-footer">
+        <p>Admin access for KIL Construction. Keep this page private.</p>
+    </footer>
+</div>
+</body>
+</html>
+
+<style>
+    .admin-body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+        background: #f3f4f6;
+        color: var(--ink, #111827);
+    }
+
+    .admin-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .admin-header {
+        background: var(--brand, #3f5422);
+        color: #f9fafb;
+        padding: 0.85rem clamp(1.25rem, 4vw, 2.25rem);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .admin-header-inner {
+        max-width: var(--max, 1200px);
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .admin-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        text-decoration: none;
+        color: inherit;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+    }
+
+    .admin-logo-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        object-fit: contain;
+        background: #fff;
+        box-shadow: 0 0 0 2px #f9fafb;
+    }
+
+    .admin-brand-text {
+        font-size: 1.05rem;
+    }
+
+    .admin-tag {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.22);
+    }
+
+    .admin-header-link {
+        color: #f9fafb;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        opacity: 0.82;
+        border-radius: 999px;
+        padding: 0.25rem 0.75rem;
+        border: 1px solid rgba(249, 250, 251, 0.28);
+        transition: background 160ms ease, opacity 160ms ease,
+        transform 120ms ease;
+    }
+
+    .admin-header-link:hover {
+        opacity: 1;
+        background: rgba(15, 23, 42, 0.25);
+        transform: translateY(-1px);
+    }
+
+    .admin-main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+    }
+
+    .admin-card {
+        width: 100%;
+        max-width: 720px;
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+        padding: 32px clamp(24px, 4vw, 40px) 28px;
+    }
+
+    .admin-title {
+        margin: 0 0 24px;
+        font-size: clamp(1.9rem, 2.2vw, 2.3rem);
+        text-align: center;
+        color: var(--ink, #111827);
+    }
+
+    /* Shared form styles for login / future admin forms */
+    .admin-form {
+        display: grid;
+        gap: 18px;
+        margin-top: 8px;
+    }
+
+    .admin-field-label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.98rem;
+    }
+
+    .admin-input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        font-size: 0.98rem;
+        background: #e5f0ff;
+        outline: none;
+        transition: box-shadow 140ms ease, border-color 140ms ease,
+        background 140ms ease, transform 80ms ease;
+    }
+
+    .admin-input:focus {
+        border-color: var(--accent, #f59e0b);
+        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+        background: #f9fbff;
+        transform: translateY(-0.5px);
+    }
+
+    .admin-error {
+        margin: 0 0 10px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        background: #fef2f2;
+        color: #b91c1c;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-align: center;
+        border: 1px solid #fecaca;
+    }
+
+    /* Dashboard action buttons */
+    .admin-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 8px;
+    }
+
+    .admin-btn {
+        /* piggyback on global .btn styles */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 420px;
+        margin-inline: auto;
+        gap: 0.6rem;
+        font-size: 1.05rem;
+    }
+
+    .admin-btn .icon {
+        font-size: 1.3rem;
+    }
+
+    .admin-footer {
+        padding: 0.75rem clamp(1.25rem, 4vw, 2.25rem) 1rem;
+        font-size: 0.8rem;
+        color: #6b7280;
+        text-align: center;
+    }
+
+    .admin-footer p {
+        margin: 0;
+    }
+
+    @media (min-width: 720px) {
+        .admin-main {
+            padding: 3rem 1.5rem 2.5rem;
+        }
+
+        .admin-actions {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .admin-btn {
+            max-width: 260px;
+        }
+    }
+</style>

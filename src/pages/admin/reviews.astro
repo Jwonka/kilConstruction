@@ -1,0 +1,44 @@
+---
+import AdminLayout from "../../layout/AdminLayout.astro";
+
+const cookies = Astro.cookies;
+const auth = cookies.get("admin_auth")?.value;
+
+if (auth !== import.meta.env.ADMIN_SECRET) {
+    return new Response(null, {
+        status: 302,
+        headers: { Location: "/admin/login" },
+    });
+}
+---
+
+<AdminLayout title="Moderate Reviews">
+    <h1 class="admin-title">Moderate Reviews</h1>
+
+    <p style="margin-bottom: 1.5rem; color:#4b5563; text-align:center;">
+        Later we can sync this with Google reviews or a simple testimonial list.
+        For now, you can draft and edit quotes you want to show on the site.
+    </p>
+
+    <form method="POST" action="/api/admin/reviews" class="admin-form">
+        <label class="admin-field-label">
+            <span>Client name</span>
+            <input name="client" class="admin-input" />
+        </label>
+
+        <label class="admin-field-label">
+            <span>Review text</span>
+            <textarea
+                    name="review"
+                    rows="4"
+                    class="admin-input"
+                    style="resize: vertical;"
+            ></textarea>
+        </label>
+
+        <button type="submit" class="btn admin-btn">
+            📝 Save Review
+        </button>
+    </form>
+</AdminLayout>
+
