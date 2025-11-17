@@ -1,8 +1,9 @@
 import type { APIRoute } from "astro";
 
 // Set your admin credentials securely
-const ADMIN_USERNAME = import.meta.env.ADMIN_USERNAME;
-const ADMIN_PASSWORD = import.meta.env.ADMIN_PASSWORD;
+const ADMIN_USERNAME = import.meta.env.ADMIN_USER;
+const ADMIN_PASSWORD = import.meta.env.ADMIN_PASS;
+
 
 export const POST: APIRoute = async ({ request, redirect, cookies }) => {
     const formData = await request.formData();
