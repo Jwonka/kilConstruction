@@ -1,10 +1,7 @@
 ---
 import "../styles/global.css";
 import logo from "../assets/logo.png";
-interface Props {
-    title?: string;
-}
-
+interface Props { title?: string; }
 const { title = "Admin" } = Astro.props;
 ---
 
@@ -31,10 +28,8 @@ const { title = "Admin" } = Astro.props;
                 <span class="admin-tag">Admin</span>
             </a>
 
-
-            <a href="/" class="admin-header-link">
-                ← Back to site
-            </a>
+            <a href="/" class="admin-header-link">← Back to site</a>
+            <a href="/admin/logout" class="admin-header-link">Logout</a>
         </div>
     </header>
 
