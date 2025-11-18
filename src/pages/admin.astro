@@ -6,7 +6,7 @@ export const prerender = false; // force runtime (server) rendering
 const cookies = Astro.cookies;
 
 // read from the same runtime env that /admin/env-test is using
-const env = Astro.locals.runtime?.env ?? {};
+const env = (Astro.locals as any)?.runtime?.env ?? {};
 const ADMIN_USER   = env.ADMIN_USER;
 const ADMIN_PASS   = env.ADMIN_PASS;
 const ADMIN_SECRET = env.ADMIN_SECRET;
