@@ -1,21 +1,18 @@
 ---
 import AdminLayout from "../layout/AdminLayout.astro";
 
-export const prerender = false; // force runtime (server) rendering
-
 const cookies = Astro.cookies;
+let error = Astro.url.searchParams.get("error");
 
-// read from the same runtime env that /admin/env-test is using
-const env = (Astro.locals as any)?.runtime?.env ?? {};
+// Cloudflare runtime env
+const env = (Astro.locals as any).runtime?.env ?? {};
+
 const ADMIN_USER   = env.ADMIN_USER;
 const ADMIN_PASS   = env.ADMIN_PASS;
 const ADMIN_SECRET = env.ADMIN_SECRET;
 
-let error: string | null = null;
-
-// log once so we know what the server sees
 if (!ADMIN_USER || !ADMIN_PASS || !ADMIN_SECRET) {
-    console.warn("[admin] Missing ADMIN_USER / ADMIN_PASS / ADMIN_SECRET in runtime env");
+    console.warn("[admin] Missing ADMIN_* in runtime env");
 }
 
 if (Astro.request.method === "POST") {
@@ -26,23 +23,21 @@ if (Astro.request.method === "POST") {
     const valid =
         typeof username === "string" &&
         typeof password === "string" &&
-        typeof ADMIN_USER === "string" &&
-        typeof ADMIN_PASS === "string" &&
         username === ADMIN_USER &&
         password === ADMIN_PASS;
 
     if (!valid) {
         error = "Invalid username or password";
     } else {
-        cookies.set("admin_auth", ADMIN_SECRET as string, {
+        cookies.set("admin_auth", ADMIN_SECRET, {
             path: "/",
             httpOnly: true,
             secure: import.meta.env.PROD,
             sameSite: "strict",
-            maxAge: 60 * 60 * 6, // 6 hours
+            maxAge: 60 * 60 * 6,
         });
 
-        // nicer Astro redirect helper
+        // Use Astro.redirect so the cookie is attached correctly
         return Astro.redirect("/admin/dashboard");
     }
 }
