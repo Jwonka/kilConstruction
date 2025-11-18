@@ -3,7 +3,9 @@ import AdminLayout from "../../layout/AdminLayout.astro";
 
 const cookies = Astro.cookies;
 const auth = cookies.get("admin_auth")?.value || "";
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
+const env = (Astro.locals as any).runtime?.env ?? {};
+const ADMIN_SECRET = env.ADMIN_SECRET;
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -11,35 +13,266 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         headers: { Location: "/admin" },
     });
 }
+
+// TODO: replace this with real data (KV / DB / API)
+const reviews = [
+    {
+        id: "r1",
+        client: "Jane Doe",
+        subject: "Deck rebuild",
+        rating: 5,
+        createdAt: "2024-10-01",
+        text: "KIL Construction did an awesome job on our deck.",
+    },
+    {
+        id: "r2",
+        client: "John Smith",
+        subject: "Kitchen remodel",
+        rating: 4,
+        createdAt: "2024-09-15",
+        text: "Very happy with the work and communication.",
+    },
+];
 ---
 
 <AdminLayout title="Moderate Reviews">
     <h1 class="admin-title">Moderate Reviews</h1>
-
-    <p style="margin-bottom: 1.5rem; color:#4b5563; text-align:center;">
-        Later we can sync this with Google reviews or a simple testimonial list.
-        For now, you can draft and edit quotes you want to show on the site.
+    <p class="admin-subtitle">
+        View reviews currently shown on the public site. In a later step we’ll hook
+        these actions up to a real backend for delete / moderation.
     </p>
 
-    <form method="POST" action="/api/admin/reviews" class="admin-form">
-        <label class="admin-field-label">
-            <span>Client name</span>
-            <input name="client" class="admin-input" />
-        </label>
+    <section class="panel">
+        <div class="toolbar">
+            <label for="reviewSearch"></label><input
+                    id="reviewSearch"
+                    type="search"
+                    placeholder="Search by client name or subject…"
+                    class="search-input"
+            />
+        </div>
 
-        <label class="admin-field-label">
-            <span>Review text</span>
-            <textarea
-                    name="review"
-                    rows="4"
-                    class="admin-input"
-                    style="resize: vertical;"
-            ></textarea>
-        </label>
+        <ul id="reviewList" class="review-list" data-json={JSON.stringify(reviews)}></ul>
+    </section>
 
-        <button type="submit" class="btn admin-btn">
-            📝 Save Review
-        </button>
-    </form>
+    <script>
+        // @ts-nocheck
+        document.addEventListener("DOMContentLoaded", () => {
+            const listEl = document.getElementById("reviewList") as HTMLUListElement | null;
+            const searchEl = document.getElementById("reviewSearch") as HTMLInputElement | null;
+
+            if (!listEl || !searchEl) {
+                console.error("[admin/reviews] Missing reviewList or reviewSearch element");
+                return;
+            }
+
+            const raw = listEl.dataset.json ?? "[]";
+
+            let items = JSON.parse(raw);
+
+            function render() {
+                const q = searchEl.value.trim().toLowerCase();
+                listEl.innerHTML = "";
+
+                const filtered = items.filter((r) => {
+                    if (!q) return true;
+                    return (
+                        r.client.toLowerCase().includes(q) ||
+                        r.subject.toLowerCase().includes(q)
+                    );
+                });
+
+                if (!filtered.length) {
+                    listEl.innerHTML =
+                        '<li class="empty">No reviews match that search.</li>';
+                    return;
+                }
+
+                for (const r of filtered) {
+                    const li = document.createElement("li");
+                    li.className = "review-item";
+
+                    li.innerHTML = `
+          <div class="review-main">
+            <div class="review-header">
+              <span class="review-client">${r.client}</span>
+              <span class="review-rating">★ ${r.rating}</span>
+            </div>
+            <div class="review-subject">${r.subject}</div>
+            <div class="review-meta">${r.createdAt}</div>
+            <p class="review-text">${r.text}</p>
+          </div>
+          <div class="review-actions">
+            <button class="btn-pill btn-danger" data-id="${r.id}" data-action="delete">
+              Delete
+            </button>
+            <button class="btn-pill btn-primary" data-id="${r.id}" data-action="reply">
+              Reply
+            </button>
+          </div>
+        `;
+
+                    listEl.appendChild(li);
+                }
+            }
+
+            listEl.addEventListener("click", (ev) => {
+                const target = ev.target as HTMLElement | null;
+                if (!target) return;
+
+                const action = target.dataset.action;
+                const id = target.dataset.id;
+                if (!action || !id) return;
+
+                const review = items.find((r) => r.id === id);
+                if (!review) return;
+
+                if (action === "delete") {
+                    const ok = confirm(
+                        `Delete review from "${review.client}" about "${review.subject}"?`
+                    );
+                    if (!ok) return;
+                    console.log("[admin] Would delete review:", review);
+                    alert("Delete is not wired to the backend yet; this is just a preview.");
+                }
+
+                if (action === "reply") {
+                    const subject = encodeURIComponent(
+                        `Reply to your review: ${review.subject}`
+                    );
+                    const body = encodeURIComponent(
+                        `Hi ${review.client},\n\nThanks for your review about "${review.subject}".\n\n(Write your reply here.)\n\n— KIL Construction`
+                    );
+                    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+                }
+            });
+
+            searchEl.addEventListener("input", render);
+            render();
+        });
+    </script>
 </AdminLayout>
 
+<style>
+    .admin-title {
+        margin: 0 0 8px;
+        font-size: clamp(1.6rem, 2.2vw, 1.9rem);
+    }
+
+    .admin-subtitle {
+        margin: 0 0 20px;
+        color: #4b5563;
+        font-size: 0.98rem;
+    }
+
+    .panel {
+        border-radius: 18px;
+        border: 1px solid #e5e7eb;
+        padding: 16px;
+        background: #f9fafb;
+    }
+
+    .toolbar {
+        margin-bottom: 12px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        font-size: 0.95rem;
+    }
+
+    .review-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .review-item {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: space-between;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+    }
+
+    .review-main {
+        min-width: 0;
+        flex: 1 1 260px;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 8px;
+    }
+
+    .review-client {
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .review-rating {
+        font-size: 0.85rem;
+        color: #f97316;
+    }
+
+    .review-subject {
+        font-size: 0.92rem;
+        color: #111827;
+    }
+
+    .review-meta {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+
+    .review-text {
+        margin: 6px 0 0;
+        font-size: 0.9rem;
+        color: #374151;
+    }
+
+    .review-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-end;
+    }
+
+    .btn-pill {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: #111827;
+        color: #f9fafb;
+        border-color: #111827;
+    }
+
+    .btn-danger {
+        background: #fee2e2;
+        color: #b91c1c;
+        border-color: #fecaca;
+    }
+
+    .empty {
+        font-size: 0.9rem;
+        color: #6b7280;
+        padding: 6px 2px;
+    }
+</style>

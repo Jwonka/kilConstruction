@@ -3,31 +3,245 @@ import AdminLayout from "../../layout/AdminLayout.astro";
 
 const cookies = Astro.cookies;
 const auth = cookies.get("admin_auth")?.value || "";
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
+// Cloudflare runtime env
+const env = (Astro.locals as any).runtime?.env ?? {};
+const ADMIN_SECRET = env.ADMIN_SECRET;
+const GALLERY_API = env.PUBLIC_GALLERY_API;
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
         status: 302,
-        headers: { Location: "/admin/" },
+        headers: { Location: "/admin" },
     });
 }
 ---
-
 <AdminLayout title="Manage Uploaded Files">
     <h1 class="admin-title">Manage Uploaded Files</h1>
-
-    <p style="margin-bottom: 1.5rem; color:#4b5563; text-align:center;">
-        This will become your simple file manager: browse folders, rename projects,
-        and remove images from the gallery.
+    <p class="admin-subtitle">
+        Browse and search existing folders from the R2 gallery bucket.
+        This view is read-only for now (no delete/move yet).
     </p>
 
-    <div class="admin-actions" style="justify-content:center;">
-        <a href="/admin/manage/projects" class="btn admin-btn">
-            📁 Browse Projects
-        </a>
-        <a href="/admin/manage/search" class="btn admin-btn">
-            🔍 Search by file name
-        </a>
-    </div>
+    <section class="panel">
+        <div class="toolbar">
+            <label for="search"></label><input
+                    id="search"
+                    type="search"
+                    placeholder="Search by folder or file name…"
+                    class="search-input"
+            />
+            <button id="refresh" type="button" class="btn-small">
+                Refresh
+            </button>
+        </div>
+
+        <div id="status" class="status-row">Loading projects…</div>
+
+        <ul id="results" class="results-list" data-api={GALLERY_API}></ul>
+    </section>
+
+    <script>
+        // @ts-nocheck
+        document.addEventListener("DOMContentLoaded", () => {
+            const listEl = document.getElementById("results") as HTMLUListElement | null;
+            const statusEl = document.getElementById("status") as HTMLDivElement | null;
+            const searchEl = document.getElementById("search") as HTMLInputElement | null;
+            const refreshEl = document.getElementById("refresh") as HTMLButtonElement | null;
+
+            if (!listEl || !statusEl || !searchEl || !refreshEl) {
+                console.error("[admin/manage] Missing one or more DOM elements");
+                return;
+                }
+
+            const api = listEl.dataset.api ?? "";
+            if (!api) {
+                statusEl.textContent = "Missing gallery API URL.";
+                return;
+                }
+
+            /** @type {{ slug: string; name?: string }[]} */
+                let allProjects = [];
+
+            async function load() {
+                try {
+                    statusEl.textContent = "Loading projects…";
+                    listEl.innerHTML = "";
+
+                    const res = await fetch(`${api}?list=projects`);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                    const data = await res.json();
+                    allProjects = (data.projects || []) as { slug: string; name?: string }[];
+
+                    statusEl.textContent = `Loaded ${allProjects.length} folders.`;
+                    render();
+                    } catch (err) {
+                    console.error(err);
+                    statusEl.textContent = "Error loading projects.";
+                    }
+                }
+
+            function render() {
+                const q = searchEl.value.trim().toLowerCase();
+                listEl.innerHTML = "";
+
+                const items = allProjects.filter((p) => {
+                    if (!q) return true;
+                    const name = (p.name || "").toLowerCase();
+                    const slug = (p.slug || "").toLowerCase();
+                    return name.includes(q) || slug.includes(q);
+                    });
+
+                if (!items.length) {
+                    listEl.innerHTML =
+                        '<li class="empty">No folders match that search.</li>';
+                    return;
+                    }
+
+                for (const p of items) {
+                    const li = document.createElement("li");
+                    li.className = "result-item";
+
+                    const title = document.createElement("div");
+                    title.className = "result-title";
+                    title.textContent = p.name || p.slug || "(unnamed)";
+
+                    const meta = document.createElement("div");
+                    meta.className = "result-meta";
+                    meta.textContent = p.slug;
+
+                    const actions = document.createElement("div");
+                    actions.className = "result-actions";
+
+                    const viewBtn = document.createElement("a");
+                    viewBtn.href = `/projects/${encodeURIComponent(p.slug)}/`;
+                    viewBtn.target = "_blank";
+                    viewBtn.rel = "noreferrer";
+                    viewBtn.textContent = "Open gallery";
+                    viewBtn.className = "btn-pill";
+
+                    actions.appendChild(viewBtn);
+
+                    li.appendChild(title);
+                    li.appendChild(meta);
+                    li.appendChild(actions);
+                    listEl.appendChild(li);
+                    }
+                }
+
+            searchEl!.addEventListener("input", render);
+            refreshEl!.addEventListener("click", load);
+
+            load();
+            });
+    </script>
 </AdminLayout>
+
+<style>
+    .admin-title {
+        margin: 0 0 8px;
+        font-size: clamp(1.6rem, 2.2vw, 1.9rem);
+    }
+
+    .admin-subtitle {
+        margin: 0 0 20px;
+        color: #4b5563;
+        font-size: 0.98rem;
+    }
+
+    .panel {
+        border-radius: 18px;
+        border: 1px solid #e5e7eb;
+        padding: 16px;
+        background: #f9fafb;
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        flex: 1 1 220px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        font-size: 0.95rem;
+    }
+
+    .btn-small {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: none;
+        font-size: 0.9rem;
+        background: #111827;
+        color: #f9fafb;
+        cursor: pointer;
+    }
+
+    .status-row {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-bottom: 10px;
+    }
+
+    .results-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .result-item {
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .result-title {
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .result-meta {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .result-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-pill {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        font-size: 0.85rem;
+        text-decoration: none;
+        color: #111827;
+        background: #f9fafb;
+    }
+
+    .btn-pill:hover {
+        background: #e5e7eb;
+    }
+
+    .empty {
+        font-size: 0.9rem;
+        color: #6b7280;
+        padding: 8px 2px;
+    }
+</style>
 

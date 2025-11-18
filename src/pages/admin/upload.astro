@@ -3,7 +3,10 @@ import AdminLayout from "../../layout/AdminLayout.astro";
 
 const cookies = Astro.cookies;
 const auth = cookies.get("admin_auth")?.value || "";
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
+// Runtime env from Cloudflare Pages
+const env = (Astro.locals as any).runtime?.env ?? {};
+const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -15,47 +18,243 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
 <AdminLayout title="Upload Images">
     <h1 class="admin-title">Upload Images</h1>
+    <p class="admin-subtitle">
+        Upload new images to the R2 gallery bucket. You can upload a whole folder
+        or individual files. Files will be stored under
+        <code>uploads/&lt;Category&gt;/&lt;Subfolder&gt;/…</code>.
+    </p>
 
-    <form
-            method="POST"
-            action="/api/admin/upload"
-    enctype="multipart/form-data"
-    class="admin-form"
-    >
-    <label class="admin-field-label">
-        <span>Category / Folder</span>
-        <input
-                name="category"
-                class="admin-input"
-                placeholder="e.g. Projects/Ganz Re-Deck"
-                required
-        />
-    </label>
+    <section class="panel">
+        <form id="admin-upload-form" class="admin-form">
+            <div class="admin-form-grid">
+                <label class="admin-field-label">
+                    <span>Upload mode</span>
+                    <select id="mode" name="mode" class="admin-input">
+                        <option value="folder">Upload a folder (recommended)</option>
+                        <option value="files">Upload individual files</option>
+                    </select>
+                </label>
 
-    <label class="admin-field-label">
-        <span>Images</span>
-        <input
-                type="file"
-                name="files"
-                multiple
-                accept="image/*"
-                class="admin-input"
-        />
-    </label>
+                <label class="admin-field-label">
+                    <span>Category</span>
+                    <select id="category" name="category" class="admin-input" required>
+                        <option value="Projects">Projects</option>
+                        <option value="Highlights">Highlights</option>
+                        <option value="Services">Services</option>
+                        <option value="New Construction">New Construction</option>
+                        <option value="Remodels">Remodels</option>
+                        <option value="Furniture">Furniture</option>
+                    </select>
+                </label>
 
-    <label class="admin-field-label">
-        <span>Notes (optional)</span>
-        <textarea
-                name="notes"
-                rows="3"
-                class="admin-input"
-                style="resize: vertical;"
-        ></textarea>
-    </label>
+                <label class="admin-field-label">
+                    <span>Subfolder name</span>
+                    <input
+                            id="subfolder"
+                            name="subfolder"
+                            class="admin-input"
+                            placeholder="Optional – inferred from folder if left blank"
+                    />
+                </label>
+            </div>
 
-    <button type="submit" class="btn admin-btn">
-        📤 Upload
-    </button>
-    </form>
+            <label class="admin-field-label">
+                <span>Files / Folder</span>
+                <input
+                        id="fileInput"
+                        type="file"
+                        name="files"
+                        multiple
+                        class="admin-input"
+                />
+                <small class="hint">
+                    In “folder” mode, pick a folder (supports nested folders). In
+                    “files” mode, pick one or more individual images.
+                </small>
+            </label>
+
+            <label class="admin-field-label">
+                <span>Notes (optional)</span>
+                <textarea
+                        id="notes"
+                        name="notes"
+                        rows="3"
+                        class="admin-input"
+                        style="resize: vertical;"
+                ></textarea>
+            </label>
+
+            <div class="actions-row">
+                <button type="submit" class="btn admin-btn" id="submitBtn">
+                    📤 Upload
+                </button>
+                <span id="status" class="status-text"></span>
+            </div>
+
+            <div id="result" class="upload-result"></div>
+        </form>
+    </section>
+
+    <script>
+        // @ts-nocheck
+        const formEl = document.getElementById("admin-upload-form");
+        const modeEl = document.getElementById("mode");
+        const categoryEl = document.getElementById("category");
+        const subfolderEl = document.getElementById("subfolder");
+        const fileInput = document.getElementById("fileInput");
+        const statusEl = document.getElementById("status");
+        const resultEl = document.getElementById("result");
+        const submitBtn = document.getElementById("submitBtn");
+
+        function applyMode() {
+            const mode = modeEl.value;
+            if (mode === "folder") {
+                fileInput.setAttribute("webkitdirectory", "");
+                fileInput.setAttribute("directory", "");
+            } else {
+                fileInput.removeAttribute("webkitdirectory");
+                fileInput.removeAttribute("directory");
+            }
+            fileInput.value = ""; // reset selection when mode changes
+        }
+
+        modeEl.addEventListener("change", applyMode);
+        applyMode();
+
+        formEl.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const files = fileInput.files;
+            if (!files || !files.length) {
+                alert("Please choose at least one file or folder.");
+                return;
+            }
+
+            const category = categoryEl.value.trim();
+            let subfolder = subfolderEl.value.trim().replace(/\/+$/, "");
+
+            // If no subfolder was provided, infer from first file folder name
+            if (!subfolder) {
+                const firstPath = files[0].webkitRelativePath || "";
+                subfolder = firstPath.split("/")[0] || "misc";
+            }
+
+            const formData = new FormData();
+
+            for (const file of files) {
+                const relativePath = file.webkitRelativePath || file.name;
+                const cleanedPath = relativePath.split("/").slice(1).join("/");
+                const fullPath = `${category}/${subfolder}/${cleanedPath || file.name}`.replace(
+                    /\/+/g,
+                    "/"
+                );
+                formData.append(fullPath, file);
+            }
+
+            // Optional: include notes as a separate field if you ever want them on the worker side
+            const notes = document.getElementById("notes").value.trim();
+            if (notes) {
+                formData.append("notes.txt", new Blob([notes], { type: "text/plain" }));
+            }
+
+            statusEl.textContent = "Uploading…";
+            resultEl.innerHTML = "";
+            submitBtn.disabled = true;
+
+            try {
+                const res = await fetch("/api/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                resultEl.innerHTML = await res.text();
+                statusEl.textContent = res.ok ? "Upload complete." : "Upload failed.";
+            } catch (err) {
+                console.error(err);
+                statusEl.textContent = "Upload error – see console.";
+                resultEl.textContent = "";
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
 </AdminLayout>
+
+<style>
+    .admin-title {
+        margin: 0 0 8px;
+        font-size: clamp(1.6rem, 2.2vw, 1.9rem);
+    }
+
+    .admin-subtitle {
+        margin: 0 0 20px;
+        color: #4b5563;
+        font-size: 0.98rem;
+    }
+
+    .panel {
+        border-radius: 18px;
+        border: 1px solid #e5e7eb;
+        padding: 16px;
+        background: #f9fafb;
+    }
+
+    .admin-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .admin-form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+    }
+
+    .admin-field-label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 0.9rem;
+    }
+
+    .admin-input {
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        font-size: 0.95rem;
+        background: #fff;
+    }
+
+    .hint {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .actions-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .status-text {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    .upload-result {
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        font-size: 0.9rem;
+        max-height: 260px;
+        overflow: auto;
+    }
+
+    .admin-btn {
+        padding-inline: 18px;
+    }
+</style>
 
