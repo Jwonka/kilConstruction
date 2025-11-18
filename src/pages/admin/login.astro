@@ -9,24 +9,32 @@ if (Astro.request.method === "POST") {
     const username = formData.get("username");
     const password = formData.get("password");
 
-    if (
-        username === import.meta.env.ADMIN_USER &&
-        password === import.meta.env.ADMIN_PASS
-    ) {
-        cookies.set("admin_auth", import.meta.env.ADMIN_SECRET, {
+    const ADMIN_USER   = import.meta.env.ADMIN_USER;
+    const ADMIN_PASS   = import.meta.env.ADMIN_PASS;
+    const ADMIN_SECRET = import.meta.env.ADMIN_SECRET;
+
+    const valid =
+        typeof username === "string" &&
+        typeof password === "string" &&
+        username === ADMIN_USER &&
+        password === ADMIN_PASS;
+
+    if (!valid) {
+        error = "Invalid username or password";
+    } else {
+        // issue signed-ish session cookie
+        cookies.set("admin_auth", ADMIN_SECRET, {
             path: "/",
             httpOnly: true,
-            secure: import.meta.env.PROD,
+            secure: import.meta.env.PROD,   // secure in prod, http locally
             sameSite: "strict",
-            maxAge: 60 * 60 * 24,
+            maxAge: 60 * 60 * 6,            // 6 hours
         });
 
         return new Response(null, {
             status: 302,
             headers: { Location: "/admin/dashboard" },
         });
-    } else {
-        error = "Invalid username or password";
     }
 }
 ---
