@@ -2,12 +2,14 @@
 import AdminLayout from "../../layout/AdminLayout.astro";
 
 const cookies = Astro.cookies;
-const auth = cookies.get("admin_auth")?.value;
+const auth = cookies.get("admin_auth")?.value || "";
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
-if (auth !== import.meta.env.ADMIN_SECRET) {
+
+if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
         status: 302,
-        headers: { Location: "/admin/login" },
+        headers: { Location: "/admin" },
     });
 }
 ---

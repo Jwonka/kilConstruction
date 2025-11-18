@@ -1,16 +1,16 @@
 ---
-const hasUser   = typeof import.meta.env.ADMIN_USER   === "string";
-const hasPass   = typeof import.meta.env.ADMIN_PASS   === "string";
-const hasSecret = typeof import.meta.env.ADMIN_SECRET === "string";
+const ADMIN_USER   = process.env.ADMIN_USER;
+const ADMIN_PASS   = process.env.ADMIN_PASS;
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
 ---
 
 <html lang="en">
 <body>
 <h1>Admin env debug</h1>
 <ul>
-    <li>ADMIN_USER defined: {hasUser ? 'YES' : 'NO'}</li>
-    <li>ADMIN_PASS defined: {hasPass ? 'YES' : 'NO'}</li>
-    <li>ADMIN_SECRET defined: {hasSecret ? 'YES' : 'NO'}</li>
+    <li>ADMIN_USER defined: {ADMIN_USER ? "YES" : "NO"}</li>
+    <li>ADMIN_PASS defined: {ADMIN_PASS ? "YES" : "NO"}</li>
+    <li>ADMIN_SECRET defined: {ADMIN_SECRET ? "YES" : "NO"}</li>
 </ul>
 </body>
 </html>
