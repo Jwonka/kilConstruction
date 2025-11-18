@@ -1,16 +1,14 @@
 ---
-const ADMIN_USER   = process.env.ADMIN_USER;
-const ADMIN_PASS   = process.env.ADMIN_PASS;
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
+const env = (Astro.locals as any)?.runtime?.env ?? {};
+
+const ADMIN_USER   = env.ADMIN_USER;
+const ADMIN_PASS   = env.ADMIN_PASS;
+const ADMIN_SECRET = env.ADMIN_SECRET;
 ---
 
-<html lang="en">
-<body>
 <h1>Admin env debug</h1>
 <ul>
     <li>ADMIN_USER defined: {ADMIN_USER ? "YES" : "NO"}</li>
     <li>ADMIN_PASS defined: {ADMIN_PASS ? "YES" : "NO"}</li>
     <li>ADMIN_SECRET defined: {ADMIN_SECRET ? "YES" : "NO"}</li>
 </ul>
-</body>
-</html>
