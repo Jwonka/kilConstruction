@@ -566,6 +566,15 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     .result-item,
     .child-item { list-style: none; }
 
+    .results-list,
+    .results-list li,
+    .children-list,
+    .children-list li {
+        list-style: none;
+        margin: 0;
+        padding-left: 0;
+    }
+
     .child-item {
         display: flex;
         align-items: flex-start;

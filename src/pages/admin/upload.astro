@@ -181,16 +181,19 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             submitBtn.disabled = true;
 
             try {
-                const API_BASE =
-                    import.meta.env.PUBLIC_GALLERY_API?.replace(/\/$/, "") || "/api/gallery";
+                const data = await res.json().catch(() => ({}));
 
-                const res = await fetch(`${API_BASE}/upload`, {
-                    method: "POST",
-                    body: formData,
-                });
-
-                resultEl.innerHTML = await res.text();
-                statusEl.textContent = res.ok ? "Upload complete." : "Upload failed.";
+                if (res.ok) {
+                    const list = (data.urls || [])
+                        .map((u) => `<li><a href="${u}" target="_blank" rel="noreferrer">${u}</a></li>`)
+                        .join("");
+                    resultEl.innerHTML =
+                        `<p>Uploaded ${(data.uploaded ?? data.urls?.length) || 0} files:</p><ul>${list}</ul>`;
+                    statusEl.textContent = "Upload complete.";
+                } else {
+                    statusEl.textContent = "Upload failed.";
+                    resultEl.textContent = data.error || "Server returned an error.";
+                }
             } catch (err) {
                 console.error(err);
                 statusEl.textContent = "Upload error – see console.";
