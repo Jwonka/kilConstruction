@@ -43,16 +43,17 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         <option value="New Construction">New Construction</option>
                         <option value="Remodels">Remodels</option>
                         <option value="Furniture">Furniture</option>
+                        <option value="uploads">Uploads</option>
                     </select>
                 </label>
 
                 <label class="admin-field-label">
                     <span>Subfolder name</span>
                     <input
-                            id="subfolder"
-                            name="subfolder"
-                            class="admin-input"
-                            placeholder="Optional – inferred from folder if left blank"
+                        id="subfolder"
+                        name="subfolder"
+                        class="admin-input"
+                        placeholder="Optional – inferred from folder if left blank"
                     />
                 </label>
             </div>
@@ -181,18 +182,31 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             submitBtn.disabled = true;
 
             try {
+                const API_BASE =
+                    import.meta.env.PUBLIC_GALLERY_API?.replace(/\/$/, "") ||
+                    "/api/gallery";
+
+                const res = await fetch(`${API_BASE}/upload`, {
+                    method: "POST",
+                    body: formData,
+                });
+
                 const data = await res.json().catch(() => ({}));
 
                 if (res.ok) {
                     const list = (data.urls || [])
-                        .map((u) => `<li><a href="${u}" target="_blank" rel="noreferrer">${u}</a></li>`)
+                        .map(
+                            (u) =>
+                                `<li><a href="${u}" target="_blank" rel="noreferrer">${u}</a></li>`
+                        )
                         .join("");
                     resultEl.innerHTML =
                         `<p>Uploaded ${(data.uploaded ?? data.urls?.length) || 0} files:</p><ul>${list}</ul>`;
                     statusEl.textContent = "Upload complete.";
                 } else {
                     statusEl.textContent = "Upload failed.";
-                    resultEl.textContent = data.error || "Server returned an error.";
+                    resultEl.textContent =
+                        data.error || "Server returned an error.";
                 }
             } catch (err) {
                 console.error(err);

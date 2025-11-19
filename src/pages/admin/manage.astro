@@ -520,24 +520,30 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         font-size: 0.9rem;
         width: 1.5rem;
         height: 1.5rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
     }
 
     .item-text {
-        display: flex;
-        flex-direction: column;
+        margin: 0 auto;
+        text-align: center;
     }
 
     .select-checkbox {
-        margin-right: 0.25rem;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
     }
 
     .item-header {
         display: flex;
         align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 4px 0;
         gap: 0.5rem;
     }
 
@@ -564,13 +570,13 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         border-left: 1px dashed #e5e7eb;
     }
     .result-item,
-    .child-item { list-style: none; }
+    .child-item { list-style: none !important;; }
 
     .results-list,
     .results-list li,
     .children-list,
     .children-list li {
-        list-style: none;
+        list-style: none !important;
         margin: 0;
         padding-left: 0;
     }
@@ -580,8 +586,9 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     }
 
     .child-item {
+        list-style: none !important;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: 0.5rem;
         padding: 0.25rem 0;
         border-bottom: 1px dashed #e5e7eb;
@@ -621,9 +628,12 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         margin-left: 8px;
     }
     .children-list {
-        list-style: none;
+        list-style: none !important;
         margin: 0.25rem 0 0.5rem 2.25rem;
         padding: 0;
+    }
+    .child-item input[type="checkbox"] {
+        margin-left: auto;
     }
 </style>
 
