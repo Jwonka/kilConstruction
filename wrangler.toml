@@ -1,0 +1,7 @@
+name = "kilconstruction"
+compatibility_date = "2024-11-18"
+
+[[r2_buckets]]
+binding = "GALLERY_BUCKET"
+bucket_name = "kilcon-gallery"
+preview_bucket_name = "kilcon-gallery"

@@ -20,7 +20,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     <h1 class="admin-title">Manage Uploaded Files</h1>
     <p class="admin-subtitle">
         Browse and search existing folders from the R2 gallery bucket.
-        This view is read-only for now (no delete/move yet).
+        Expand a folder to see its files and select items to delete.
     </p>
 
     <section class="panel">
@@ -31,9 +31,14 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     placeholder="Search by folder or file name…"
                     class="search-input"
             />
-            <button id="refresh" type="button" class="btn-small">
-                Refresh
-            </button>
+            <div class="toolbar-actions">
+                <button id="refresh" type="button" class="btn-small">
+                    Refresh
+                </button>
+                <button id="bulk-delete" type="button" class="btn-small btn-danger">
+                    Delete selected
+                </button>
+            </div>
         </div>
 
         <div id="status" class="status-row">Loading projects…</div>
@@ -44,45 +49,48 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     <script>
         // @ts-nocheck
         document.addEventListener("DOMContentLoaded", () => {
-            const listEl = document.getElementById("results") as HTMLUListElement | null;
-            const statusEl = document.getElementById("status") as HTMLDivElement | null;
-            const searchEl = document.getElementById("search") as HTMLInputElement | null;
-            const refreshEl = document.getElementById("refresh") as HTMLButtonElement | null;
+            const listEl = document.getElementById("results");
+            const statusEl = document.getElementById("status");
+            const searchEl = document.getElementById("search");
+            const refreshEl = document.getElementById("refresh");
+            const bulkDeleteEl = document.getElementById("bulk-delete");
 
-            if (!listEl || !statusEl || !searchEl || !refreshEl) {
+            if (!listEl || !statusEl || !searchEl || !refreshEl || !bulkDeleteEl) {
                 console.error("[admin/manage] Missing one or more DOM elements");
                 return;
-                }
+            }
 
             const api = listEl.dataset.api ?? "";
             if (!api) {
                 statusEl.textContent = "Missing gallery API URL.";
                 return;
-                }
+            }
 
             /** @type {{ slug: string; name?: string }[]} */
-                let allProjects = [];
+            let allProjects = [];
+            /** @type {Set<string>} */
+            const expandedPrefixes = new Set();
 
-            async function load() {
+            async function loadProjects() {
                 try {
                     statusEl.textContent = "Loading projects…";
                     listEl.innerHTML = "";
 
-                    const res = await fetch(`${api}?list=projects`);
+                    const res = await fetch(`${api}?all=1`);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                     const data = await res.json();
-                    allProjects = (data.projects || []) as { slug: string; name?: string }[];
+                    allProjects = (data.projects || []);
 
                     statusEl.textContent = `Loaded ${allProjects.length} folders.`;
-                    render();
-                    } catch (err) {
+                    renderProjects();
+                } catch (err) {
                     console.error(err);
                     statusEl.textContent = "Error loading projects.";
-                    }
                 }
+            }
 
-            function render() {
+            function renderProjects() {
                 const q = searchEl.value.trim().toLowerCase();
                 listEl.innerHTML = "";
 
@@ -91,50 +99,296 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     const name = (p.name || "").toLowerCase();
                     const slug = (p.slug || "").toLowerCase();
                     return name.includes(q) || slug.includes(q);
-                    });
+                });
 
                 if (!items.length) {
                     listEl.innerHTML =
                         '<li class="empty">No folders match that search.</li>';
                     return;
-                    }
+                }
 
                 for (const p of items) {
                     const li = document.createElement("li");
                     li.className = "result-item";
 
+                    const decoded = decodeURIComponent(p.slug || "");
+                    const prefix = decoded.endsWith("/") ? decoded : decoded + "/"; // e.g. "Furniture/Cabinets/"
+                    li.dataset.prefix = prefix;
+
+                    // ---- header row ----
+                    const header = document.createElement("div");
+                    header.className = "item-header";
+
+                    const expandBtn = document.createElement("button");
+                    expandBtn.type = "button";
+                    expandBtn.className = "expand-btn";
+                    expandBtn.textContent = expandedPrefixes.has(prefix) ? "▾" : "▸";
+                    expandBtn.dataset.prefix = prefix;
+
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.className = "select-checkbox";
+                    checkbox.dataset.type = "project";
+                    checkbox.dataset.prefix = prefix;
+
+                    const textWrap = document.createElement("div");
+                    textWrap.className = "item-text";
+
                     const title = document.createElement("div");
                     title.className = "result-title";
-                    title.textContent = p.name || p.slug || "(unnamed)";
+                    title.textContent = p.name || decoded || "(unnamed)";
 
                     const meta = document.createElement("div");
                     meta.className = "result-meta";
-                    meta.textContent = p.slug;
+                    meta.textContent = prefix;
 
-                    const actions = document.createElement("div");
-                    actions.className = "result-actions";
+                    textWrap.appendChild(title);
+                    textWrap.appendChild(meta);
 
-                    const viewBtn = document.createElement("a");
-                    viewBtn.href = `/projects/${encodeURIComponent(p.slug)}/`;
-                    viewBtn.target = "_blank";
-                    viewBtn.rel = "noreferrer";
-                    viewBtn.textContent = "Open gallery";
-                    viewBtn.className = "btn-pill";
+                    header.appendChild(expandBtn);
+                    header.appendChild(checkbox);
+                    header.appendChild(textWrap);
 
-                    actions.appendChild(viewBtn);
+                    li.appendChild(header);
 
-                    li.appendChild(title);
-                    li.appendChild(meta);
-                    li.appendChild(actions);
+                    // ---- children container (files) ----
+                    const children = document.createElement("ul");
+                    children.className = "children-list";
+                    children.dataset.prefix = prefix;
+                    if (!expandedPrefixes.has(prefix)) {
+                        children.style.display = "none";
+                    }
+
+                    li.appendChild(children);
                     listEl.appendChild(li);
+                }
+            }
+
+            async function toggleFolder(prefix, li) {
+                const children = li.querySelector(".children-list");
+                const expandBtn = li.querySelector(".expand-btn");
+                if (!children || !expandBtn) return;
+
+                const isExpanded = expandedPrefixes.has(prefix);
+                if (isExpanded) {
+                    expandedPrefixes.delete(prefix);
+                    children.style.display = "none";
+                    expandBtn.textContent = "▸";
+                    return;
+                }
+
+                expandedPrefixes.add(prefix);
+                children.style.display = "block";
+                expandBtn.textContent = "▾";
+
+                if (children.dataset.loaded === "1") {
+                    return;
+                }
+
+                children.innerHTML =
+                    '<li class="status-row child-status">Loading files…</li>';
+
+                try {
+                    const url = `/api/gallery/list-images?prefix=${encodeURIComponent(
+                        prefix
+                    )}`;
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                    const data = await res.json();
+                    console.log("list-images response for", prefix, data);
+
+                    // Try several common shapes, fall back to [].
+                    let rawList =
+                        (Array.isArray(data.objects) && data.objects) ||
+                        (Array.isArray(data.items) && data.items) ||
+                        (Array.isArray(data.files) && data.files) ||
+                        [];
+
+                    // Normalise to { key, size, uploaded, name }
+                    const objects = rawList.map((obj) => {
+                        const key = obj.key || obj.name || "";
+                        const name =
+                            obj.name || (key ? key.split("/").pop() : "(unnamed)");
+                        return {
+                            key,
+                            name,
+                            size: obj.size || obj.bytes || 0,
+                            uploaded: obj.uploaded || obj.uploadedAt || obj.created || null,
+                        };
+                    });
+
+                    renderFiles(children, objects);
+                    children.dataset.loaded = "1";
+                } catch (err) {
+                    console.error(err);
+                    children.innerHTML =
+                        '<li class="status-row child-status">Error loading files.</li>';
+                }
+            }
+
+            function renderFiles(container, objects) {
+                container.innerHTML = "";
+
+                if (!objects.length) {
+                    const li = document.createElement("li");
+                    li.className = "child-item empty";
+                    li.textContent = "No files in this folder.";
+                    container.appendChild(li);
+                    return;
+                }
+
+                for (const obj of objects) {
+                    const li = document.createElement("li");
+                    li.className = "child-item";
+                    li.dataset.key = obj.key;
+
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.className = "select-checkbox";
+                    checkbox.dataset.type = "file";
+                    checkbox.dataset.key = obj.key;
+
+                    const info = document.createElement("div");
+                    info.className = "child-info";
+
+                    const nameEl = document.createElement("div");
+                    nameEl.className = "image-name";
+                    nameEl.textContent = obj.name || "(unnamed)";
+
+                    const metaEl = document.createElement("div");
+                    metaEl.className = "image-meta";
+                    const sizeKB = obj.size
+                        ? (obj.size / 1024).toFixed(1) + " KB"
+                        : "";
+                    const when = obj.uploaded
+                        ? new Date(obj.uploaded).toLocaleString()
+                        : "";
+                    metaEl.textContent = [sizeKB, when].filter(Boolean).join(" • ");
+
+                    info.appendChild(nameEl);
+                    info.appendChild(metaEl);
+
+                    li.appendChild(checkbox);
+                    li.appendChild(info);
+                    container.appendChild(li);
+                }
+            }
+
+            // search / refresh
+            searchEl.addEventListener("input", () => {
+                renderProjects();
+            });
+
+            refreshEl.addEventListener("click", () => {
+                expandedPrefixes.clear();
+                loadProjects();
+            });
+
+            // folder expand / collapse
+            listEl.addEventListener("click", async (event) => {
+                const target = event.target;
+                if (!target) return;
+
+                const expandBtn = target.closest(".expand-btn");
+                if (expandBtn && expandBtn.dataset.prefix) {
+                    const prefix = expandBtn.dataset.prefix;
+                    const row = expandBtn.closest(".result-item");
+                    if (!row) return;
+                    await toggleFolder(prefix, row);
+                }
+            });
+
+            // bulk delete
+            bulkDeleteEl.addEventListener("click", async () => {
+                /** @type {HTMLInputElement[]} */
+                const checked = Array.from(
+                    listEl.querySelectorAll(".select-checkbox:checked")
+                );
+
+                if (!checked.length) {
+                    alert("No items selected.");
+                    return;
+                }
+
+                const projectPrefixes = [];
+                const fileKeys = [];
+
+                for (const input of checked) {
+                    if (input.dataset.type === "project" && input.dataset.prefix) {
+                        projectPrefixes.push(input.dataset.prefix);
+                    } else if (input.dataset.type === "file" && input.dataset.key) {
+                        fileKeys.push(input.dataset.key);
                     }
                 }
 
-            searchEl!.addEventListener("input", render);
-            refreshEl!.addEventListener("click", load);
+                if (!projectPrefixes.length && !fileKeys.length) {
+                    alert("No valid items selected.");
+                    return;
+                }
 
-            load();
+                const confirmMsg = [
+                    projectPrefixes.length
+                        ? `Projects: ${projectPrefixes.length}`
+                        : null,
+                    fileKeys.length ? `Files: ${fileKeys.length}` : null,
+                    "",
+                    "This cannot be undone.",
+                ]
+                    .filter(Boolean)
+                    .join("\n");
+
+                if (!confirm(confirmMsg)) return;
+
+                bulkDeleteEl.disabled = true;
+                const originalText = bulkDeleteEl.textContent || "Delete selected";
+                bulkDeleteEl.textContent = "Deleting…";
+
+                try {
+                    // delete projects
+                    for (const prefix of projectPrefixes) {
+                        try {
+                            const res = await fetch("/api/gallery/delete-project", {
+                                method: "POST",
+                                headers: { "content-type": "application/json" },
+                                body: JSON.stringify({ prefix }),
+                            });
+                            if (!res.ok) {
+                                console.error("Project delete failed for", prefix, res.status);
+                            }
+                        } catch (err) {
+                            console.error("Project delete error for", prefix, err);
+                        }
+                    }
+
+                    // delete files
+                    for (const key of fileKeys) {
+                        try {
+                            const res = await fetch("/api/gallery/delete", {
+                                method: "POST",
+                                headers: { "content-type": "application/json" },
+                                body: JSON.stringify({ key }),
+                            });
+                            if (!res.ok) {
+                                console.error("File delete failed for", key, res.status);
+                            }
+                        } catch (err) {
+                            console.error("File delete error for", key, err);
+                        }
+                    }
+
+                    // reload everything so UI matches bucket state
+                    expandedPrefixes.clear();
+                    await loadProjects();
+                    alert("Delete finished. Some failures (if any) are logged in console.");
+                } finally {
+                    bulkDeleteEl.disabled = false;
+                    bulkDeleteEl.textContent = originalText;
+                }
             });
+
+            loadProjects();
+        });
     </script>
 </AdminLayout>
 
@@ -164,6 +418,11 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         flex-wrap: wrap;
     }
 
+    .toolbar-actions {
+        display: flex;
+        gap: 8px;
+    }
+
     .search-input {
         flex: 1 1 220px;
         padding: 8px 10px;
@@ -180,6 +439,21 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         background: #111827;
         color: #f9fafb;
         cursor: pointer;
+    }
+
+    .btn-small:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+
+    .btn-danger {
+        border-color: #f97373;
+        color: #b91c1c;
+        background: #fef2f2;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+        background: #fee2e2;
     }
 
     .status-row {
@@ -203,10 +477,8 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         background: #ffffff;
         border: 1px solid #e5e7eb;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 6px;
     }
 
     .result-title {
@@ -242,6 +514,96 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         font-size: 0.9rem;
         color: #6b7280;
         padding: 8px 2px;
+    }
+
+    .result-item.active {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
+
+    .expand-btn {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 1rem;
+        width: 22px;
+        text-align: center;
+    }
+
+    .select-checkbox {
+        width: 16px;
+        height: 16px;
+    }
+
+    .item-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .item-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .result-title {
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .result-meta {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .children-list {
+        list-style: none;
+        margin: 4px 0 0 26px;
+        padding-left: 0;
+        border-left: 1px dashed #e5e7eb;
+    }
+
+    .child-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 4px 0 4px 8px;
+        border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .child-item:last-child {
+        border-bottom: none;
+    }
+
+    .child-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .image-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .image-name {
+        font-size: 0.9rem;
+        color: #111827;
+        word-break: break-all;
+    }
+
+    .image-meta {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    .img-actions {
+        display: flex;
+        gap: 8px;
+        margin-left: 8px;
     }
 </style>
 

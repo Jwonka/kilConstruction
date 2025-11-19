@@ -20,8 +20,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     <h1 class="admin-title">Upload Images</h1>
     <p class="admin-subtitle">
         Upload new images to the R2 gallery bucket. You can upload a whole folder
-        or individual files. Files will be stored under
-        <code>uploads/&lt;Category&gt;/&lt;Subfolder&gt;/…</code>.
+        or individual files.
     </p>
 
     <section class="panel">
@@ -131,30 +130,50 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             }
 
             const category = categoryEl.value.trim();
+            if (!category) {
+                alert("Please choose a category.");
+                return;
+            }
+
+            const mode = modeEl.value; // "folder" or "files"
             let subfolder = subfolderEl.value.trim().replace(/\/+$/, "");
 
-            // If no subfolder was provided, infer from first file folder name
-            if (!subfolder) {
+            // If no subfolder was provided, infer from first file folder name ONLY in folder mode
+            if (!subfolder && mode === "folder") {
                 const firstPath = files[0].webkitRelativePath || "";
                 subfolder = firstPath.split("/")[0] || "misc";
+            }
+
+            // For files mode with no subfolder, default to "misc"
+            if (!subfolder && mode === "files") {
+                subfolder = "misc";
             }
 
             const formData = new FormData();
 
             for (const file of files) {
                 const relativePath = file.webkitRelativePath || file.name;
-                const cleanedPath = relativePath.split("/").slice(1).join("/");
+
+                // In folder mode, keep nested structure after the top-level folder.
+                // In files mode, just use the filename.
+                const cleanedPath =
+                    mode === "folder"
+                        ? relativePath.split("/").slice(1).join("/")
+                        : file.name;
+
                 const fullPath = `${category}/${subfolder}/${cleanedPath || file.name}`.replace(
                     /\/+/g,
                     "/"
                 );
+
                 formData.append(fullPath, file);
             }
 
-            // Optional: include notes as a separate field if you ever want them on the worker side
-            const notes = document.getElementById("notes").value.trim();
+            // ✅ Notes as a plain field, NOT as a file
+            const notesEl = document.getElementById("notes");
+            const notes = notesEl && notesEl.value ? notesEl.value.trim() : "";
             if (notes) {
-                formData.append("notes.txt", new Blob([notes], { type: "text/plain" }));
+                formData.append("notes", notes);
             }
 
             statusEl.textContent = "Uploading…";
