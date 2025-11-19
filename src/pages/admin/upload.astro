@@ -184,7 +184,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 const API_BASE =
                     import.meta.env.PUBLIC_GALLERY_API?.replace(/\/$/, "") || "/api/gallery";
 
-                const response = await fetch(`${API_BASE}/upload`, {
+                const res = await fetch(`${API_BASE}/upload`, {
                     method: "POST",
                     body: formData,
                 });
