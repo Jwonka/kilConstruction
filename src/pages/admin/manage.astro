@@ -143,9 +143,10 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     textWrap.appendChild(title);
 
                     // Order: [checkbox] [caret] [Folder path]
-                    header.appendChild(checkbox);
+                    // Visual order: [caret] [Folder path] [checkbox]
                     header.appendChild(expandBtn);
                     header.appendChild(textWrap);
+                    header.appendChild(checkbox);
 
                     li.appendChild(header);
 
@@ -265,8 +266,8 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     info.appendChild(nameEl);
                     info.appendChild(metaEl);
 
-                    li.appendChild(checkbox);
                     li.appendChild(info);
+                    li.appendChild(checkbox);
                     container.appendChild(li);
                 }
             }
@@ -513,80 +514,55 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         background: #eff6ff;
     }
 
-    .expand-btn {
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        font-size: 0.9rem;
-        width: 1.5rem;
-        height: 1.5rem;
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .item-text {
-        margin: 0 auto;
-        text-align: center;
-    }
-
-    .select-checkbox {
-        position: absolute;
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .item-header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        padding: 4px 0;
-        gap: 0.5rem;
-    }
-
-    .result-title {
-        font-weight: 600;
-        color: #111827;
-    }
-
-    .result-meta {
-        font-size: 0.8rem;
-        color: #6b7280;
-    }
-
-    .results-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
-
-    .children-list {
-        list-style: none;
-        margin: 0.25rem 0 0.5rem 2.25rem;
-        padding-left: 0;
-        border-left: 1px dashed #e5e7eb;
-    }
-    .result-item,
-    .child-item { list-style: none !important;; }
-
+    /* --- Tree layout: caret left, label center, checkbox right --- */
+    /* strip bullets everywhere */
     .results-list,
     .results-list li,
     .children-list,
     .children-list li {
         list-style: none !important;
         margin: 0;
-        padding-left: 0;
+        padding: 0;
     }
 
-    .result-item .item-header {
+    /* folder row */
+    .item-header {
+        display: flex;
+        align-items: center;
         justify-content: flex-start;
+        padding: 4px 0;
+        gap: 0.5rem;
     }
 
+    .expand-btn {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0.9rem;
+        width: 1.5rem;
+        flex-shrink: 0;
+        display: inline-flex;
+        justify-content: center;
+    }
+
+    .item-text {
+        flex: 1;
+        text-align: center;
+    }
+
+    .select-checkbox {
+        flex-shrink: 0;
+    }
+
+    /* children list (files under a folder) */
+    .children-list {
+        margin: 0.25rem 0 0.5rem 2.25rem;
+        padding: 0;
+        border-left: 1px dashed #e5e7eb;
+    }
+
+    /* file rows */
     .child-item {
-        list-style: none !important;
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -599,18 +575,17 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     }
 
     .child-info {
+        flex: 1;
         display: flex;
         flex-direction: column;
         gap: 2px;
     }
-    .image-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 6px 0;
-        border-bottom: 1px dashed #e5e7eb;
+
+    .child-item input[type="checkbox"] {
+        margin-left: 0.5rem; /* push checkbox slightly to the right edge */
     }
 
+    /* name + meta */
     .image-name {
         font-size: 0.9rem;
         color: #111827;
@@ -622,18 +597,5 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         color: #6b7280;
     }
 
-    .img-actions {
-        display: flex;
-        gap: 8px;
-        margin-left: 8px;
-    }
-    .children-list {
-        list-style: none !important;
-        margin: 0.25rem 0 0.5rem 2.25rem;
-        padding: 0;
-    }
-    .child-item input[type="checkbox"] {
-        margin-left: auto;
-    }
 </style>
 
