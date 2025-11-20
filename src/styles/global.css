@@ -171,9 +171,10 @@ ul.children-list li {
 
 /* Overall list – keep it centered and spaced */
 ul.results-list {
-    max-width: 640px;
+    max-width: 100%;
     margin-inline: auto;
     display: flex;
+    padding-inline: 0;
     flex-direction: column;
     gap: 0.5rem;
 }
@@ -227,13 +228,13 @@ ul.results-list > li.result-item > div.item-header > div.item-text {
 
 /* checkbox pinned to far right (desktop) */
 ul.results-list > li.result-item > div.item-header > input.select-checkbox {
-    margin-left: 0.35rem;
+    margin-right: 01.5rem;
     flex-shrink: 0;
 }
 
 /* Children (files) list, indented with vertical guide */
 ul.results-list ul.children-list {
-    margin: 0.2rem 0 0.35rem 0.9rem;
+    margin: 0.2rem 0 0.35rem 1.5rem;
     padding: 0;
     border-left: 1px dashed #e5e7eb;
 }
@@ -273,7 +274,7 @@ ul.results-list ul.children-list .image-meta {
 
 /* checkbox on right for files */
 ul.results-list ul.children-list > li.child-item > input.select-checkbox {
-    margin-left: 0.25rem;
+    margin-right: 01.5rem;
     flex-shrink: 0;
 }
 
@@ -292,22 +293,12 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     font-weight: 500;
     white-space: nowrap;
     position: relative;
-    display: inline-flex;
+    display: block;
     align-items: center;
     gap: 0.25rem;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-}
-
-/* pencil icon on hover */
-.image-name::after {
-    content: "✎";
-    font-size: 0.8rem;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(1px);
-    transition: opacity 0.15s ease;
 }
 
 .child-item:hover .image-name::after { opacity: 0.6;}
