@@ -133,7 +133,14 @@ main { flex: 1 0 auto; }
 .footer .fb svg {display:block;width: 2.1em;height: 2.1em;fill: currentColor;}
 form{display:grid;gap:12px;max-width:640px}
 label{font-weight:600}
-input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font:inherit}
+input:not([type="checkbox"]):not([type="radio"]),
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font: inherit;
+}
 button.btn{cursor:pointer;text-align:center}
 button{ all:unset; box-sizing:border-box; }
 .gallery-embed{aspect-ratio:16/9;width:100%;border:0;border-radius:12px;overflow:hidden}
@@ -150,16 +157,51 @@ button{ all:unset; box-sizing:border-box; }
 .project-photos {row-gap: var(--gap);column-gap: clamp(1px, 0.15vw, 3px);}
 .page-section {margin-bottom: clamp(24px, 4vw, 48px);padding-block-end: clamp(24px, 4vw, 56px);}
 .no-sticky header { position: static !important; top: auto; }
-
 /* ===== ADMIN MANAGE LAYOUT ===== */
 
 /* Get rid of bullets everywhere in this tree */
 ul.results-list,
 ul.results-list li,
 ul.children-list,
-ul.children-list li { list-style: none; margin: 0; padding: 0; }
-/* Folder row: [caret] [label] [checkbox] in one line */
-ul.results-list > li.result-item > div.item-header { display: flex; align-items: center; padding: 4px 0; gap: 0.2rem; }
+ul.children-list li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Overall list – keep it centered and spaced */
+ul.results-list {
+    max-width: 640px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Each top-level folder “card” */
+ul.results-list > li.result-item {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem 0;
+    border-bottom: 1px dashed #e5e7eb;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+/* Nested files inside a folder */
+ul.children-list > li {
+    padding: 0.5rem 0;
+    border-top: 1px solid #f3f4f6;
+}
+
+/* Folder row: [caret] [label] [checkbox] in one line (desktop) */
+ul.results-list > li.result-item > div.item-header {
+    display: flex;
+    align-items: center;
+    padding: 2px 0;
+    gap: 0.2rem;
+}
+
 /* caret immediately left of label */
 ul.results-list > li.result-item > div.item-header > button.expand-btn {
     border: none;
@@ -172,30 +214,85 @@ ul.results-list > li.result-item > div.item-header > button.expand-btn {
     justify-content: center;
     align-items: center;
 }
+
 /* label: left aligned, takes middle space */
-ul.results-list > li.result-item > div.item-header > div.item-text { flex: 1; text-align: left; min-width: 0; }
-/* checkbox pinned to far right */
-ul.results-list > li.result-item > div.item-header > input.select-checkbox { margin-left: 0.25rem; flex-shrink: 0; }
+ul.results-list > li.result-item > div.item-header > div.item-text {
+    flex: 1;
+    text-align: left;
+    min-width: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111827;
+}
+
+/* checkbox pinned to far right (desktop) */
+ul.results-list > li.result-item > div.item-header > input.select-checkbox {
+    margin-left: 0.35rem;
+    flex-shrink: 0;
+}
+
 /* Children (files) list, indented with vertical guide */
-ul.results-list ul.children-list { margin: 0.15rem 0 0.35rem 0.8rem; padding: 0; border-left: 1px dashed #e5e7eb; }
+ul.results-list ul.children-list {
+    margin: 0.2rem 0 0.35rem 0.9rem;
+    padding: 0;
+    border-left: 1px dashed #e5e7eb;
+}
+
 /* File rows: [label left] [checkbox right] */
 ul.results-list ul.children-list > li.child-item {
     display: flex;
     align-items: flex-start;
-    gap: 0.2rem;
-    padding: 0.2rem 0;
-    border-bottom: 1px dashed #e5e7eb;
+    gap: 0.25rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed #eef2f7;
     position: relative;
 }
-ul.results-list ul.children-list > li.child-item:last-child { border-bottom: none; }
-/* file text column */
-ul.results-list ul.children-list > li.child-item > div.child-info { flex: 1; display: flex; flex-direction: column; gap: 1px; }
-/* checkbox on right for files */
-ul.results-list ul.children-list > li.child-item > input.select-checkbox { margin-left: 0.2rem; }
-ul.results-list {
-    max-width: 640px;
-    margin-inline: auto;
+ul.results-list ul.children-list > li.child-item:last-child {
+    border-bottom: none;
 }
+
+/* file text column */
+ul.results-list ul.children-list > li.child-item > div.child-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+/* filename */
+ul.results-list ul.children-list .image-name {
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+/* size + date */
+ul.results-list ul.children-list .image-meta {
+    font-size: 0.82rem;
+    color: #6b7280;
+}
+
+/* checkbox on right for files */
+ul.results-list ul.children-list > li.child-item > input.select-checkbox {
+    margin-left: 0.25rem;
+    flex-shrink: 0;
+}
+
+/* Container for name + meta must be allowed to shrink */
+.image-info {
+    flex: 1;
+    min-width: 0; /* critical so ellipsis can work */
+}
+.child-info { min-width: 0; }/* critical so ellipsis can work */
+
+/* File name: single line with ellipsis */
+.image-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
 @media (max-width:900px){ :root{ --header-h: 76px; } }
 @media (max-width: 840px) {
     .contact-form .btn {
@@ -245,6 +342,48 @@ ul.results-list {
         object-fit: cover;
     }
 }
+
+/* --- Mobile tweaks: put folder checkbox on its own row --- */
+@media (max-width: 520px) {
+    ul.results-list > li.result-item > div.item-header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        row-gap: 0.15rem;
+    }
+
+    /* caret + label stay on first line */
+    ul.results-list > li.result-item > div.item-header > button.expand-btn {
+        margin-top: 0.05rem;
+    }
+
+    /* checkbox moves to next line, indented a bit */
+    ul.results-list > li.result-item > div.item-header > input.select-checkbox {
+        flex-basis: 100%;
+        margin-top: 0.1rem;
+        margin-left: 1.6rem;  /* lines up under text instead of over it */
+    }
+
+    ul.children-list > li.child-item {
+        flex-wrap: wrap;
+    }
+
+    ul.children-list > li.child-item > input.select-checkbox {
+        flex-basis: 100%;
+        margin-left: 0;
+        margin-top: 2px;
+        align-self: flex-start;
+    }
+}
+
+/* Mobile: stack checkbox under the row instead of next to the text */
+@media (max-width: 480px) {
+    ul.results-list > li.result-item > .item-header > input.select-checkbox {
+        flex-basis: auto;     /* do NOT take 100% width */
+        margin-left: auto;    /* push it to the right */
+        margin-top: 0;        /* no extra space */
+    }
+}
+
 
 /* Respect users that prefer less motion */
 @media (prefers-reduced-motion: reduce){  .btn{ transition: none; }  }

@@ -528,4 +528,14 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         border-color: #3b82f6;
         background: #eff6ff;
     }
+    .item-header {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;      /* less space between caret + text */
+    }
+
+    .select-checkbox {
+        margin-left: 0.35rem; /* bring checkbox closer to the label */
+        flex-shrink: 0;
+    }
 </style>
