@@ -278,6 +278,9 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     flex-shrink: 0;
 }
 
+ul.children-list > li.child-item { min-width: 0; }
+.child-item .child-info { flex: 1; min-width: 0; }
+
 /* Container for name + meta must be allowed to shrink */
 .image-info {
     flex: 1;
@@ -289,7 +292,7 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 .image-name {
     font-size: 0.9rem;
     color: #111827;
-    word-break: break-all;
+    word-break: normal;
     font-weight: 500;
     white-space: nowrap;
     position: relative;

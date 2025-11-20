@@ -527,6 +527,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         padding: 16px;
         background: #f9fafb;
         text-align: left;
+        overflow-x: hidden;
     }
 
     .toolbar {
@@ -660,6 +661,17 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         flex-shrink: 0;
     }
 
+    .child-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;         /* space between text and checkbox */
+    }
+
+    .child-info {
+        flex: 1 1 auto;
+        min-width: 0;        /* <-- critical so ellipsis can kick in on small screens */
+    }
+
     .rename-wrapper {
         position: relative;
         display: inline-block;
@@ -671,8 +683,8 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        display: inline-block;
-        max-width: 95%;
+        display: block;
+        max-width: 100%;
     }
 
     .rename-input {
@@ -680,7 +692,15 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         padding: 2px 4px;
         border: 1px solid #9ca3af;
         border-radius: 4px;
-        width: 95%;
+        width: 100%;
     }
+    @media (max-width: 420px) {
+        .admin-card {
+            padding-inline: 8px !important;
+        }
 
+        .panel {
+            padding-inline: 8px !important;
+        }
+    }
 </style>
