@@ -303,7 +303,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         const folder = obj.key.split("/").slice(0, -1).join("/");
                         const newKey = folder + "/" + newName;
 
-                        const res = await fetch(`${GALLERY_API}/rename`, {
+                        const res = await fetch(`${apiBase}/rename`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ oldKey: obj.key, newKey })
@@ -313,6 +313,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                             obj.name = newName;
                             obj.key = newKey;
                             nameDisplay.textContent = newName;
+                            alert("Renamed successfully.");
                         } else {
                             alert("Rename failed");
                         }
