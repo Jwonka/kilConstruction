@@ -112,8 +112,8 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     const li = document.createElement("li");
                     li.className = "result-item";
 
-                    const decoded = decodeURIComponent(p.slug || "");
-                    const prefix = decoded.endsWith("/") ? decoded : decoded + "/"; // e.g. "Furniture/Cabinets/"
+                    const rawPrefix = p.prefix || decodeURIComponent(p.slug || "");
+                    const prefix = rawPrefix.endsWith("/") ? rawPrefix : rawPrefix + "/"; // e.g. "Furniture/Cabinets/"
                     li.dataset.prefix = prefix;
 
                     // ---- header row ----
@@ -261,7 +261,12 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     const when = obj.uploaded
                         ? new Date(obj.uploaded).toLocaleString()
                         : "";
-                    metaEl.textContent = [sizeKB, when].filter(Boolean).join(" • ");
+                    const metaParts: string[] = [];
+                    if (sizeKB) metaParts.push(sizeKB);
+                    if (when) metaParts.push(when);
+
+                    // size and date on separate lines
+                    metaEl.innerHTML = metaParts.join("<br>");
 
                     info.appendChild(nameEl);
                     info.appendChild(metaEl);
@@ -388,8 +393,15 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         });
     </script>
 </AdminLayout>
-
 <style>
+    .folder-tree,
+    .folder-tree ul,
+    .folder-tree li {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
     .admin-title {
         margin: 0 0 8px;
         font-size: clamp(1.6rem, 2.2vw, 1.9rem);
@@ -406,6 +418,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         border: 1px solid #e5e7eb;
         padding: 16px;
         background: #f9fafb;
+        text-align: left;
     }
 
     .toolbar {
@@ -466,11 +479,13 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         display: flex;
         flex-direction: column;
         gap: 8px;
+        align-items: stretch;
     }
 
     .result-item {
         border-bottom: 1px solid rgba(15, 23, 42, 0.04);
         padding: 0.5rem 0;
+        position: relative;
     }
 
     .result-title {
@@ -513,89 +528,4 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         border-color: #3b82f6;
         background: #eff6ff;
     }
-
-    /* --- Tree layout: caret left, label center, checkbox right --- */
-    /* strip bullets everywhere */
-    .results-list,
-    .results-list li,
-    .children-list,
-    .children-list li {
-        list-style: none !important;
-        margin: 0;
-        padding: 0;
-    }
-
-    /* folder row */
-    .item-header {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        padding: 4px 0;
-        gap: 0.5rem;
-    }
-
-    .expand-btn {
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        font-size: 0.9rem;
-        width: 1.5rem;
-        flex-shrink: 0;
-        display: inline-flex;
-        justify-content: center;
-    }
-
-    .item-text {
-        flex: 1;
-        text-align: center;
-    }
-
-    .select-checkbox {
-        flex-shrink: 0;
-    }
-
-    /* children list (files under a folder) */
-    .children-list {
-        margin: 0.25rem 0 0.5rem 2.25rem;
-        padding: 0;
-        border-left: 1px dashed #e5e7eb;
-    }
-
-    /* file rows */
-    .child-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.25rem 0;
-        border-bottom: 1px dashed #e5e7eb;
-    }
-
-    .child-item:last-child {
-        border-bottom: none;
-    }
-
-    .child-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .child-item input[type="checkbox"] {
-        margin-left: 0.5rem; /* push checkbox slightly to the right edge */
-    }
-
-    /* name + meta */
-    .image-name {
-        font-size: 0.9rem;
-        color: #111827;
-        word-break: break-all;
-    }
-
-    .image-meta {
-        font-size: 0.75rem;
-        color: #6b7280;
-    }
-
 </style>
-

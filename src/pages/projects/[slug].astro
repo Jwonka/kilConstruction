@@ -1,6 +1,8 @@
 ---
 import MainLayout from '../../layout/MainLayout.astro';
 
+export const prerender = false;
+
 const API_ORIGIN = 'https://kilcon.work';
 const API = new URL('/api/gallery', API_ORIGIN);
 
@@ -12,26 +14,6 @@ type Photo = {
     createdTime: string;
     description?: string;
     };
-
-/** Build static pages for every project folder */
-export const prerender = true;
-
-/** Tell Astro which /projects/:slug pages exist at build time */
-export async function getStaticPaths() {
-    const API_ORIGIN = 'https://kilcon.work';
-    const API = new URL('/api/gallery', API_ORIGIN);
-    API.searchParams.set('list', 'projects');
-
-    try {
-        const res = await fetch(API, { cache: 'no-store' });
-        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return [];
-        const json = (await res.json()) as { projects?: { slug: string }[] };
-        const projects = json.projects ?? [];
-        return projects.map(p => ({ params: { slug: p.slug }, props: { slug: p.slug } }));
-    } catch {
-        return [];
-    }
-}
 
 const { slug } = Astro.params as { slug: string };
 

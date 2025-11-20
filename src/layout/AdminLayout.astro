@@ -256,4 +256,30 @@ const { title = "Admin" } = Astro.props;
             margin-top: 0.5rem; /* gives breathing room under header */
         }
     }
+
+    @media (max-width: 640px) {
+        .admin-header-inner {
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .admin-brand {
+            flex-basis: 100%;
+        }
+
+        .admin-header-link {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.75rem;
+        }
+
+        .admin-main {
+            padding: 1.25rem 1rem 1.75rem;
+        }
+
+        .admin-card {
+            border-radius: 22px;
+            margin-top: 0.75rem;
+        }
+    }
 </style>

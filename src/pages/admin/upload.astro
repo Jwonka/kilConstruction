@@ -26,50 +26,50 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     <section class="panel">
         <form id="admin-upload-form" class="admin-form">
             <div class="admin-form-grid">
-                <label class="admin-field-label">
-                    <span>Upload mode</span>
-                    <select id="mode" name="mode" class="admin-input">
-                        <option value="folder">Upload a folder (recommended)</option>
-                        <option value="files">Upload individual files</option>
-                    </select>
-                </label>
 
                 <label class="admin-field-label">
                     <span>Category</span>
                     <select id="category" name="category" class="admin-input" required>
+                        <option value="uploads">Uploads</option>
                         <option value="Projects">Projects</option>
                         <option value="Highlights">Highlights</option>
                         <option value="Services">Services</option>
                         <option value="New Construction">New Construction</option>
                         <option value="Remodels">Remodels</option>
                         <option value="Furniture">Furniture</option>
-                        <option value="uploads">Uploads</option>
                     </select>
                 </label>
 
                 <label class="admin-field-label">
-                    <span>Subfolder name</span>
+                    <span>Images</span>
                     <input
-                        id="subfolder"
-                        name="subfolder"
-                        class="admin-input"
-                        placeholder="Optional – inferred from folder if left blank"
+                            id="fileInput"
+                            type="file"
+                            name="files"
+                            multiple
+                            accept="image/*"
+                            capture="environment"
+                            class="admin-input"
                     />
+                    <small class="hint">
+                        Choose one or more images from your gallery, or use the camera on
+                        mobile. Files are stored under the selected category and subfolder.
+                    </small>
                 </label>
             </div>
 
             <label class="admin-field-label">
-                <span>Files / Folder</span>
+                <span>Subfolder (project / album name)</span>
                 <input
-                        id="fileInput"
-                        type="file"
-                        name="files"
-                        multiple
+                        id="subfolder"
+                        name="subfolder"
+                        type="text"
+                        placeholder="e.g. Pfaffe House"
                         class="admin-input"
                 />
                 <small class="hint">
-                    In “folder” mode, pick a folder (supports nested folders). In
-                    “files” mode, pick one or more individual images.
+                    For Projects, this becomes the project folder and slug (Pfaffe House → /projects/pfaffe-house/).
+                    Leave blank to infer a name from the first file.
                 </small>
             </label>
 
@@ -98,7 +98,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     <script>
         // @ts-nocheck
         const formEl = document.getElementById("admin-upload-form");
-        const modeEl = document.getElementById("mode");
         const categoryEl = document.getElementById("category");
         const subfolderEl = document.getElementById("subfolder");
         const fileInput = document.getElementById("fileInput");
@@ -106,27 +105,21 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         const resultEl = document.getElementById("result");
         const submitBtn = document.getElementById("submitBtn");
 
-        function applyMode() {
-            const mode = modeEl.value;
-            if (mode === "folder") {
-                fileInput.setAttribute("webkitdirectory", "");
-                fileInput.setAttribute("directory", "");
-            } else {
-                fileInput.removeAttribute("webkitdirectory");
-                fileInput.removeAttribute("directory");
-            }
-            fileInput.value = ""; // reset selection when mode changes
+        function slugifyName(name) {
+            return (name || "")
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9]+/gi, "-")
+                .replace(/-+/g, "-")
+                .replace(/^-|-$/g, "") || "project";
         }
-
-        modeEl.addEventListener("change", applyMode);
-        applyMode();
 
         formEl.addEventListener("submit", async (e) => {
             e.preventDefault();
 
             const files = fileInput.files;
             if (!files || !files.length) {
-                alert("Please choose at least one file or folder.");
+                alert("Please choose at least one image.");
                 return;
             }
 
@@ -136,41 +129,30 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 return;
             }
 
-            const mode = modeEl.value; // "folder" or "files"
             let subfolder = subfolderEl.value.trim().replace(/\/+$/, "");
 
-            // If no subfolder was provided, infer from first file folder name ONLY in folder mode
-            if (!subfolder && mode === "folder") {
-                const firstPath = files[0].webkitRelativePath || "";
-                subfolder = firstPath.split("/")[0] || "misc";
-            }
-
-            // For files mode with no subfolder, default to "misc"
-            if (!subfolder && mode === "files") {
-                subfolder = "misc";
+            // If no subfolder, infer from first file name for projects; otherwise "misc"
+            if (!subfolder) {
+                if (category === "Projects") {
+                    const first = files[0];
+                    const base = (first.webkitRelativePath || first.name || "project")
+                        .split("/")
+                        .shift();
+                    subfolder = base || "project";
+                } else {
+                    subfolder = "misc";
+                }
             }
 
             const formData = new FormData();
 
             for (const file of files) {
-                const relativePath = file.webkitRelativePath || file.name;
-
-                // In folder mode, keep nested structure after the top-level folder.
-                // In files mode, just use the filename.
-                const cleanedPath =
-                    mode === "folder"
-                        ? relativePath.split("/").slice(1).join("/")
-                        : file.name;
-
-                const fullPath = `${category}/${subfolder}/${cleanedPath || file.name}`.replace(
-                    /\/+/g,
-                    "/"
-                );
-
+                // just put files under category/subfolder
+                const cleanedName = file.name || "image";
+                const fullPath = `${category}/${subfolder}/${cleanedName}`.replace(/\/+/g, "/");
                 formData.append(fullPath, file);
             }
 
-            // ✅ Notes as a plain field, NOT as a file
             const notesEl = document.getElementById("notes");
             const notes = notesEl && notesEl.value ? notesEl.value.trim() : "";
             if (notes) {
@@ -183,8 +165,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
             try {
                 const API_BASE =
-                    import.meta.env.PUBLIC_GALLERY_API?.replace(/\/$/, "") ||
-                    "/api/gallery";
+                    import.meta.env.PUBLIC_GALLERY_API?.replace(/\/$/, "") || "/api/gallery";
 
                 const res = await fetch(`${API_BASE}/upload`, {
                     method: "POST",
@@ -200,13 +181,23 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                                 `<li><a href="${u}" target="_blank" rel="noreferrer">${u}</a></li>`
                         )
                         .join("");
+
                     resultEl.innerHTML =
                         `<p>Uploaded ${(data.uploaded ?? data.urls?.length) || 0} files:</p><ul>${list}</ul>`;
                     statusEl.textContent = "Upload complete.";
+                    fileInput.value = "";
+
+                    /*// If this was a project upload, jump straight to the project page
+                    if (category === "Projects") {
+                        const slug = slugifyName(subfolder);
+                        // small delay so the status text is visible
+                        setTimeout(() => {
+                            window.location.href = `/projects/${slug}/`;
+                        }, 600);
+                    }*/
                 } else {
                     statusEl.textContent = "Upload failed.";
-                    resultEl.textContent =
-                        data.error || "Server returned an error.";
+                    resultEl.textContent = data.error || "Server returned an error.";
                 }
             } catch (err) {
                 console.error(err);
