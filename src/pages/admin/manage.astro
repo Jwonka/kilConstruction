@@ -163,6 +163,35 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 }
             }
 
+            async function loadFolderFiles(childrenEl, prefix) {
+                if (!childrenEl || !prefix) return;
+
+                const safePrefix = prefix.endsWith("/") ? prefix : prefix + "/";
+                childrenEl.dataset.prefix = safePrefix;
+                childrenEl.dataset.loaded = "0";
+                childrenEl.innerHTML = `<li class="empty">Loading files…</li>`;
+
+                try {
+                    const res = await fetch(
+                        `${GALLERY_API}/list-images?prefix=${encodeURIComponent(safePrefix)}`
+                    );
+                    /** @type {{ objects?: any[] }} */
+                    const data = await res.json().catch(() => ({}));
+
+                    childrenEl.innerHTML = "";
+
+                    if (Array.isArray(data.objects) && data.objects.length) {
+                        renderFiles(childrenEl, data.objects);
+                        childrenEl.dataset.loaded = "1";
+                    } else {
+                        childrenEl.innerHTML = `<li class="empty">No image files found.</li>`;
+                    }
+                } catch (err) {
+                    console.error("loadFolderFiles error", err);
+                    childrenEl.innerHTML = `<li class="empty">Error loading files.</li>`;
+                }
+            }
+
             async function toggleFolder(prefix, li) {
                 const children = li.querySelector(".children-list");
                 const expandBtn = li.querySelector(".expand-btn");
@@ -179,6 +208,11 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 expandedPrefixes.add(prefix);
                 children.style.display = "block";
                 expandBtn.textContent = "▾";
+
+                if (children.dataset.loaded !== "1") {
+                    // REPLACE previous fetch block with:
+                    await loadFolderFiles(children, prefix);
+                }
 
                 if (children.dataset.loaded === "1") {
                     return;
@@ -291,6 +325,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     function resetRename() {
                         nameDisplay.style.display = "inline-block";
                         nameInput.style.display = "none";
+                        delete title.dataset.renameActive;
                     }
 
                     async function commitRename() {
@@ -302,19 +337,35 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
                         const folder = obj.key.split("/").slice(0, -1).join("/");
                         const newKey = folder + "/" + newName;
+                        try {
+                            const res = await fetch(`${apiBase}/rename`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ oldKey: obj.key, newKey })
+                            });
 
-                        const res = await fetch(`${apiBase}/rename`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ oldKey: obj.key, newKey })
-                        });
+                            if (res.ok) {
+                                obj.name = newName;
+                                obj.key = newKey;
+                                nameDisplay.textContent = newName;
 
-                        if (res.ok) {
-                            obj.name = newName;
-                            obj.key = newKey;
-                            nameDisplay.textContent = newName;
-                            alert("Renamed successfully.");
-                        } else {
+                                const row = li;
+                                row.classList.add("just-renamed");
+
+                                setTimeout(() => {
+                                    row.classList.remove("just-renamed");
+                                }, 1200);
+
+                                const children = row.closest("ul.children-list");
+                                if (children && folder) {
+                                    await loadFolderFiles(children, folder + "/");
+                                }
+                                alert("Renamed successfully.");
+                            } else {
+                                alert("Rename failed");
+                            }
+                        } catch (err) {
+                            console.error("Rename error", err);
                             alert("Rename failed");
                         }
                         resetRename();
@@ -543,6 +594,19 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         border-bottom: 1px solid rgba(15, 23, 42, 0.04);
         padding: 0.5rem 0;
         position: relative;
+    }
+
+    .result-item.just-renamed {
+        background: #ecfdf5;          /* soft green */
+        transition: background-color 0.8s ease;
+    }
+
+    .file-title[data-rename-active="1"]::after {
+        content: "Enter to save / Esc to cancel";
+        display: block;
+        font-size: 0.7rem;
+        color: #9ca3af;
+        margin-top: 2px;
     }
 
     .result-title {

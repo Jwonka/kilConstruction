@@ -286,12 +286,31 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 
 /* File name: single line with ellipsis */
 .image-name {
+    font-size: 0.9rem;
+    color: #111827;
+    word-break: break-all;
     font-weight: 500;
     white-space: nowrap;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
 }
+
+/* pencil icon on hover */
+.image-name::after {
+    content: "✎";
+    font-size: 0.8rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(1px);
+    transition: opacity 0.15s ease;
+}
+
+.child-item:hover .image-name::after { opacity: 0.6;}
 
 @media (max-width:900px){ :root{ --header-h: 76px; } }
 @media (max-width: 840px) {
