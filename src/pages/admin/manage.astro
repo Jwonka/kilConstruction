@@ -249,9 +249,21 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     const info = document.createElement("div");
                     info.className = "child-info";
 
-                    const nameEl = document.createElement("div");
-                    nameEl.className = "image-name";
-                    nameEl.textContent = obj.name || "(unnamed)";
+                    const nameWrapper = document.createElement("div");
+                    nameWrapper.className = "rename-wrapper";
+
+                    const nameDisplay = document.createElement("span");
+                    nameDisplay.className = "name-display";
+                    nameDisplay.textContent = obj.name;
+
+                    const nameInput = document.createElement("input");
+                    nameInput.type = "text";
+                    nameInput.className = "rename-input";
+                    nameInput.value = obj.name;
+                    nameInput.style.display = "none";
+
+                    nameWrapper.appendChild(nameDisplay);
+                    nameWrapper.appendChild(nameInput);
 
                     const metaEl = document.createElement("div");
                     metaEl.className = "image-meta";
@@ -274,6 +286,51 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     li.appendChild(info);
                     li.appendChild(checkbox);
                     container.appendChild(li);
+
+                    // --- Rename handlers
+                    function resetRename() {
+                        nameDisplay.style.display = "inline-block";
+                        nameInput.style.display = "none";
+                    }
+
+                    async function commitRename() {
+                        const newName = nameInput.value.trim();
+                        if (!newName || newName === obj.name) {
+                            resetRename();
+                            return;
+                        }
+
+                        const folder = obj.key.split("/").slice(0, -1).join("/");
+                        const newKey = folder + "/" + newName;
+
+                        const res = await fetch("/api/gallery/rename", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ oldKey: obj.key, newKey })
+                        });
+
+                        if (res.ok) {
+                            obj.name = newName;
+                            obj.key = newKey;
+                            nameDisplay.textContent = newName;
+                        } else {
+                            alert("Rename failed");
+                        }
+                        resetRename();
+                    }
+
+                    nameDisplay.addEventListener("click", () => {
+                        nameDisplay.style.display = "none";
+                        nameInput.style.display = "inline-block";
+                        nameInput.focus();
+                    });
+
+                    nameInput.addEventListener("blur", commitRename);
+                    nameInput.addEventListener("keydown", (e) => {
+                        if (e.key === "Enter") commitRename();
+                        if (e.key === "Escape") resetRename();
+                    });
+
                 }
             }
 
@@ -388,7 +445,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     bulkDeleteEl.textContent = originalText;
                 }
             });
-
             loadProjects();
         });
     </script>
@@ -538,4 +594,28 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         margin-left: 0.35rem; /* bring checkbox closer to the label */
         flex-shrink: 0;
     }
+
+    .rename-wrapper {
+        position: relative;
+        display: inline-block;
+        max-width: 100%;
+    }
+
+    .name-display {
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        max-width: 95%;
+    }
+
+    .rename-input {
+        font-size: inherit;
+        padding: 2px 4px;
+        border: 1px solid #9ca3af;
+        border-radius: 4px;
+        width: 95%;
+    }
+
 </style>
