@@ -2,7 +2,8 @@
 import "../styles/global.css";
 import Nav from "../components/Nav.astro";
 import logo from "../assets/logo.png";
-const { title = "KIL Construction", description = "Quality construction & contracting.", noSticky = false } = Astro.props;
+const { title = "KIL Construction", description = "Quality construction & contracting.", image = "/assets/logo.png",
+    url = Astro.url?.toString() ?? "https://kilcon.work", noSticky = false } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -11,6 +12,12 @@ const { title = "KIL Construction", description = "Quality construction & contra
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta property="og:url" content={url} />
+
     <link rel="icon" href={logo.src} />
 </head>
 <body class={`site ${noSticky ? 'no-sticky' : ''}`}>
@@ -31,6 +38,9 @@ const { title = "KIL Construction", description = "Quality construction & contra
                     <path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-2.9h2v-2.2c0-2 1.2-3.2 3-3.2.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2v2h2.3l-.4 2.9h-1.9v7A10 10 0 0 0 22 12z"/>
                 </svg>
             </a>
+        </div>
+        <div class="...">
+            <a href="/admin">Admin</a>
         </div>
     </div>
 </footer>
