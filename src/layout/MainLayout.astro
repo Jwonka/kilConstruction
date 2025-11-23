@@ -2,8 +2,11 @@
 import "../styles/global.css";
 import Nav from "../components/Nav.astro";
 import logo from "../assets/logo.png";
-const { title = "KIL Construction", description = "Quality construction & contracting.", image = "/assets/logo.png",
+const { title = "KIL Construction", description = "Custom cabinetry, built-ins, and remodeling projects in Mondovi.", image = "/assets/logo.png",
     url = Astro.url?.toString() ?? "https://kilcon.work", noSticky = false } = Astro.props;
+const absoluteImage = image.startsWith('http')
+    ? image
+    : new URL(image, url).toString();
 ---
 <!doctype html>
 <html lang="en">
@@ -15,9 +18,13 @@ const { title = "KIL Construction", description = "Quality construction & contra
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={image} />
+    <meta property="og:image" content={absoluteImage} />
     <meta property="og:url" content={url} />
-
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absoluteImage} />
+    <link rel="canonical" href={url} />
     <link rel="icon" href={logo.src} />
 </head>
 <body class={`site ${noSticky ? 'no-sticky' : ''}`}>
