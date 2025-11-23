@@ -63,6 +63,7 @@
         const current = norm(img.currentSrc || img.src || '');
         let pool = unique(raw).filter((u) => norm(u) !== current);
         if (pool.length < 1) return;
+        const link = img.closest('a');
 
         img.style.transition = `opacity ${FADE_MS}ms ease-in-out`;
         img.style.willChange = 'opacity';
@@ -87,6 +88,7 @@
             // 2) swap while invisible
             img.srcset = '';
             img.src = next;
+            if (link) { link.href = next; }
             try { await img.decode(); } catch {}
 
             // 3) fade IN new image

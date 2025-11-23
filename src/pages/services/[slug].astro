@@ -1,20 +1,148 @@
 ---
 import "../../styles/global.css";
-import MainLayout from '../../layout/MainLayout.astro';
-import { services, type Service } from '../../data/services';
+import MainLayout from "../../layout/MainLayout.astro";
+import { services, type Service } from "../../data/services";
 
 export const prerender = true;
-
 export async function getStaticPaths() {
     return services.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
-    }
+}
 
 const { service } = Astro.props as { service: Service };
+
+// ----- R2 / gallery fetch -----
+
+type ServiceImage = {
+    name: string;
+    full: string;
+    thumb: string;
+};
+
+const PROD_ORIGIN = Astro.site?.origin || "https://kilcon.work";
+const API_BASE = import.meta.env.DEV ? "https://kilcon.work" : PROD_ORIGIN;
+const API = new URL("/api/gallery/list-images", API_BASE);
+
+let images: ServiceImage[] = [];
+let loadError: string | null = null;
+
+if (service.prefix) {
+    try {
+        const u = new URL(API);
+        u.searchParams.set("prefix", service.prefix);
+
+        const res = await fetch(u, { cache: "no-store" });
+
+        if (res.ok && res.headers.get("content-type")?.includes("application/json")) {
+            const json = (await res.json()) as {
+                objects?: { key?: string; name?: string; full?: string; thumb?: string }[];
+            };
+
+            const objs = json.objects ?? [];
+
+            images = objs
+                .map((o) => {
+                    const fileName = o.name || o.key?.split("/").pop() || "";
+                    const full = o.full || o.thumb || "";
+                    const thumb = o.thumb || o.full || full;
+                    if (!full || !thumb) return null;
+
+                    return {
+                        name: fileName,
+                        full,
+                        thumb,
+                    };
+                })
+                .filter((x): x is ServiceImage => !!x);
+        } else {
+            loadError = "Failed to load photos.";
+        }
+    } catch (err) {
+        loadError = "Failed to load photos.";
+    }
+}
 ---
-<MainLayout title={service.name}>
-    <section class="container">
-        <h1 class="page-head">{service.name}</h1>
-        {service.blurb && <p class="muted">{service.blurb}</p>}
-        <div class="card">Details for {service.name} coming soon.</div>
+
+<MainLayout title={`${service.name} | KIL Construction`}>
+    <section class="container page-section service-page">
+        <header class="service-header">
+            <h1 class="page-head">{service.name}</h1>
+
+            {service.blurb && (
+                    <p class="service-intro">
+                        {service.blurb}
+                    </p>
+            )}
+
+            <p class="service-intro-muted">
+                We handle {service.name.toLowerCase()} projects from planning to final walkthrough.
+                Every project is built to last and tailored to your space.
+            </p>
+        </header>
+
+        <div class="service-gallery">
+            {loadError && (
+                <p class="status status--error">
+                    Couldn’t load photos for this service right now.
+                </p>
+            )}
+
+            {!loadError && images.length === 0 && (
+                <p class="status status--empty">
+                    Photos for this service are coming soon.
+                </p>
+            )}
+
+            {!loadError && images.length > 0 && (
+                    <div class="grid grid--service-photos">
+                        {/*
+            Build up to 4 rotating cards by distributing images into 4 groups.
+            Each card shows first image as cover and rotates through its group.
+          */}
+                        {(() => {
+                            const maxCards = 4;
+                            const count = Math.min(maxCards, images.length);
+                            const groups: ServiceImage[][] = Array.from({ length: count }, () => []);
+
+                            images.forEach((img, idx) => {
+                                groups[idx % count].push(img);
+                            });
+
+                            return groups.map((group) => {
+                                const cover = group[0];
+                                const rotUrls = group.map((g) => g.full);
+
+                                return (
+                                    <figure class="card card-media card-service-photo rotatable">
+                                        <a
+                                            class="rotatable"
+                                            href={cover.full}
+                                            target="_blank"
+                                            rel="noopener"
+                                        >
+                                            <img
+                                                class="photo"
+                                                loading="lazy"
+                                                src={cover.thumb}
+                                                alt={cover.name}
+                                                data-rot-srcs={JSON.stringify(rotUrls)}
+                                            />
+                                        </a>
+                                    </figure>
+                                );
+                            });
+                        })()}
+                    </div>
+            )}
+        </div>
+
+        <p class="service-cta">
+            Ready to talk about your project? Visit the{" "}
+            <a href="/contact/">contact page</a> and we’ll schedule a time to look at your
+            space and provide an estimate.
+        </p>
     </section>
+
+    <script src="/js/rotator.js?v=12" defer></script>
 </MainLayout>
+
+
