@@ -25,14 +25,23 @@ try {
 ---
 
 <section class="gallery grid-cards">
-    {items.length > 0 ? (
-        items.map((i) => (
-                <a class="card card-photo" href={i.full} target="_blank" rel="noopener">
-                    <img class="photo" loading="lazy" src={i.thumb} alt={i.name} />
-                </a>
-        ))
-    ) : (
-            <p>No images uploaded yet.</p>
+    {loadError && (
+        <p class="status status--error">
+            Couldn’t load the gallery right now. Please try again later.
+        </p>
     )}
+
+    {!loadError && items.length === 0 && (
+        <p class="status status--empty">
+            No images uploaded yet.
+        </p>
+    )}
+    {!loadError && items.length > 0 && (
+        items.map((i) => (
+            <a class="card card-photo" href={i.full} target="_blank" rel="noopener">
+                <img class="photo" loading="lazy" src={i.thumb} alt={i.name} />
+            </a>
+        ))
+   )}
 </section>
 

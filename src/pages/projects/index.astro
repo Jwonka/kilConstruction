@@ -33,6 +33,7 @@ type Card = {
 type ListResponse = { projects?: ProjectFromApi[] };
 
 let cards: Card[] = [];
+let loadError: string | null = null;
 try {
     const u = new URL(API);
     u.searchParams.set('list', 'projects');
@@ -79,8 +80,10 @@ try {
                 rotList,
             };
         });
+    } else {
+        loadError = 'Failed to load projects.';
     }
-} catch {}
+} catch { loadError = 'Failed to load projects.'; }
 function hasUrl(x: unknown): x is { url: string } {
     return !!x && typeof (x as any).url === 'string';
 }
@@ -90,6 +93,7 @@ function hasUrl(x: unknown): x is { url: string } {
 <MainLayout title="Projects | KIL Construction"  description="Browse recent KIL Construction projects, including kitchens, built-ins, and more.">
     <Fragment slot="head">
         <link rel="preconnect" href="https://kilcon.work" crossorigin>
+
         {cards.slice(0, 6).map((c) => {
             if (!c.src) return null;
             return (
@@ -104,19 +108,33 @@ function hasUrl(x: unknown): x is { url: string } {
     </Fragment>
     <h1 class="page-head container">Projects</h1>
     <section class="container page-section">
-        <div class="grid grid--projects">
-            {cards.map((c, i) => (
-                <ProjectCard
-                    p={c.p}
-                    first={c.first}
-                    src={c.src}
-                    rotList={c.rotList}
-                    eager={i < 6}
-                    cover={c.src ?? (hasUrl(c.first) ? c.first.url : undefined)}
-                />
-            ))}
-        </div>
+        {loadError && (
+                <p class="status status--error">
+                    Couldn’t load projects right now. Please try again later.
+                </p>
+        )}
+
+        {!loadError && cards.length === 0 && (
+                <p class="status status--empty">
+                    No projects yet. Check back soon.
+                </p>
+        )}
+
+        {!loadError && cards.length > 0 && (
+                <div class="grid grid--projects">
+                    {cards.map((c, i) => (
+                            <ProjectCard
+                                    p={c.p}
+                                    first={c.first}
+                                    src={c.src}
+                                    rotList={c.rotList}
+                                    eager={i < 6}
+                                    cover={c.src ?? (hasUrl(c.first) ? c.first.url : undefined)}
+                            />
+                    ))}
+                </div>
+        )}
     </section>
-    <script src="/js/rotator.js?v=12" defer></script>
+    <script src="/js/rotator.js?v=13" defer></script>
     <script src="/js/grid-enhancer.js?v=6" defer></script>
 </MainLayout>

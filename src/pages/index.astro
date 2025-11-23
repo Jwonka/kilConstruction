@@ -1,11 +1,65 @@
 ---
 import MainLayout from "../layout/MainLayout.astro";
 import "../styles/global.css";
+
+type Highlight = {
+    name: string;
+    full: string;
+    thumb: string;
+};
+
+const PROD_ORIGIN = Astro.site?.origin || "https://kilcon.work";
+const API = new URL("/api/gallery", PROD_ORIGIN);
+
+let highlights: Highlight[] = [];
+let heroError: string | null = null;
+
+try {
+    const u = new URL(API);
+    u.searchParams.set("list", "highlights");
+
+    const res = await fetch(u, { cache: "no-store" });
+    if (res.ok && res.headers.get("content-type")?.includes("application/json")) {
+        const data = (await res.json()) as { items?: Highlight[] };
+        highlights = data.items ?? [];
+    } else {
+        heroError = "Failed to load highlights.";
+    }
+} catch {
+    heroError = "Failed to load highlights.";
+}
+
+const heroCover = highlights[0]?.full;
+const heroRotUrls = highlights.map((h) => h.full);
 ---
-<MainLayout title="KIL Construction" description="Quality construction & contracting.">
+<MainLayout title="KIL Construction | Custom Carpentry & Cabinets" description="Custom cabinetry, built-ins, and remodeling projects in Mondovi and the surrounding area.">
 	<section class="hero">
-		<h1>On-target workmanship. On-time results.</h1>
-		<p>Hand-crafted cabinetry, built-ins, and remodeling projects.</p>
+        <div class="hero-copy">
+            <h1>On-target workmanship. On-time results.</h1>
+            <p>Hand-crafted cabinetry, built-ins, and remodeling projects.</p>
+        </div>
+        <div class="card card-media hero-card">
+            <div class="hero-image-wrap">
+                {heroCover ? (
+                    <img
+                        class="photo hero-photo"
+                        src={heroCover}
+                        alt="KIL Construction project highlight"
+                        data-rot-srcs={JSON.stringify(heroRotUrls)}
+                    />
+                ) : (
+                        <div class="hero-placeholder">
+                            KIL Construction
+                        </div>
+                )}
+            </div>
+
+            {heroError && (
+                    <p class="hero-status status status--error">
+                        Couldn’t load highlight photos right now.
+                    </p>
+            )}
+        </div>
 	</section>
 
 	<section>
@@ -28,4 +82,6 @@ import "../styles/global.css";
 		</section>
 		<p>We provide estimates and stand behind our work. Don’t see the service you need? Ask us.</p>
 	</section>
+    <script src="/js/rotator.js?v=13" defer></script>
+    <script src="/js/grid-enhancer.js?v=6" defer></script>
 </MainLayout>
