@@ -47,6 +47,28 @@
 .hero-link {
     font-weight: 600;
 }
+/* Home hero layout – make it deterministic on every build */
+
+.hero .hero-card {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Lock the hero’s aspect ratio so height can’t wander */
+.hero .hero-image-wrap {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+}
+
+/* Make the image fully fill that box the same way everywhere */
+.hero .hero-photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* --- HERO: responsive typography and image sizing --- */
 @media (max-width: 768px) {  .hero {padding: 32px 0 20px;}  .hero-copy h1 {font-size: clamp(1.8rem, 5vw, 2.1rem);}  }
 @media (max-width: 720px) {  .hero-card img.photo.hero-photo {height: min(52vw, 220px);}  }
