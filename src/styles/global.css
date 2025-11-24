@@ -21,6 +21,7 @@ a:hover{text-decoration: ghostwhite}
 .header .navgrid{display: grid;grid-template-columns: auto 1fr auto;align-items: center;gap: clamp(8px, 2vw, 24px);}
 .links{display:flex;align-items:center;flex-wrap: nowrap;min-width: 0;gap: clamp(14px, 4vw, 64px); }
 main { flex: 1 0 auto; }
+.page-head {text-align: center;}
 .spacer{flex:1}
 .nav { font-size: clamp(16px, 1.4vw, 22px); }
 .nav a{font-weight:600;text-align: center; white-space: nowrap}
@@ -106,6 +107,7 @@ main { flex: 1 0 auto; }
     align-items: start;
 }
 .caption {margin-top: 8px;font-size: 0.95rem;color: #556;}
+.status.status--error, .status.status--empty {text-align: center;color: #c0392b; ;}
 .footer{flex: 0 0 auto;margin-top:auto;border-top:1px solid #0a0a0a20;color: #fff;padding: 28px 0 calc(28px + env(safe-area-inset-bottom, 0px));font-size:14px;background: #000000; text-align: center}
 .footer-inner {display: flex;align-items: center;justify-content: center;gap: 14px;flex-wrap: wrap;line-height:1}
 .foot-copy{ line-height: 1; }

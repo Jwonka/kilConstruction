@@ -12,9 +12,10 @@ export interface Props {
     rotList?: string[];
     eager?: boolean;
     cover?: string;
+    baseHref?: string;
 }
 
-const { p, first, src, rotList = [], eager = false, cover } = Astro.props;
+const { p, first, src, rotList = [], eager = false, cover, baseHref = "/projects", } = Astro.props;
 
 const firstUrl = typeof first === 'string' ? first : first?.url;
 const firstName = typeof first === 'string' ? undefined : first?.name;
@@ -41,7 +42,7 @@ const dataRot = Array.isArray(rotList) && rotList.length > 1 ? rotList.join(',')
 ---
 
 <figure class="card card-media" style="object-fit: cover">
-    <a href={`/projects/${p.slug}/`} aria-label={p.name}>
+    <a href={`${baseHref}/${p.slug}/`} aria-label={p.name}>
         <img
             class="photo"
             {...(dataRot ? { 'data-rot-srcs': JSON.stringify(rotList) } : {})}

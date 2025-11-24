@@ -34,12 +34,33 @@
             io.unobserve(card);
 
             q.push(async () => {
-                const a = card.closest('a[href^="/projects/"]'); if (!a) return;
-                const slug = (a.getAttribute("href") || "").split("/").filter(Boolean).pop();
-                const img = card.querySelector("img.photo"); if (!slug || !img) return;
+                // Find a link inside the card
+                const link = card.querySelector("a[href]");
+                if (!link) return;
+
+                const href = link.getAttribute("href") || "";
+                const path = href.split("?")[0].split("#")[0];
+                const parts = path.split("/").filter(Boolean); // e.g. ["projects","me"] or ["services","furniture","cabinets"]
+
+                let projectParam = null;
+
+                if (parts[0] === "projects" && parts[1]) {
+                    // /projects/<slug> → ?project=<slug>
+                    projectParam = parts[1];
+                } else if (parts[0] === "services" && parts[1] && parts[2]) {
+                    // /services/<category>/<slug>/ → ?project=<category>/<slug>
+                    const category = parts[1]; // "furniture" | "new-construction" | "remodels"
+                    const slug = parts[2];
+                    projectParam = `${category}/${slug}`;
+                }
+
+                const img = card.querySelector("img.photo");
+                if (!projectParam || !img) return;
 
                 try {
-                    const r = await withTimeout(fetch(`${API}?project=${encodeURIComponent(slug)}`, { cache: "no-store" }));
+                    const r = await withTimeout(
+                        fetch(`${API}?project=${encodeURIComponent(projectParam)}`, { cache: "no-store" })
+                    );
                     if (!r.ok) return;
                     const j = await r.json();
                     const urlsRaw = (j?.items ?? [])

@@ -42,16 +42,23 @@ const heroRotUrls = highlights.map((h) => h.full);
         <div class="card card-media hero-card">
             <div class="hero-image-wrap">
                 {heroCover ? (
-                    <img
-                        class="photo hero-photo"
-                        src={heroCover}
-                        alt="KIL Construction project highlight"
-                        data-rot-srcs={JSON.stringify(heroRotUrls)}
-                    />
+                    <a
+                        class="rotatable"
+                        href={heroCover}
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <img
+                            class="photo hero-photo"
+                            src={heroCover}
+                            alt="KIL Construction project highlight"
+                            data-rot-srcs={JSON.stringify(heroRotUrls)}
+                        />
+                    </a>
                 ) : (
-                        <div class="hero-placeholder">
-                            KIL Construction
-                        </div>
+                    <div class="hero-placeholder">
+                        KIL Construction
+                    </div>
                 )}
             </div>
 

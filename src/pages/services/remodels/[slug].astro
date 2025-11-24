@@ -1,0 +1,161 @@
+---
+import MainLayout from "../../../layout/MainLayout.astro";
+import "../../../styles/global.css";
+import "../../../styles/projects.css";
+
+export const prerender = false;
+
+const API_ORIGIN = "https://kilcon.work";
+const API = new URL("/api/gallery", API_ORIGIN);
+
+type Photo = {
+    name: string;
+    thumb: string;
+    full: string;
+    description?: string;
+};
+
+type ProjectMeta = {
+    name?: string;
+    description?: string;
+};
+
+const { slug } = Astro.params as { slug: string };
+
+let items: Photo[] = [];
+let loadError: string | null = null;
+let albumName: string = slugToTitle(slug);
+let albumDesc: string | undefined;
+
+try {
+    // 1) Primary: remodels-specific request
+    const apiItems = new URL(API);
+    apiItems.searchParams.set("project", `remodels/${slug}`);
+
+    const r1 = await fetch(apiItems, { cache: "no-store" });
+
+    if (!r1.ok) {
+        if (r1.status !== 404) {
+            loadError = `HTTP ${r1.status}`;
+        }
+    } else if (!r1.headers.get("content-type")?.includes("application/json")) {
+        loadError = "Bad response (not JSON)";
+    } else {
+        const j1 = (await r1.json()) as {
+            items?: Photo[];
+            project?: ProjectMeta;
+        };
+
+        items = j1.items ?? [];
+        items.sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, {
+                numeric: true,
+                sensitivity: "base",
+            }),
+        );
+
+        if (j1.project?.name) albumName = j1.project.name;
+        if (j1.project?.description) albumDesc = j1.project.description;
+    }
+
+    // 2) If no description yet, pull from remodels album list
+    if (!albumDesc) {
+        const apiList = new URL(API);
+        apiList.searchParams.set("list", "remodels");
+
+        const r2 = await fetch(apiList, { cache: "no-store" });
+        if (r2.ok && r2.headers.get("content-type")?.includes("application/json")) {
+            const j2 = (await r2.json()) as {
+                remodels?: { slug: string; name?: string; description?: string }[];
+                projects?: { slug: string; name?: string; description?: string }[];
+            };
+
+            const list = j2.remodels ?? j2.projects ?? [];
+            const m = list.find((p) => p.slug === slug);
+
+            if (m?.name) albumName = m.name;
+            if (m?.description) albumDesc = m.description;
+        }
+    }
+
+    // 3) Backwards-compat fallback: old ?project=<slug>
+    if (!items.length && !loadError) {
+        const apiItems2 = new URL(API);
+        apiItems2.searchParams.set("project", slug);
+
+        const r3 = await fetch(apiItems2, { cache: "no-store" });
+        if (r3.ok && r3.headers.get("content-type")?.includes("application/json")) {
+            const j3 = (await r3.json()) as {
+                items?: Photo[];
+                project?: ProjectMeta;
+            };
+
+            items = j3.items ?? [];
+            items.sort((a, b) =>
+                a.name.localeCompare(b.name, undefined, {
+                    numeric: true,
+                    sensitivity: "base",
+                }),
+            );
+
+            if (j3.project?.name) albumName = j3.project.name;
+            if (j3.project?.description) albumDesc = j3.project.description;
+        }
+    }
+} catch (e: any) {
+    loadError = e?.message ?? "Network error";
+}
+
+const cropName = (s: string) =>
+    s.replace(/\.[^.]+$/, "").replace(/[_]+/g, " ");
+
+function slugToTitle(s: string): string {
+    return s
+        .split("-")
+        .filter(Boolean)
+        .map((part) => part[0]?.toUpperCase() + part.slice(1))
+        .join(" ");
+}
+---
+
+<MainLayout title={albumName} noSticky>
+    <h1 class="page-head container">{albumName}</h1>
+
+    {albumDesc && (
+        <p class="container muted" style="margin-top:-6px;margin-bottom:14px;">
+            {albumDesc}
+        </p>
+    )}
+
+    <section class="container page-section">
+        {items.length > 0 ? (
+            <div class="grid grid--projects">
+                {items.map((i) => (
+                    <figure class="card card-media">
+                        <a href={i.full || i.thumb} target="_blank" rel="noopener">
+                            <img
+                                class="photo"
+                                loading="lazy"
+                                decoding="async"
+                                referrerpolicy="no-referrer"
+                                src={i.thumb || i.full}
+                                srcset={`${(i.thumb || i.full).replace("=s0","=w600")} 600w, ${(i.thumb || i.full).replace("=s0","=w1200")} 1200w, ${(i.thumb || i.full).replace("=s0","=w2000")} 2000w`}
+                                alt={i.name}
+                                sizes="(max-width: 560px) 90vw, (max-width: 1200px) 45vw, 28vw"
+                            />
+                        </a>
+                        {(i.description || i.name) && (
+                                <figcaption class="caption">
+                                    {i.description || cropName(i.name)}
+                                </figcaption>
+                        )}
+                    </figure>
+                ))}
+            </div>
+        ) : (
+            !loadError && <p>No images uploaded yet.</p>
+        )}
+
+        {loadError && <p class="error">Failed to load: {loadError}</p>}
+    </section>
+</MainLayout>

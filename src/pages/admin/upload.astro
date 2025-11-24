@@ -35,7 +35,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         <option value="uploads">Uploads</option>
                         <option value="Projects">Projects</option>
                         <option value="Highlights">Highlights</option>
-                        <option value="Services">Services</option>
                         <option value="New Construction">New Construction</option>
                         <option value="Remodels">Remodels</option>
                         <option value="Furniture">Furniture</option>
@@ -189,15 +188,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         `<p>Uploaded ${(data.uploaded ?? data.urls?.length) || 0} files:</p><ul>${list}</ul>`;
                     statusEl.textContent = "Upload complete.";
                     fileInput.value = "";
-
-                    /*// If this was a project upload, jump straight to the project page
-                    if (category === "Projects") {
-                        const slug = slugifyName(subfolder);
-                        // small delay so the status text is visible
-                        setTimeout(() => {
-                            window.location.href = `/projects/${slug}/`;
-                        }, 600);
-                    }*/
                 } else {
                     statusEl.textContent = "Upload failed.";
                     resultEl.textContent = data.error || "Server returned an error.";

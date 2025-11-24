@@ -35,8 +35,16 @@
     color: #e5e7eb;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
+/* Remove global card-media rules ONLY for hero */
+.hero-card a.rotatable {
+    aspect-ratio: auto !important;
+    background: transparent !important;
+    height: auto !important;
+    display: block;
+}
+/* Ensure hero image controls the height */
+.hero-card img.hero-photo {aspect-ratio: auto !important;}
 /* --- HERO: responsive typography and image sizing --- */
-
 @media (max-width: 768px) {  .hero {padding: 32px 0 20px;}  .hero-copy h1 {font-size: clamp(1.8rem, 5vw, 2.1rem);}  }
 @media (max-width: 720px) {  .hero-card img.photo.hero-photo {height: min(52vw, 220px);}  }
 @media (max-width: 700px) {  .hero { padding: 40px 0 24px; } .hero h1 { margin: 0 0 6px;}  }

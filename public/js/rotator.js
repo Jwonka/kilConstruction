@@ -88,7 +88,12 @@
             // 2) swap while invisible
             img.srcset = '';
             img.src = next;
-            if (link) { link.href = next; }
+
+            // Only rewrite href for "highlights" image cards, NOT album cards
+            if (link && link.classList.contains('rotatable')) {
+                link.href = next;
+            }
+
             try { await img.decode(); } catch {}
 
             // 3) fade IN new image
