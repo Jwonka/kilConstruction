@@ -1,0 +1,43 @@
+---
+import MainLayout from "../../layout/MainLayout.astro";
+import { services } from "../../data/services";
+import "../../styles/global.css";
+import "../../styles/services.css";
+---
+
+<MainLayout title="New Construction | KIL Construction">
+    <main class="service-page">
+        <section class="service-header">
+            <h1>New Construction</h1>
+            <p>Framing, drywall, decks, siding, and complete builds.</p>
+            <p>From planning through final walkthrough, we handle the full build process with durable materials and clean workmanship.</p>
+        </section>
+
+        <section class="service-gallery">
+            {services.map((img) => (
+                    <article class="card card-media service-card">
+                        <a href={img.full} target="_blank" rel="noreferrer">
+                            <div class="card-media-inner">
+                                <img
+                                        class="photo"
+                                        src={img.thumb}
+                                        alt={img.alt}
+                                        loading="lazy"
+                                />
+                            </div>
+                        </a>
+                    </article>
+            ))}
+        </section>
+
+        <section class="service-cta">
+            <p>
+                Ready to talk about your project? Reach out on the
+                {' '}
+                <a href="/contact">contact page</a>
+                {' '}
+                and we’ll schedule a time to look at your space and provide an estimate.
+            </p>
+        </section>
+    </main>
+</MainLayout>

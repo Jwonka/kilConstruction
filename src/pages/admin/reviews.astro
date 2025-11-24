@@ -1,5 +1,7 @@
 ---
 import AdminLayout from "../../layout/AdminLayout.astro";
+import "../../styles/global.css";
+import "../../styles/admin.css";
 
 const cookies = Astro.cookies;
 const auth = cookies.get("admin_auth")?.value || "";

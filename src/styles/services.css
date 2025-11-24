@@ -1,0 +1,51 @@
+/* Services page layout */
+.service-layout {display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);gap: 2rem; align-items: flex-start;}
+.service-copy p { margin: 0 0 0.85rem; color: #4b5563; }
+.service-page { max-width: var(--max); margin: 0 auto; padding: clamp(48px, 6vw, 72px) clamp(16px, 4vw, 32px) clamp(64px, 7vw, 96px); }
+.service-header { max-width: 42rem; margin: 0 auto 2.5rem; text-align: center; }
+.service-header p { margin-bottom: 0.75rem; }
+.service-header .page-head { margin-bottom: 0.5rem; }
+.service-intro { margin: 0 0 0.5rem; }
+.service-intro-muted { margin: 0; color: #4b5563; }
+.service-gallery { max-width: var(--max); margin: 0 auto;}
+.grid--service-photos {
+    --card-min: 260px;
+    display: grid;
+    gap: var(--gap);
+    grid-template-columns: repeat(4, minmax(var(--card-min), 1fr));
+    justify-content: center;
+}
+.service-gallery .card.card-media {display: flex;flex-direction: column;padding: 12px;}
+.service-gallery .card.card-media .caption {margin-top: 8px;font-size: 0.95rem;color: var(--muted);}
+@media (max-width: 1024px) {  .grid--service-photos {grid-template-columns: repeat(2, minmax(var(--card-min), 1fr));}  }
+@media (min-width: 900px) {
+    .service-gallery {
+        max-width: 1120px;
+        margin-inline: auto;
+    }
+
+    .grid--service-photos {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(240px, 1fr));
+        gap: 24px;
+        justify-items: center;
+    }
+
+    .grid--service-photos .card.card-media {
+        width: 100%;
+        max-width: 260px;
+    }
+}
+@media (max-width: 959px) and (min-width: 640px) {
+    .grid--service-photos {
+        grid-template-columns: repeat(2, minmax(var(--card-min), 1fr));
+    }
+}
+@media (max-width: 560px) {
+    .service-page {padding-inline: clamp(16px, 4vw, 24px);}
+    .service-gallery {justify-content: center;}
+    .grid--service-photos {grid-template-columns: 1fr;gap: 10px;}
+    .grid--service-photos .card.card-media {width: 100%;margin-inline: auto;}
+    .grid--service-photos .card.card-media .photo {display: block;width: 100%;height: auto;object-fit: cover;}
+    .service-gallery .card-media a {height: 100%;}
+}

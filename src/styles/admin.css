@@ -1,0 +1,487 @@
+.admin-title {
+    margin: 0 0 24px;
+    font-size: clamp(1.9rem, 2.2vw, 2.3rem);
+    text-align: center;
+    color: var(--ink, #111827);
+}
+
+.admin-actions a {
+    margin: 20px;
+}
+
+.admin-subtitle {
+    margin: 0 0 20px;
+    color: #4b5563;
+    font-size: 0.98rem;
+}
+
+.panel {
+    border-radius: 18px;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    background: #f9fafb;
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.admin-field-label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+}
+
+.admin-input {
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+    background: #fff;
+}
+
+.hint {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.actions-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-text {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.upload-result {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    font-size: 0.9rem;
+    max-height: 260px;
+    overflow: auto;
+}
+
+.admin-btn {
+    padding-inline: 18px;
+}
+/* ===== ADMIN MANAGE LAYOUT ===== */
+.folder-tree,
+.folder-tree ul,
+.folder-tree li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-title {
+    margin: 0 0 8px;
+    font-size: clamp(1.6rem, 2.2vw, 1.9rem);
+}
+
+.admin-subtitle {
+    margin: 0 0 20px;
+    color: #4b5563;
+    font-size: 0.98rem;
+}
+
+.panel {
+    border-radius: 18px;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    background: #f9fafb;
+    text-align: left;
+    overflow-x: hidden;
+}
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.search-input {
+    flex: 1 1 220px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+}
+
+.btn-small {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: none;
+    font-size: 0.9rem;
+    background: #111827;
+    color: #f9fafb;
+    cursor: pointer;
+}
+
+.btn-small:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.btn-danger {
+    border-color: #f97373;
+    color: #b91c1c;
+    background: #fef2f2;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #fee2e2;
+}
+
+.status-row {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 10px;
+}
+
+.results-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.result-item {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.04);
+    padding: 0.5rem 0;
+    position: relative;
+}
+
+.result-item.just-renamed {
+    background: #ecfdf5;          /* soft green */
+    transition: background-color 0.8s ease;
+}
+
+.file-title[data-rename-active="1"]::after {
+    content: "Enter to save / Esc to cancel";
+    display: block;
+    font-size: 0.7rem;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+.result-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111827;
+}
+
+.result-meta {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.result-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-pill {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: #111827;
+    background: #f9fafb;
+}
+
+.btn-pill:hover {
+    background: #e5e7eb;
+}
+
+.empty {
+    font-size: 0.9rem;
+    color: #6b7280;
+    padding: 8px 2px;
+}
+
+.result-item.active {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+.item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;      /* less space between caret + text */
+}
+
+.select-checkbox {
+    margin-left: 0.35rem; /* bring checkbox closer to the label */
+    flex-shrink: 0;
+}
+
+.child-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;         /* space between text and checkbox */
+}
+
+.child-info {
+    flex: 1 1 auto;
+    min-width: 0;        /* <-- critical so ellipsis can kick in on small screens */
+}
+
+.rename-wrapper {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.name-display {
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 100%;
+}
+
+.rename-input {
+    font-size: inherit;
+    padding: 2px 4px;
+    border: 1px solid #9ca3af;
+    border-radius: 4px;
+    width: 100%;
+}
+
+/* Get rid of bullets everywhere in this tree */
+ul.results-list,
+ul.results-list li,
+ul.children-list,
+ul.children-list li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Overall list – keep it centered and spaced */
+ul.results-list {
+    max-width: 100%;
+    margin-inline: auto;
+    display: flex;
+    padding-inline: 0;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Each top-level folder “card” */
+ul.results-list > li.result-item {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem 0;
+    border-bottom: 1px dashed #e5e7eb;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+/* Nested files inside a folder */
+ul.children-list > li {
+    padding: 0.5rem 0;
+    border-top: 1px solid #f3f4f6;
+}
+
+/* Folder row: [caret] [label] [checkbox] in one line (desktop) */
+ul.results-list > li.result-item > div.item-header {
+    display: flex;
+    align-items: center;
+    padding: 2px 0;
+    gap: 0.2rem;
+}
+
+/* caret immediately left of label */
+ul.results-list > li.result-item > div.item-header > button.expand-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: 1.3rem;
+    flex-shrink: 0;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* label: left aligned, takes middle space */
+ul.results-list > li.result-item > div.item-header > div.item-text {
+    flex: 1;
+    text-align: left;
+    min-width: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111827;
+}
+
+/* checkbox pinned to far right (desktop) */
+ul.results-list > li.result-item > div.item-header > input.select-checkbox {
+    margin-right: 01.5rem;
+    flex-shrink: 0;
+}
+
+/* Children (files) list, indented with vertical guide */
+ul.results-list ul.children-list {
+    margin: 0.2rem 0 0.35rem 1.5rem;
+    padding: 0;
+    border-left: 1px dashed #e5e7eb;
+}
+
+/* File rows: [label left] [checkbox right] */
+ul.results-list ul.children-list > li.child-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed #eef2f7;
+    position: relative;
+}
+ul.results-list ul.children-list > li.child-item:last-child {
+    border-bottom: none;
+}
+
+/* file text column */
+ul.results-list ul.children-list > li.child-item > div.child-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+/* filename */
+ul.results-list ul.children-list .image-name {
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+/* size + date */
+ul.results-list ul.children-list .image-meta {
+    font-size: 0.82rem;
+    color: #6b7280;
+}
+
+/* checkbox on right for files */
+ul.results-list ul.children-list > li.child-item > input.select-checkbox {
+    margin-right: 01.5rem;
+    flex-shrink: 0;
+}
+
+ul.children-list > li.child-item { min-width: 0; }
+.child-item .child-info { flex: 1; min-width: 0; }
+
+/* Container for name + meta must be allowed to shrink */
+.image-info {
+    flex: 1;
+    min-width: 0; /* critical so ellipsis can work */
+}
+.child-info { min-width: 0; }/* critical so ellipsis can work */
+
+/* File name: single line with ellipsis */
+.image-name {
+    font-size: 0.9rem;
+    color: #111827;
+    word-break: normal;
+    font-weight: 500;
+    white-space: nowrap;
+    position: relative;
+    display: block;
+    align-items: center;
+    gap: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.child-item:hover .image-name::after { opacity: 0.6;}
+/* --- ADMIN: layout + checkbox behavior --- */
+
+@media (max-width: 700px) {
+    .admin-main {
+        padding: 1rem 1rem 1.5rem;
+    }
+
+    .admin-card {
+        border-radius: 22px;
+        margin-top: 0.5rem;
+    }
+
+    .admin-actions a {
+        margin-bottom: 20px;
+    }
+}
+
+/* Put folder checkbox on its own row */
+@media (max-width: 520px) {
+    ul.results-list > li.result-item > div.item-header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        row-gap: 0.15rem;
+    }
+
+    ul.results-list > li.result-item > div.item-header > button.expand-btn {
+        margin-top: 0.05rem;
+    }
+
+    ul.results-list > li.result-item > div.item-header > input.select-checkbox {
+        flex-basis: 100%;
+        margin-top: 0.1rem;
+        margin-left: 1.6rem;
+    }
+
+    ul.children-list > li.child-item {
+        flex-wrap: wrap;
+    }
+
+    ul.children-list > li.child-item > input.select-checkbox {
+        flex-basis: 100%;
+        margin-left: 0;
+        margin-top: 2px;
+        align-self: flex-start;
+    }
+}
+
+/* Stack checkbox under row instead of next to text */
+@media (max-width: 480px) {
+    ul.results-list > li.result-item > .item-header > input.select-checkbox {
+        flex-basis: auto;
+        margin-left: auto;
+        margin-top: 0;
+    }
+}
+
+/* Very small screens: compact admin cards/panels */
+@media (max-width: 420px) {
+    .admin-card {
+        padding-inline: 8px !important;
+    }
+
+    .panel {
+        padding-inline: 8px !important;
+    }
+}

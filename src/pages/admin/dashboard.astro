@@ -1,5 +1,7 @@
 ---
 import AdminLayout from "../../layout/AdminLayout.astro";
+import "../../styles/global.css";
+import "../../styles/admin.css";
 
 const cookies = Astro.cookies;
 const auth = cookies.get("admin_auth")?.value || "";
@@ -33,30 +35,3 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         </a>
     </nav>
 </AdminLayout>
-<style>
-    .admin-title {
-        margin: 0 0 24px;
-        font-size: clamp(1.9rem, 2.2vw, 2.3rem);
-        text-align: center;
-        color: var(--ink, #111827);
-    }
-
-    .admin-actions a {
-        margin: 20px;
-    }
-
-    @media (max-width: 700px) {
-        .admin-main {
-            padding: 1rem 1rem 1.5rem;
-        }
-
-        .admin-card {
-            border-radius: 22px;
-            margin-top: 0.5rem;
-        }
-
-        .admin-actions a {
-            margin-bottom: 20px;
-        }
-    }
-</style>
