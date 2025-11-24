@@ -44,6 +44,9 @@
 }
 /* Ensure hero image controls the height */
 .hero-card img.hero-photo {aspect-ratio: auto !important;}
+.hero-link {
+    font-weight: 600;
+}
 /* --- HERO: responsive typography and image sizing --- */
 @media (max-width: 768px) {  .hero {padding: 32px 0 20px;}  .hero-copy h1 {font-size: clamp(1.8rem, 5vw, 2.1rem);}  }
 @media (max-width: 720px) {  .hero-card img.photo.hero-photo {height: min(52vw, 220px);}  }
