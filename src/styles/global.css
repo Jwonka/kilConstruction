@@ -61,7 +61,7 @@ main { flex: 1 0 auto; }
     max-width: var(--max);
     margin-inline: auto;
 }
-.grid--projects { grid-template-columns: 1fr; gap: var(--gap);}
+.grid--projects {gap: var(--gap);}
 .card{
     position: relative;
     background: #fff;
@@ -142,6 +142,23 @@ button{ all:unset; box-sizing:border-box; }
 .project-photos {row-gap: var(--gap);column-gap: clamp(1px, 0.15vw, 3px);}
 .page-section {margin-bottom: clamp(24px, 4vw, 48px);padding-block-end: clamp(24px, 4vw, 56px);}
 .no-sticky header { position: static !important; top: auto; }
+/* Inline link that lifts upward on hover (no background) */
+.inline-link {
+    font-weight: 600;
+    color: var(--brand);
+    text-decoration: none;
+    transition:
+            transform 0.25s ease,
+            text-shadow 0.25s ease;
+}
+/* Hover: lift slightly + subtle glow for visibility */
+.inline-link:hover {
+    transform: translateY(-2px);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.20);
+    text-decoration: none;
+}
+
+.inline-link:active {transform: translateY(-1px);text-shadow: 0 1px 3px rgba(0,0,0,0.15);}
 @media (max-width:900px){ :root{ --header-h: 76px; } }
 @media (max-width: 720px) {
     .card.card-media img.photo:not(.hero-photo) {
