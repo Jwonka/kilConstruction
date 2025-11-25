@@ -1,6 +1,7 @@
 (() => {
-    const INTERVAL_MS = 6000;  // 6s
+    const INTERVAL_MS = 7000;  // 7s
     const FADE_MS = 400;
+    const MIN_OPACITY = 0.3;
     const SEL = 'img.photo[data-rot-srcs], img.photo[data-rot]';
 
     const norm = (u) => {
@@ -71,19 +72,27 @@
 
         let idx = 0;
         let timer = null;
+        let busy = false;
 
         const fadeTo = (op) =>
             new Promise((resolve) => {
-                img.style.opacity = String(op);
+                const target = Math.max(op, MIN_OPACITY);
+                img.style.opacity = String(target);
                 setTimeout(resolve, FADE_MS);
             });
+
 
         const swapTo = async (next) => {
             const ok = await preload(next);
             if (!ok) return;
+            try {
+                const tmp = new Image();
+                tmp.src = next;
+                await tmp.decode();
+            } catch {}
 
             // 1) fade OUT to reveal black background
-            await fadeTo(0);
+            await fadeTo(MIN_OPACITY);
 
             // 2) swap while invisible
             img.srcset = '';
@@ -94,25 +103,34 @@
                 link.href = next;
             }
 
-            try { await img.decode(); } catch {}
-
             // 3) fade IN new image
             requestAnimationFrame(() => {
                 img.style.opacity = '1';
             });
         };
 
+        let lastSwitch = 0;
+
         const tick = async () => {
-            const currentNow = norm(img.currentSrc || img.src || '');
-            const all = unique(parseList(img));
-            const poolNow = all.filter((u) => norm(u) !== currentNow);
-            if (!poolNow.length) return;
+            if (busy) return;
+            const now = performance.now();
+            if (now - lastSwitch < INTERVAL_MS * 0.9) return;
+            lastSwitch = now;
+            busy = true;
+            try {
+                const currentNow = norm(img.currentSrc || img.src || '');
+                const all = unique(parseList(img));
+                const poolNow = all.filter((u) => norm(u) !== currentNow);
+                if (!poolNow.length) return;
 
-            if (idx >= poolNow.length) idx = 0;
-            const next = poolNow[idx];
-            idx = (idx + 1) % poolNow.length;
+                if (idx >= poolNow.length) idx = 0;
+                const next = poolNow[idx];
+                idx = (idx + 1) % poolNow.length;
 
-            await swapTo(next);
+                await swapTo(next);
+            } finally {
+                busy = false;
+            }
         };
 
         const myInterval = INTERVAL_MS + Math.floor(Math.random() * 1500);

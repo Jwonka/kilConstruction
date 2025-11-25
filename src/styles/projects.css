@@ -41,10 +41,5 @@
 .project-photos .card {
     max-width: none;
     width: 100%;
-}
-
-/* reduce padding to make cards visually larger */
-.grid--projects .card,
-.project-photos .card {
-    padding: 8px 10px;
+    padding: 12px 10px 10px;
 }
