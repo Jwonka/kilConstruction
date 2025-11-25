@@ -8,18 +8,39 @@
     gap: 0.6rem;
     text-align: center;
 }
-.hero-card { max-width: 1100px; width: 100%; margin-inline: auto; padding: 12px; border-radius: var(--radius);  background: #ffffff; }
+.hero-card {
+    max-width: 1100px;
+    width: 100%;
+    margin-inline: auto;
+    position: relative;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: var(--radius);
+    padding: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.12);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+/* Hero card top green bar — identical to global card::before */
+.hero-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    background: #506631; /* same green as global */
+    pointer-events: none;
+}
+.hero-card:hover,
+.hero-card:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(15,23,42,0.16);
+}
+
 .hero-copy h1 { font-size: clamp(2.1rem, 3vw, 2.6rem); margin: 0 0 0.35rem; }
 .hero-copy p { max-width: 32rem; color: #4b5563; margin: 0 auto; }
 .hero-image-wrap { background: #000000; border-radius: var(--radius); overflow: hidden; }
-/* Remove global card-media rules ONLY for hero */
-.hero-card a.rotatable {
-    display: block;
-    width: 100%;
-    height: auto !important;
-    aspect-ratio: auto !important;
-    background: transparent !important;
-}
 .hero-card img.photo.hero-photo {
     display: block;
     width: 100%;
