@@ -1,4 +1,4 @@
-.hero{
+.hero {
     padding: 16px 0 12px;
     max-width: 1100px;
     margin: 0 auto;
@@ -8,19 +8,52 @@
     gap: 0.6rem;
     text-align: center;
 }
-.hero-card { max-width: 1100px; width: 100%; margin-inline: auto; padding: 12px; border-radius: var(--radius);  background: #ffffff; }
-.hero-copy h1 { font-size: clamp(2.1rem, 3vw, 2.6rem); margin: 0 0 0.35rem; }
-.hero-copy p { max-width: 32rem; color: #4b5563; margin: 0 auto; }
-.hero-image-wrap { background: #000000; border-radius: var(--radius); overflow: hidden; }
-.hero-card img.photo.hero-photo {
-    display: block;
+
+/* Card container */
+.hero-card {
+    max-width: 1100px;
     width: 100%;
-    height: clamp(340px, 40vh, 420px);
-    object-fit: cover;
+    margin-inline: auto;
+    padding: 12px;
     border-radius: var(--radius);
-    background: transparent;
+    background: #ffffff;
 }
 
+/* Text */
+.hero-copy h1 {
+    font-size: clamp(2.1rem, 3vw, 2.6rem);
+    margin: 0 0 0.35rem;
+}
+
+.hero-copy p {
+    max-width: 32rem;
+    color: #4b5563;
+    margin: 0 auto;
+}
+
+/* HERO IMAGE — stable 16:9 box */
+.hero-image-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+/* LINK fills the box */
+.hero-image-wrap .rotatable {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* IMAGE fills the box */
+.hero-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* PLACEHOLDER */
 .hero-placeholder {
     display: flex;
     align-items: center;
@@ -29,6 +62,8 @@
     color: #e5e7eb;
     font-weight: 600;
 }
+
+/* STATUS TEXT */
 .hero-status {
     margin-top: 6px;
     font-size: 0.8rem;
@@ -36,57 +71,13 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
 
-.hero-link {
-    font-weight: 600;
-}
-/* Home hero layout – make it deterministic on every build */
-
-.hero .hero-card {
-    max-width: 1100px;
-    margin: 0 auto;
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .hero { padding: 32px 0 20px; }
+    .hero-copy h1 { font-size: clamp(1.8rem, 5vw, 2.1rem); }
 }
 
-/* Lock the hero’s aspect ratio so height can’t wander */
-.hero .hero-image-wrap {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
+@media (max-width: 700px) {
+    .hero { padding: 40px 0 24px; }
+    .hero h1 { margin: 0 0 6px; }
 }
-
-/* Make the image fully fill that box the same way everywhere */
-.hero .hero-photo {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-/* Keep the hero card centered and limited in width */
-.hero .hero-card {
-    max-width: 1100px;
-    margin: 0 auto;
-}
-
-/* Hero image area: fixed 16:9 so every hero slide behaves consistently */
-.hero .hero-image-wrap {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-}
-
-/* Make the link fill the hero image area */
-.hero .hero-image-wrap .rotatable {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-/* Make the image fill the area and crop neatly */
-.hero .hero-image-wrap .hero-photo {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-/* --- HERO: responsive typography and image sizing --- */
-@media (max-width: 768px) {  .hero {padding: 32px 0 20px;}  .hero-copy h1 {font-size: clamp(1.8rem, 5vw, 2.1rem);}  }
-@media (max-width: 720px) {  .hero-card img.photo.hero-photo {height: min(52vw, 220px);}  }
-@media (max-width: 700px) {  .hero { padding: 40px 0 24px; } .hero h1 { margin: 0 0 6px;}  }
