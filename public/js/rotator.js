@@ -1,7 +1,7 @@
 (() => {
     const INTERVAL_MS = 7000;  // 7s
-    const FADE_MS = 400;
-    const MIN_OPACITY = 0.3;
+    const FADE_MS = 900;
+    const MIN_OPACITY = 0;
     const SEL = 'img.photo[data-rot-srcs], img.photo[data-rot]';
 
     const norm = (u) => {
@@ -58,6 +58,9 @@
     });
 
     const start = (img) => {
+        if (img.dataset.rotInit === '1') return;
+        img.dataset.rotInit = '1';
+
         let raw = parseList(img);
         if (!raw.length) return;
 
