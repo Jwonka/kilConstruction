@@ -9,6 +9,8 @@
     align-items:start;
     margin-bottom: 24px;
 }
+.btn-vcard{ padding: 8px 16px; border-radius:10px; }
+.contact-form .btn{width:auto;justify-self:start;padding:8px 16px;margin-top: 8px;border-radius:12px;font-size:clamp(1rem, .6vw + .9rem, 1.25rem);max-width:100%;}
 .contact-panel{padding: clamp(14px, 2vw, 20px);}
 .contact-panel .heading2{margin: 0 0 8px;font-size: clamp(1.1rem, 1.3vw + .9rem, 1.6rem);}
 .contact-grid > .contact-panel:first-child{position: sticky;top: calc(var(--header-h, 84px) + 16px);}
