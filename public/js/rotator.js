@@ -1,8 +1,15 @@
 (() => {
-    const INTERVAL_MS = 7000;  // 7s
+    const INTERVAL_MS = 6000;  // 6s
+    const GALLERY_INTERVAL_MS = 4000; // 4s for galleries
     const FADE_MS = 900;
     const MIN_OPACITY = 0;
     const SEL = 'img.photo[data-rot-srcs], img.photo[data-rot]';
+
+    // Baton-pass gallery state
+    const galleryItems = [];
+    let galleryIndex = 0;
+    let galleryTimer = null;
+    let galleryBusy = false;
 
     const norm = (u) => {
         if (!u) return '';
@@ -45,6 +52,103 @@
             i.src = url;
         });
 
+    const isHeroImage = (img) =>
+        img.classList.contains('hero-photo') || !!img.closest('.hero');
+
+    const registerGalleryImage = (img) => {
+        // Don’t register hero as gallery
+        if (isHeroImage(img)) return;
+
+        // Avoid duplicates
+        if (galleryItems.some(item => item.img === img)) return;
+
+        const raw = parseList(img);
+        const urls = unique(raw);
+        if (!urls || urls.length <= 1) {
+            // Single-image cards never rotate
+            return;
+        }
+
+        const current = norm(img.currentSrc || img.src || '');
+        let startIdx = 0;
+        if (current) {
+            const pos = urls.findIndex(u => norm(u) === current);
+            if (pos >= 0) {
+                startIdx = (pos + 1) % urls.length;
+            }
+        }
+
+        // Make sure the image has a transition configured
+        img.style.transition = `opacity ${FADE_MS}ms ease-in-out`;
+        img.style.willChange = 'opacity';
+        img.style.opacity = img.style.opacity || '1';
+
+        galleryItems.push({ img, urls, idx: startIdx });
+        startGalleryTimer();
+    };
+
+    const rotateGalleryItem = async (item) => {
+        const { img, urls } = item;
+        if (!img.isConnected || !urls || urls.length <= 1) return;
+
+        if (item.idx >= urls.length) item.idx = 0;
+        const next = urls[item.idx];
+        item.idx = (item.idx + 1) % urls.length;
+
+        const ok = await preload(next);
+        if (!ok) return;
+
+        try {
+            const tmp = new Image();
+            tmp.src = next;
+            await tmp.decode();
+        } catch {}
+
+        const link = img.closest('a');
+
+        // fade out towards black (MIN_OPACITY background shows through)
+        await new Promise((resolve) => {
+            img.style.opacity = String(MIN_OPACITY);
+            setTimeout(resolve, FADE_MS);
+        });
+
+        // swap the image while “hidden”
+        img.srcset = '';
+        img.src = next;
+
+        if (link && link.classList.contains('rotatable')) {
+            link.href = next;
+        }
+
+        // fade back in
+        requestAnimationFrame(() => {
+            img.style.opacity = '1';
+        });
+    };
+
+    const startGalleryTimer = () => {
+        if (galleryTimer || !galleryItems.length) return;
+        const interval = GALLERY_INTERVAL_MS;
+        galleryTimer = setInterval(async () => {
+            if (galleryBusy || !galleryItems.length) return;
+            galleryBusy = true;
+            try {
+                if (galleryIndex >= galleryItems.length) galleryIndex = 0;
+                const item = galleryItems[galleryIndex++];
+                await rotateGalleryItem(item);
+            } finally {
+                galleryBusy = false;
+            }
+        }, interval);
+    };
+
+    const stopGalleryTimer = () => {
+        if (galleryTimer) {
+            clearInterval(galleryTimer);
+            galleryTimer = null;
+        }
+    };
+
     const MO = new MutationObserver((ms) => {
         for (const m of ms) {
             if (m.type !== 'attributes') continue;
@@ -52,7 +156,13 @@
             if (!(el instanceof HTMLImageElement)) continue;
             if (!el.matches('img.photo')) continue;
             if (el.dataset.rotSrcs || el.dataset.rot) {
-                try { start(el); } catch {}
+                try {
+                    if (isHeroImage(el)) {
+                        start(el);                 // hero independent rotator
+                    } else {
+                        registerGalleryImage(el); // gallery baton-pass
+                    }
+                } catch {}
             }
         }
     });
@@ -162,7 +272,13 @@
 
     const init = () => {
         document.querySelectorAll(SEL).forEach((img) => {
-            try { start(img); } catch {}
+            try {
+                if (isHeroImage(img)) {
+                    start(img);              // hero
+                } else {
+                    registerGalleryImage(img); // gallery
+                }
+            } catch {}
         });
     };
 
@@ -179,5 +295,14 @@
         },
         { once: true }
     );
+
+    // Pause gallery spotlight when tab is hidden
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            startGalleryTimer();
+        } else {
+            stopGalleryTimer();
+        }
+    });
 })();
 

@@ -76,19 +76,6 @@ const ENDPOINT = import.meta.env.PUBLIC_CONTACT_ENDPOINT;
                 <button class="btn" type="submit">Send</button>
             </form>
 
-            <script is:inline>
-                function onTurnstileLoad() {
-                    const container = document.getElementById("cf-container");
-                    window.turnstileWidgetId = window.turnstile.render(container, {
-                        sitekey: container.getAttribute("data-sitekey"),
-                        theme: "light",
-                        size: "normal",
-                        callback: (token) => {
-                            document.getElementById("cf-token").value = token;
-                        }
-                    });
-                }
-            </script>
             <!-- Turnstile loader -->
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
         </section>
