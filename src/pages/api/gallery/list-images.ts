@@ -2,20 +2,23 @@ import type { APIRoute } from "astro";
 import { requireAdmin } from "../../../utils/adminAuth";
 import { sanitizePrefix } from "../../../utils/galleryPaths";
 
-
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif)$/i;
 
-export const GET: APIRoute = async ({ request, url, locals }) => {
+export const GET: APIRoute = async ({ request, locals }) => {
+    // 1) Admin auth – pass the **Request**, nothing else
     const authResp = requireAdmin(request);
     if (authResp) return authResp;
 
+    // 2) Get and sanitize prefix
+    const url = new URL(request.url);
     const rawPrefix = url.searchParams.get("prefix");
     const prefix = sanitizePrefix(rawPrefix);
     if (!prefix) {
+        console.warn("[list-images] invalid prefix", rawPrefix);
         return new Response("Invalid prefix", { status: 400 });
     }
 
-    // Cloudflare Pages → R2 binding is exposed via locals.runtime.env
+    // 3) Get R2 bucket from CF Pages runtime
     const bucket = (locals as any).runtime?.env?.GALLERY_BUCKET;
     if (!bucket) {
         console.error("[list-images] Missing GALLERY_BUCKET binding");
@@ -42,7 +45,7 @@ export const GET: APIRoute = async ({ request, url, locals }) => {
         let cursor: string | undefined = undefined;
 
         do {
-            // @ts-ignore
+            // @ts-ignore – CF’s R2 types aren’t perfect in Astro
             const page = await bucket.list({ prefix, cursor });
 
             console.log(
