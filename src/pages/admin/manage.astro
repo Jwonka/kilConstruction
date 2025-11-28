@@ -233,7 +233,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     '<li class="status-row child-status">Loading files…</li>';
 
                 try {
-                    const url = `${adminApiBase}/list-images?prefix=${encodeURIComponent(prefix)}`;
+                    const url = `${API_BASE}/list-images?prefix=${encodeURIComponent(prefix)}`;
                     const res = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -349,7 +349,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         const folder = obj.key.split("/").slice(0, -1).join("/");
                         const newKey = folder + "/" + newName;
                         try {
-                            const res = await fetch(`${adminApiBase}/rename`, {
+                            const res = await fetch(`${API_BASE}/rename`, {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ oldKey: obj.key, newKey })
@@ -470,7 +470,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     // delete projects
                     for (const prefix of projectPrefixes) {
                         try {
-                            const res = await fetch(`${adminApiBase}/delete-project`, {
+                            const res = await fetch(`${API_BASE}/delete-project`, {
                                 method: "POST",
                                 headers: { "content-type": "application/json" },
                                 body: JSON.stringify({ prefix }),
