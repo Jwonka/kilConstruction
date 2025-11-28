@@ -1,5 +1,16 @@
 import type { APIRoute } from "astro";
 import { requireAdmin } from "../../../utils/adminAuth";
+import { sanitizeKey } from "../../../utils/galleryPaths";
+
+const ALLOWED_TOP = [
+    "Furniture",
+    "Highlights",
+    "New Construction",
+    "Projects",
+    "Remodels",
+    "Services",
+    "uploads",
+];
 
 export const POST: APIRoute = async ({ request, locals }) => {
     // 1) Admin gate – same pattern as upload/delete
@@ -13,13 +24,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const body = await request.json().catch(() => ({} as any));
-    const oldKey = body.oldKey as string | undefined;
-    const newKey = body.newKey as string | undefined;
+    const rawOldKey = body.oldKey as string | undefined;
+    const rawNewKey = body.newKey as string | undefined;
+
+    // Sanitize both sides
+    const oldKey = sanitizeKey(rawOldKey ?? null);
+    const newKey = sanitizeKey(rawNewKey ?? null);
 
     console.log("[rename] request", { oldKey, newKey });
 
     if (!oldKey || !newKey) {
         return jsonResponse({ error: "Missing oldKey, newKey" }, 400);
+    }
+
+    const topLevel = oldKey.split("/")[0];
+    const levelTop = newKey.split("/")[0];
+    if (!ALLOWED_TOP.includes(topLevel) || !ALLOWED_TOP.includes(levelTop)) {
+        return new Response("Invalid key", { status: 400 });
     }
 
     if (oldKey === newKey) {
