@@ -11,7 +11,7 @@ const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_SECRET = env.ADMIN_SECRET;
 
 // build-time public API URL for the worker
-const GALLERY_API = Astro.env.PUBLIC_GALLERY_API || "/api/gallery-api";
+const GALLERY_API = import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery-api";
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -64,16 +64,17 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 return;
             }
 
-            const API_BASE = (
-                import.meta.env.PUBLIC_GALLERY_API || "/api/gallery-api"
+            // READ-ONLY worker API (lists projects & public stuff)
+            const galleryApiBase = (
+                import.meta.env.PUBLIC_GALLERY_API ||
+                "https://kilcon.work/api/gallery-api"
             ).replace(/\/$/, "");
 
-            if (!publicApiBase || !adminApiBase) {
-                statusEl.textContent = "Missing gallery API URL.";
-                return;
-            }
+            // ADMIN API (Astro routes that talk to R2 directly)
+            // /api/gallery/list-images, /delete, /delete-project, /rename
+            const adminApiBase = "/api/gallery";
 
-            /** @type {{ slug: string; name?: string }[]} */
+            /** @type {{ slug: string; name?: string; prefix?: string }[]} */
             let allProjects = [];
             /** @type {Set<string>} */
             const expandedPrefixes = new Set();
@@ -83,20 +84,16 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     statusEl.textContent = "Loading projects…";
                     listEl.innerHTML = "";
 
-                    const res = await fetch(`${API_BASE}/upload`, {
-                        method: "POST",
-                        body: formData,
-                    });
-
+                    const res = await fetch(`${galleryApiBase}?all=1`);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                     const data = await res.json();
-                    allProjects = (data.projects || []);
+                    allProjects = data.projects || [];
 
                     statusEl.textContent = `Loaded ${allProjects.length} folders.`;
                     renderProjects();
                 } catch (err) {
-                    console.error(err);
+                    console.error("[manage] loadProjects error", err);
                     statusEl.textContent = "Error loading projects.";
                 }
             }
@@ -123,7 +120,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     li.className = "result-item";
 
                     const rawPrefix = p.prefix || decodeURIComponent(p.slug || "");
-                    const prefix = rawPrefix.endsWith("/") ? rawPrefix : rawPrefix + "/"; // e.g. "Furniture/Cabinets/"
+                    const prefix = rawPrefix.endsWith("/") ? rawPrefix : rawPrefix + "/";
                     li.dataset.prefix = prefix;
 
                     // ---- header row ----
@@ -145,22 +142,18 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     const textWrap = document.createElement("div");
                     textWrap.className = "item-text";
 
-                    // Show full directory path as the *only* label, e.g. "Furniture/Cabinets"
                     const title = document.createElement("div");
                     title.className = "result-title";
                     title.textContent = prefix.replace(/\/$/, "") || "(unnamed)";
 
                     textWrap.appendChild(title);
 
-                    // Order: [checkbox] [caret] [Folder path]
-                    // Visual order: [caret] [Folder path] [checkbox]
                     header.appendChild(expandBtn);
                     header.appendChild(textWrap);
                     header.appendChild(checkbox);
 
                     li.appendChild(header);
 
-                    // ---- children container (files) ----
                     const children = document.createElement("ul");
                     children.className = "children-list";
                     children.dataset.prefix = prefix;
@@ -176,27 +169,40 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             async function loadFolderFiles(childrenEl, prefix) {
                 if (!childrenEl || !prefix) return;
 
-                childrenEl.dataset.prefix = prefix.endsWith("/") ? prefix : prefix + "/";
+                const normPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
+                childrenEl.dataset.prefix = normPrefix;
                 childrenEl.dataset.loaded = "0";
                 childrenEl.innerHTML = `<li class="empty">Loading files…</li>`;
 
                 try {
-                    const res = await fetch(`${API_BASE}/upload`, {
-                        method: "POST",
-                        body: formData,
+                    const url =
+                        `${adminApiBase}/list-images?prefix=${encodeURIComponent(normPrefix)}`;
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                    const data = await res.json();
+                    console.log("list-images response for", normPrefix, data);
+
+                    const rawList =
+                        (Array.isArray(data.objects) && data.objects) ||
+                        (Array.isArray(data.items) && data.items) ||
+                        (Array.isArray(data.files) && data.files) ||
+                        [];
+
+                    const objects = rawList.map((obj) => {
+                        const key = obj.key || obj.name || "";
+                        const name =
+                            obj.name || (key ? key.split("/").pop() : "(unnamed)");
+                        return {
+                            key,
+                            name,
+                            size: obj.size || obj.bytes || 0,
+                            uploaded: obj.uploaded || obj.uploadedAt || obj.created || null,
+                        };
                     });
 
-                    /** @type {{ objects?: any[] }} */
-                    const data = await res.json().catch(() => ({}));
-
-                    childrenEl.innerHTML = "";
-
-                    if (Array.isArray(data.objects) && data.objects.length) {
-                        renderFiles(childrenEl, data.objects);
-                        childrenEl.dataset.loaded = "1";
-                    } else {
-                        childrenEl.innerHTML = `<li class="empty">No image files found.</li>`;
-                    }
+                    renderFiles(childrenEl, objects);
+                    childrenEl.dataset.loaded = "1";
                 } catch (err) {
                     console.error("loadFolderFiles error", err);
                     childrenEl.innerHTML = `<li class="empty">Error loading files.</li>`;
@@ -221,51 +227,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 expandBtn.textContent = "▾";
 
                 if (children.dataset.loaded !== "1") {
-                    // REPLACE previous fetch block with:
                     await loadFolderFiles(children, prefix);
-                }
-
-                if (children.dataset.loaded === "1") {
-                    return;
-                }
-
-                children.innerHTML =
-                    '<li class="status-row child-status">Loading files…</li>';
-
-                try {
-                    const url = `${API_BASE}/list-images?prefix=${encodeURIComponent(prefix)}`;
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-                    const data = await res.json();
-                    console.log("list-images response for", prefix, data);
-
-                    // Try several common shapes, fall back to [].
-                    let rawList =
-                        (Array.isArray(data.objects) && data.objects) ||
-                        (Array.isArray(data.items) && data.items) ||
-                        (Array.isArray(data.files) && data.files) ||
-                        [];
-
-                    // Normalise to { key, size, uploaded, name }
-                    const objects = rawList.map((obj) => {
-                        const key = obj.key || obj.name || "";
-                        const name =
-                            obj.name || (key ? key.split("/").pop() : "(unnamed)");
-                        return {
-                            key,
-                            name,
-                            size: obj.size || obj.bytes || 0,
-                            uploaded: obj.uploaded || obj.uploadedAt || obj.created || null,
-                        };
-                    });
-
-                    renderFiles(children, objects);
-                    children.dataset.loaded = "1";
-                } catch (err) {
-                    console.error(err);
-                    children.innerHTML =
-                        '<li class="status-row child-status">Error loading files.</li>';
                 }
             }
 
@@ -318,11 +280,9 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     const when = obj.uploaded
                         ? new Date(obj.uploaded).toLocaleString()
                         : "";
-                    const metaParts: string[] = [];
+                    const metaParts = [];
                     if (sizeKB) metaParts.push(sizeKB);
                     if (when) metaParts.push(when);
-
-                    // size and date on separate lines
                     metaEl.innerHTML = metaParts.join("<br>");
 
                     info.appendChild(nameWrapper);
@@ -332,11 +292,9 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     li.appendChild(checkbox);
                     container.appendChild(li);
 
-                    // --- Rename handlers
                     function resetRename() {
                         nameDisplay.style.display = "inline-block";
                         nameInput.style.display = "none";
-                        delete title.dataset.renameActive;
                     }
 
                     async function commitRename() {
@@ -347,12 +305,13 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         }
 
                         const folder = obj.key.split("/").slice(0, -1).join("/");
-                        const newKey = folder + "/" + newName;
+                        const newKey = folder ? `${folder}/${newName}` : newName;
+
                         try {
-                            const res = await fetch(`${API_BASE}/rename`, {
+                            const res = await fetch(`${adminApiBase}/rename`, {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ oldKey: obj.key, newKey })
+                                body: JSON.stringify({ oldKey: obj.key, newKey }),
                             });
 
                             if (res.ok) {
@@ -360,14 +319,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                                 obj.key = newKey;
                                 nameDisplay.textContent = newName;
 
-                                const row = li;
-                                row.classList.add("just-renamed");
-
-                                setTimeout(() => {
-                                    row.classList.remove("just-renamed");
-                                }, 1200);
-
-                                const children = row.closest("ul.children-list");
+                                const children = li.closest("ul.children-list");
                                 if (children && folder) {
                                     await loadFolderFiles(children, folder + "/");
                                 }
@@ -393,11 +345,9 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         if (e.key === "Enter") commitRename();
                         if (e.key === "Escape") resetRename();
                     });
-
                 }
             }
 
-            // search / refresh
             searchEl.addEventListener("input", () => {
                 renderProjects();
             });
@@ -407,7 +357,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 loadProjects();
             });
 
-            // folder expand / collapse
             listEl.addEventListener("click", async (event) => {
                 const target = event.target;
                 if (!target) return;
@@ -421,9 +370,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 }
             });
 
-            // bulk delete
             bulkDeleteEl.addEventListener("click", async () => {
-                /** @type {HTMLInputElement[]} */
                 const checked = Array.from(
                     listEl.querySelectorAll(".select-checkbox:checked")
                 );
@@ -467,10 +414,9 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 bulkDeleteEl.textContent = "Deleting…";
 
                 try {
-                    // delete projects
                     for (const prefix of projectPrefixes) {
                         try {
-                            const res = await fetch(`${API_BASE}/delete-project`, {
+                            const res = await fetch(`${adminApiBase}/delete-project`, {
                                 method: "POST",
                                 headers: { "content-type": "application/json" },
                                 body: JSON.stringify({ prefix }),
@@ -483,7 +429,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         }
                     }
 
-                    // delete files
                     for (const key of fileKeys) {
                         try {
                             const res = await fetch(`${adminApiBase}/delete`, {
@@ -499,7 +444,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         }
                     }
 
-                    // reload everything so UI matches bucket state
                     expandedPrefixes.clear();
                     await loadProjects();
                     alert("Delete finished. Some failures (if any) are logged in console.");
@@ -508,6 +452,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     bulkDeleteEl.textContent = originalText;
                 }
             });
+
             loadProjects();
         });
     </script>
