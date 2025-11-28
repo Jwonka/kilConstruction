@@ -16,7 +16,7 @@ const service =
 
 const PROD_ORIGIN = Astro.site?.origin || "https://kilcon.work";
 const API_BASE = import.meta.env.DEV ? "https://kilcon.work" : PROD_ORIGIN;
-const API = new URL("/api/gallery", API_BASE);
+const API = new URL("/api/gallery-api", API_BASE);
 
 type AlbumFromApi = {
     slug: string;
