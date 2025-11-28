@@ -26,7 +26,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     </p>
 
     <section class="panel">
-        <form id="admin-upload-form" class="admin-form">
+        <form id="admin-upload-form" class="admin-form-flex">
             <div class="admin-form-grid">
 
                 <label class="admin-field-label">
@@ -166,8 +166,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             submitBtn.disabled = true;
 
             try {
-                const API_BASE =
-                    import.meta.env.PUBLIC_GALLERY_API?.replace(/\/$/, "") || "/api/gallery";
+                const API_BASE ="/api/gallery";
 
                 const res = await fetch(`${API_BASE}/upload`, {
                     method: "POST",

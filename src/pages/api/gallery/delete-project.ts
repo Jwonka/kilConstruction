@@ -1,4 +1,6 @@
 import type { APIRoute } from "astro";
+import { requireAdmin } from "../../../utils/adminAuth";
+import { sanitizePrefix } from "../../../utils/galleryPaths";
 
 type R2Object = { key: string };
 type R2ListOptions = { prefix?: string; cursor?: string; limit?: number };
@@ -9,13 +11,14 @@ type R2Bucket = {
 };
 
 export const POST: APIRoute = async ({ request, locals }) => {
-    try {
-        const body = await request.json();
-        const prefix = (body?.prefix as string | undefined)?.trim();
+    const authResp = requireAdmin(request);
+    if (authResp) return authResp;
 
-        if (!prefix) {
-            return new Response("Missing prefix", { status: 400 });
-        }
+    try {
+        const body: any = await request.json().catch(() => ({}));
+        const rawPrefix = typeof body?.prefix === "string" ? body.prefix.trim() : null;
+        const prefix = sanitizePrefix(rawPrefix);
+        if (!prefix) return new Response("Invalid prefix", { status: 400 });
 
         const env = (locals as any).runtime?.env ?? (locals as any).env ?? {};
         const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;

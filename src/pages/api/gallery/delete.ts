@@ -1,4 +1,7 @@
 import type { APIContext } from "astro";
+import { requireAdmin } from "../../../utils/adminAuth";
+import { sanitizeKey } from "../../../utils/galleryPaths";
+
 
 const ALLOWED_TOP = [
     "Furniture",
@@ -11,6 +14,9 @@ const ALLOWED_TOP = [
 ];
 
 export async function POST(Astro: APIContext) {
+    const authResp = requireAdmin(Astro.request);
+    if (authResp) return authResp;
+
     const env = (Astro.locals as any).runtime?.env ?? {};
     const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
     const bucket = (env as any).GALLERY_BUCKET;
@@ -33,8 +39,9 @@ export async function POST(Astro: APIContext) {
         return new Response("Invalid JSON body", { status: 400 });
     }
 
-    const key = body?.key;
-    if (!key || typeof key !== "string") {
+    const rawKey = body?.key;
+    const key = sanitizeKey(rawKey);
+    if (!key) {
         return new Response("Missing 'key' string in body", { status: 400 });
     }
 

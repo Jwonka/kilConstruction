@@ -9,7 +9,9 @@ const auth = cookies.get("admin_auth")?.value || "";
 // Cloudflare runtime env
 const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_SECRET = env.ADMIN_SECRET;
-const GALLERY_API = env.PUBLIC_GALLERY_API;
+
+// build-time public API URL for the worker
+const PUBLIC_GALLERY_API = import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery";
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -18,8 +20,8 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     });
 }
 ---
-<AdminLayout title="Manage Uploaded Files">
-    <h1 class="admin-title">Manage Uploaded Files</h1>
+<AdminLayout title="Manage Images">
+    <h1 class="admin-title">Manage Images</h1>
     <p class="admin-subtitle">
         Browse and search existing folders from the R2 gallery bucket.
         Expand a folder to see its files and select items to delete.
@@ -45,7 +47,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
         <div id="status" class="status-row">Loading projects…</div>
 
-        <ul id="results" class="results-list" data-api={GALLERY_API}></ul>
+        <ul id="results" class="results-list" data-public-api={PUBLIC_GALLERY_API} data-admin-api="/api/gallery"></ul>
     </section>
 
     <script>
@@ -58,16 +60,17 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             const bulkDeleteEl = document.getElementById("bulk-delete");
 
             if (!listEl || !statusEl || !searchEl || !refreshEl || !bulkDeleteEl) {
-                console.error("[admin/manage] Missing one or more DOM elements");
+                console.error("[manage] Missing one or more DOM elements");
                 return;
             }
 
-            const api = listEl.dataset.api ?? "";
-            if (!api) {
+            const publicApiBase = (listEl.dataset.publicApi || "").replace(/\/$/, "");
+            const adminApiBase = (listEl.dataset.adminApi || "").replace(/\/$/, "");
+
+            if (!publicApiBase || !adminApiBase) {
                 statusEl.textContent = "Missing gallery API URL.";
                 return;
             }
-            const apiBase = api.replace(/\/$/, "");
 
             /** @type {{ slug: string; name?: string }[]} */
             let allProjects = [];
@@ -79,7 +82,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     statusEl.textContent = "Loading projects…";
                     listEl.innerHTML = "";
 
-                    const res = await fetch(`${api}?all=1`);
+                    const res = await fetch(`${publicApiBase}?all=1`);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                     const data = await res.json();
@@ -168,14 +171,14 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             async function loadFolderFiles(childrenEl, prefix) {
                 if (!childrenEl || !prefix) return;
 
-                const safePrefix = prefix.endsWith("/") ? prefix : prefix + "/";
-                childrenEl.dataset.prefix = safePrefix;
+                childrenEl.dataset.prefix = prefix.endsWith("/") ? prefix : prefix + "/";
                 childrenEl.dataset.loaded = "0";
                 childrenEl.innerHTML = `<li class="empty">Loading files…</li>`;
 
                 try {
                     const res = await fetch(
-                        `${GALLERY_API}/list-images?prefix=${encodeURIComponent(safePrefix)}`
+                        `${adminApiBase}/list-images?` + new URLSearchParams({ prefix }),
+                        { method: "GET" }
                     );
                     /** @type {{ objects?: any[] }} */
                     const data = await res.json().catch(() => ({}));
@@ -224,7 +227,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     '<li class="status-row child-status">Loading files…</li>';
 
                 try {
-                    const url = `${apiBase}/list-images?prefix=${encodeURIComponent(prefix)}`;
+                    const url = `${adminApiBase}/list-images?prefix=${encodeURIComponent(prefix)}`;
                     const res = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -340,7 +343,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         const folder = obj.key.split("/").slice(0, -1).join("/");
                         const newKey = folder + "/" + newName;
                         try {
-                            const res = await fetch(`${apiBase}/rename`, {
+                            const res = await fetch(`${adminApiBase}/rename`, {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ oldKey: obj.key, newKey })
@@ -461,7 +464,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     // delete projects
                     for (const prefix of projectPrefixes) {
                         try {
-                            const res = await fetch(`${apiBase}/delete-project`, {
+                            const res = await fetch(`${adminApiBase}/delete-project`, {
                                 method: "POST",
                                 headers: { "content-type": "application/json" },
                                 body: JSON.stringify({ prefix }),
@@ -477,7 +480,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     // delete files
                     for (const key of fileKeys) {
                         try {
-                            const res = await fetch(`${apiBase}/delete`, {
+                            const res = await fetch(`${adminApiBase}/delete`, {
                                 method: "POST",
                                 headers: { "content-type": "application/json" },
                                 body: JSON.stringify({ key }),

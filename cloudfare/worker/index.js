@@ -1,61 +1,98 @@
+const ALLOWED_ORIGINS = ["https://kilcon.work", "http://localhost:4321"];
+
 export default {
     async fetch(req, env, ctx) {
-        if (req.method === 'GET') {
+        const url = new URL(req.url);
+        const host = url.host || "";
+        const isProd = host.includes("kilcon.work");
+        const origin = req.headers.get("Origin") || "";
+        const corsOrigin = ALLOWED_ORIGINS.includes(origin)
+            ? origin
+            : "https://kilcon.work";
+
+        if (url.pathname === "/upload" && req.method === "GET") {
+            if (isProd) {
+                return new Response("Not found", { status: 404 });
+            }
             return new Response(htmlForm, {
-                headers: { 'Content-Type': 'text/html; charset=utf-8' },
+                headers: { "Content-Type": "text/html; charset=utf-8" },
             });
         }
 
-        if (req.method === 'POST') {
-            const contentType = req.headers.get('content-type') || '';
-            if (!contentType.includes('multipart/form-data')) {
-                return new Response('Expected multipart/form-data', { status: 400 });
+        if (url.pathname === "/upload" && req.method === "POST") {
+            // ---- AUTH CHECK VIA SHARED SECRET ----
+            if (!env.UPLOAD_SECRET) {
+                console.error("UPLOAD_SECRET is not set");
+                return new Response("Upload misconfigured", { status: 500 });
+            }
+
+            const header = req.headers.get("x-upload-secret") || "";
+            if (!header || header !== env.UPLOAD_SECRET) {
+                return new Response("Unauthorized upload", { status: 401 });
+            }
+
+            const contentType = req.headers.get("content-type") || "";
+            if (!contentType.includes("multipart/form-data")) {
+                return new Response("Expected multipart/form-data", { status: 400 });
             }
 
             const formData = await req.formData();
             if (!formData || [...formData.entries()].length === 0) {
-                return new Response('No files submitted', { status: 400 });
+                return new Response("No files submitted", { status: 400 });
             }
-            const results = [];
 
             const allowedDirectories = [
-                'Highlights',
-                'Projects',
-                'Services',
-                'New Construction',
-                'Remodels',
-                'Furniture',
+                "Highlights",
+                "Projects",
+                "Services",
+                "New Construction",
+                "Remodels",
+                "Furniture",
+                "uploads",
             ];
+
+            const results = [];
 
             for (const [path, file] of formData.entries()) {
                 if (!(file instanceof File)) continue;
 
-                const segments = path.split('/');
+                const segments = path.split("/");
                 const topLevelDir = segments[0];
-                const subfolder = segments[1] || 'misc';
-                const filePath = segments.slice(2).join('/');
+                const subfolder = segments[1] || "misc";
+                const filePath = segments.slice(2).join("/");
 
                 if (!allowedDirectories.includes(topLevelDir)) {
-                    return new Response(`Invalid top-level directory: ${topLevelDir}`, { status: 400 });
+                    return new Response(
+                        `Invalid top-level directory: ${topLevelDir}`,
+                        { status: 400 },
+                    );
                 }
 
-                const cleanKey = `${topLevelDir}/${subfolder}/${filePath || file.name}`.replace(/\/+/g, '/');
+                const cleanKey = `${topLevelDir}/${subfolder}/${filePath || file.name}`
+                    .replace(/\/+/g, "/");
 
                 await env.R2_BUCKET.put(cleanKey, file.stream(), {
                     httpMetadata: { contentType: file.type },
                 });
 
                 const publicUrl = `https://${env.UPLOAD_HOSTNAME}/${cleanKey}`;
-                results.push(`<li><a href="${publicUrl}" target="_blank">${publicUrl}</a></li>`);
+                results.push(
+                    `<li><a href="${publicUrl}" target="_blank">${publicUrl}</a></li>`,
+                );
             }
 
             return new Response(
-                `<p>Uploaded ${results.length} files:</p><ul>${results.join('')}</ul>`,
-                { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+            `<p>Uploaded ${results.length} files:</p><ul>${results.join("")}</ul>`,
+            { headers: {
+                        "Content-Type": "text/html; charset=utf-8",
+                        "Access-Control-Allow-Origin": corsOrigin,
+                        "Vary": "Origin",
+                    }
+                },
             );
         }
 
-        return new Response('Method not allowed', { status: 405 });
+        return new Response("Not found", { status: 404 });
     },
 };
 
@@ -71,7 +108,8 @@ const htmlForm = `<!DOCTYPE html>
 </head>
 <body>
   <h1>Upload Images</h1>
-  <form id="upload-form">
+  <p>Upload files by directory path (e.g. "Projects/kitchen/01.jpg").</p>
+  <form id="upload-form" method="POST" enctype="multipart/form-data">
     <label>
       Select Folder Category:
       <select id="category" required>

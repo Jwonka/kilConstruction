@@ -1,7 +1,15 @@
 import type { APIContext } from "astro";
+import { requireAdmin } from "../../../utils/adminAuth";
 
 export async function POST(Astro: APIContext) {
-    const env = (Astro.locals as any).runtime?.env ?? {};
+    const { request, locals } = Astro;
+
+    // 1) Admin-only gate
+    const authResp = requireAdmin(request);
+    if (authResp) return authResp;
+
+    // 2) Read env from Pages Functions runtime
+    const env = (locals as any).runtime?.env ?? {};
     const WORKER_URL = env.UPLOAD_WORKER_URL as string | undefined;
     const UPLOAD_SECRET = env.UPLOAD_SECRET as string | undefined;
 
@@ -10,23 +18,22 @@ export async function POST(Astro: APIContext) {
         return new Response("Upload service not configured", { status: 500 });
     }
 
-    // Proxy the multipart/form-data request straight to the worker
+    // 3) Proxy the multipart/form-data request to the upload worker
     const res = await fetch(WORKER_URL, {
         method: "POST",
-        // ⚠️ Node/undici requires this when sending a streamed body
-        // Cloudflare ignores it, so it's safe in production too.
+        // Node/undici wants this when streaming; Cloudflare will ignore it
         // @ts-expect-error duplex is not in the standard TS lib yet
         duplex: "half",
         headers: {
-            // preserve the multipart boundary
+            // preserve the original multipart boundary
             "content-type":
-                Astro.request.headers.get("content-type") ?? "application/octet-stream",
+                request.headers.get("content-type") ?? "application/octet-stream",
             "x-upload-secret": UPLOAD_SECRET,
         },
-        body: Astro.request.body, // stream through
+        body: request.body,
     });
 
-    // Stream worker response back to the browser
+    // 4) Stream worker response back to the browser
     return new Response(res.body, {
         status: res.status,
         headers: {

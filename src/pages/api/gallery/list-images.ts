@@ -1,9 +1,19 @@
 import type { APIRoute } from "astro";
+import { requireAdmin } from "../../../utils/adminAuth";
+import { sanitizePrefix } from "../../../utils/galleryPaths";
+
 
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif)$/i;
 
-export const GET: APIRoute = async ({ url, locals }) => {
-    const prefix = url.searchParams.get("prefix") ?? "";
+export const GET: APIRoute = async ({ request, url, locals }) => {
+    const authResp = requireAdmin(request);
+    if (authResp) return authResp;
+
+    const rawPrefix = url.searchParams.get("prefix");
+    const prefix = sanitizePrefix(rawPrefix);
+    if (!prefix) {
+        return new Response("Invalid prefix", { status: 400 });
+    }
 
     // Cloudflare Pages → R2 binding is exposed via locals.runtime.env
     const bucket = (locals as any).runtime?.env?.GALLERY_BUCKET;

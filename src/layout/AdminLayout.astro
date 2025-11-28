@@ -26,262 +26,31 @@ const { title = "Admin" } = Astro.props;
                     loading="lazy"
                     decoding="async"
                 />
-                <span class="admin-brand-text">KIL Construction</span>
-                <span class="admin-tag">Admin</span>
+                <span class="admin-brand-main">
+                    <span class="admin-brand-text">KIL Construction</span>
+                    <span class="admin-tag">Admin</span>
+                </span>
             </a>
-
-            <a href="/" class="admin-header-link">← Back to site</a>
-            <a href="/admin/logout" class="admin-header-link">Logout</a>
+            <a href="/" class="admin-header-link admin-header-link--back">← Back to site</a>
         </div>
     </header>
 
     <main class="admin-main">
         <div class="admin-card">
             <slot />
-            <p>Admin access for KIL Construction. Keep this page private.</p>
         </div>
     </main>
-    <footer class="admin-footer"></footer>
+    <footer class="admin-footer">
+        <div class="admin-footer-inner">
+            <div class="admin-footer-textwrap">
+                <p class="admin-footer-text">Admin access for KIL Construction.</p>
+                <p class="admin-footer-text">Keep this page private.</p>
+            </div>
+
+            <a href="/admin/logout" class="admin-header-link admin-footer-logout">Logout</a>
+        </div>
+    </footer>
 </div>
 </body>
 </html>
 
-<style>
-    .admin-body {
-        margin: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-        background: #f3f4f6;
-        color: var(--ink, #111827);
-    }
-
-    .admin-shell {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .admin-header {
-        background: var(--brand, #3f5422);
-        color: #f9fafb;
-        padding: 0.85rem clamp(1.25rem, 4vw, 2.25rem);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-    }
-
-    .admin-header-inner {
-        max-width: var(--max, 1200px);
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-    }
-
-    .admin-brand {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.55rem;
-        text-decoration: none;
-        color: inherit;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-    }
-
-    .admin-logo-img {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        object-fit: contain;
-        background: #fff;
-        box-shadow: 0 0 0 2px #f9fafb;
-    }
-
-    .admin-brand-text {
-        font-size: 1.05rem;
-    }
-
-    .admin-tag {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        padding: 0.15rem 0.55rem;
-        border-radius: 999px;
-        background: rgba(15, 23, 42, 0.22);
-    }
-
-    .admin-header-link {
-        color: #f9fafb;
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        opacity: 0.82;
-        border-radius: 999px;
-        padding: 0.25rem 0.75rem;
-        border: 1px solid rgba(249, 250, 251, 0.28);
-        transition: background 160ms ease, opacity 160ms ease,
-        transform 120ms ease;
-    }
-
-    .admin-header-link:hover {
-        opacity: 1;
-        background: rgba(15, 23, 42, 0.25);
-        transform: translateY(-1px);
-    }
-
-    .admin-main {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        text-align: center;
-        padding: clamp(1.5rem, 4vw, 2.5rem);
-    }
-
-    .admin-card {
-        width: 100%;
-        max-width: 900px;
-        margin: 0 auto;
-        border-radius: 28px;
-        background: #ffffff;
-        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
-        padding: clamp(1.75rem, 3vw, 2.25rem);
-    }
-
-    .admin-title {
-        margin: 0 0 24px;
-        font-size: clamp(1.9rem, 2.2vw, 2.3rem);
-        text-align: center;
-        color: var(--ink, #111827);
-    }
-
-    /* Shared form styles for login / future admin forms */
-    .admin-form {
-        display: grid;
-        gap: 18px;
-        margin-top: 8px;
-    }
-
-    .admin-field-label {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        font-weight: 600;
-        color: #374151;
-        font-size: 0.98rem;
-    }
-
-    .admin-input {
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 10px;
-        border: 1px solid #d1d5db;
-        font-size: 0.98rem;
-        background: #e5f0ff;
-        outline: none;
-        transition: box-shadow 140ms ease, border-color 140ms ease,
-        background 140ms ease, transform 80ms ease;
-    }
-
-    .admin-input:focus {
-        border-color: var(--accent, #f59e0b);
-        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
-        background: #f9fbff;
-        transform: translateY(-0.5px);
-    }
-
-    .admin-error {
-        margin: 0 0 10px;
-        padding: 8px 10px;
-        border-radius: 8px;
-        background: #fef2f2;
-        color: #b91c1c;
-        font-weight: 600;
-        font-size: 0.9rem;
-        text-align: center;
-        border: 1px solid #fecaca;
-    }
-
-    /* Dashboard action buttons */
-    .admin-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        margin-top: 8px;
-    }
-
-    .admin-btn {
-        /* piggyback on global .btn styles */
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        max-width: 420px;
-        margin-inline: auto;
-        gap: 0.6rem;
-        font-size: 1.05rem;
-    }
-
-    .admin-btn .icon {
-        font-size: 1.3rem;
-    }
-
-    .admin-note {
-        margin-top: 1.5rem;
-        font-size: 0.8rem;
-        color: #6b7280;
-        text-align: center;
-    }
-
-    @media (min-width: 720px) {
-        .admin-main {
-            padding: 3rem 1.5rem 2.5rem;
-        }
-
-        .admin-actions {
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .admin-btn {
-            max-width: 260px;
-        }
-    }
-    /* Mobile tweaks */
-    @media (max-width: 700px) {
-        .admin-main {
-            padding: 1rem 1rem 1.5rem;
-        }
-
-        .admin-card {
-            border-radius: 22px;
-            margin-top: 0.5rem; /* gives breathing room under header */
-        }
-    }
-
-    @media (max-width: 640px) {
-        .admin-header-inner {
-            flex-wrap: wrap;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-
-        .admin-brand {
-            flex-basis: 100%;
-        }
-
-        .admin-header-link {
-            font-size: 0.85rem;
-            padding: 0.3rem 0.75rem;
-        }
-
-        .admin-main {
-            padding: 1.25rem 1rem 1.75rem;
-        }
-
-        .admin-card {
-            border-radius: 22px;
-            margin-top: 0.75rem;
-        }
-    }
-</style>

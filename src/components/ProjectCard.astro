@@ -27,14 +27,8 @@ const primary =
     firstUrl ||
     src;
 
-const sized = (u?: string, w = 1200) =>
-    u ? (u.includes('=s0') ? u.replace('=s0', `=w${w}`) : u) : undefined;
-
-const srcsetOf = (u?: string) =>
-    !u ? undefined : `${sized(u, 600)} 600w, ${sized(u, 1200)} 1200w, ${sized(u, 2000)} 2000w`;
-
-const mainSrc = sized(primary, 1200);
-const srcset = srcsetOf(primary);
+const mainSrc = primary;
+const srcset = undefined;
 const sizes = '(max-width: 720px) 96vw, (max-width: 1200px) 45vw, 680px';
 
 // only set data-rot if there are multiple images

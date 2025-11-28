@@ -1,12 +1,143 @@
+/* ===== BASE LAYOUT ===== */
+html,
+body {
+    height: 100%;
+}
+
+.admin-body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f3f4f6;
+    color: var(--ink, #111827);
+}
+
+.admin-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+
+.admin-header {
+    background: var(--brand, #3f5422);
+    color: #f9fafb;
+    padding: 0.75rem clamp(1.25rem, 4vw, 2.25rem);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+}
+
+.admin-header-inner {
+    max-width: var(--max, 1200px);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.admin-header-link--back {
+    justify-self: center;
+}
+
+.admin-header-link--logout {
+    justify-self: end;
+}
+
+
+/* brand locked to left */
+.admin-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    color: inherit;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.admin-brand-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* back link centered, logout on right */
+.admin-header-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #f9fafb;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.82;
+    border-radius: 999px;
+    padding: 0.35rem 0.95rem;
+    border: 1px solid rgba(249, 250, 251, 0.28);
+    transition: background 160ms ease, opacity 160ms ease, transform 120ms ease;
+}
+
+.admin-header-link:hover {
+    opacity: 1;
+    background: rgba(15, 23, 42, 0.25);
+    transform: translateY(-1px);
+}
+
+/* Logo + brand text sizing */
+.admin-logo-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: contain;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px #f9fafb;
+    flex-shrink: 0;
+}
+
+.admin-brand-text {
+    font-size: 1.05rem;
+}
+
+.admin-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.22);
+}
+
+/* ===== MAIN CONTAINER / CARD ===== */
+
+.admin-main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    text-align: center;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.admin-card {
+    width: 100%;
+    max-width: 900px;
+    margin: 1.5rem auto 2rem;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+    padding: clamp(1.5rem, 2.7vw, 2.1rem);
+}
+
+/* ===== TITLES / TEXT ===== */
+
 .admin-title {
     margin: 0 0 24px;
     font-size: clamp(1.9rem, 2.2vw, 2.3rem);
     text-align: center;
     color: var(--ink, #111827);
-}
-
-.admin-actions a {
-    margin: 20px;
 }
 
 .admin-subtitle {
@@ -15,18 +146,52 @@
     font-size: 0.98rem;
 }
 
+.admin-note {
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-align: center;
+}
+
+/* ===== GENERIC PANEL (Upload / Reviews / Manage) ===== */
+
 .panel {
     border-radius: 18px;
     border: 1px solid #e5e7eb;
     padding: 16px;
     background: #f9fafb;
+    text-align: left;
+    overflow-x: hidden;
 }
 
+/* ===== SHARED FORM STYLES ===== */
+
+/* Login form & any simple vertical forms */
 .admin-form {
+    display: grid;
+    gap: 18px;
+    margin-top: 8px;
+    max-width: 420px;
+    margin-inline: auto; /* centers the form in the card */
+}
+
+/* Upload form layout */
+.admin-form-flex {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    max-width: 900px;
+    margin-inline: auto;
 }
+
+/* Upload form's main button – more compact than dashboard tiles */
+.admin-form-flex .admin-btn {
+    max-width: 260px;
+    font-size: 1rem;
+    padding: 0.7rem 1.2rem;
+    margin-inline: auto;
+}
+
 
 .admin-form-grid {
     display: grid;
@@ -34,19 +199,53 @@
     gap: 12px;
 }
 
+.admin-form button,
+.admin-form input[type="submit"] {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
 .admin-field-label {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.95rem;
 }
 
 .admin-input {
+    width: 100%;
     padding: 8px 10px;
     border-radius: 10px;
     border: 1px solid #d1d5db;
     font-size: 0.95rem;
     background: #fff;
+    outline: none;
+    transition:
+            box-shadow 140ms ease,
+            border-color 140ms ease,
+            background 140ms ease,
+            transform 80ms ease;
+}
+
+.admin-input:focus {
+    border-color: var(--accent, #f59e0b);
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+    background: #f9fbff;
+    transform: translateY(-0.5px);
+}
+
+.admin-error {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+    border: 1px solid #fecaca;
 }
 
 .hint {
@@ -76,43 +275,47 @@
     overflow: auto;
 }
 
+/* ===== DASHBOARD ACTION BUTTONS ===== */
+
+.admin-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 8px;
+}
+
 .admin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 420px;
+    margin-inline: auto;
+    gap: 0.6rem;
+    font-size: 1.12rem;
+    font-weight: 600;
+    text-decoration: none;
     padding-inline: 18px;
-}
-/* ===== ADMIN MANAGE LAYOUT ===== */
-.folder-tree,
-.folder-tree ul,
-.folder-tree li {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+    border-radius: 10px;
+    box-sizing: border-box;
 }
 
-.admin-title {
-    margin: 0 0 8px;
-    font-size: clamp(1.6rem, 2.2vw, 1.9rem);
+.admin-btn .icon {
+    font-size: 1.3rem;
 }
 
-.admin-subtitle {
-    margin: 0 0 20px;
-    color: #4b5563;
-    font-size: 0.98rem;
+.admin-actions a {
+    margin: 20px;
 }
 
-.panel {
-    border-radius: 18px;
-    border: 1px solid #e5e7eb;
-    padding: 16px;
-    background: #f9fafb;
-    text-align: left;
-    overflow-x: hidden;
-}
+/* ===== TOOLBAR (Manage + Reviews) ===== */
 
 .toolbar {
     display: flex;
-    gap: 10px;
-    margin-bottom: 12px;
     flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 8px;
 }
 
 .toolbar-actions {
@@ -121,11 +324,42 @@
 }
 
 .search-input {
-    flex: 1 1 220px;
-    padding: 8px 10px;
+    width: 100%;
+    padding: 6px 10px;
     border-radius: 10px;
     border: 1px solid #d1d5db;
     font-size: 0.95rem;
+}
+
+/* Status line under toolbar (Manage page) */
+.status-row {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* ===== BUTTONS ===== */
+
+.btn-pill {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: #111827;
+    background: #f9fafb;
+}
+
+.btn-pill:hover {
+    background: #e5e7eb;
+}
+
+.btn-primary {
+    background: #111827;
+    color: #f9fafb;
+    border-color: #111827;
 }
 
 .btn-small {
@@ -144,20 +378,91 @@
 }
 
 .btn-danger {
-    border-color: #f97373;
+    background: #fee2e2;
     color: #b91c1c;
-    background: #fef2f2;
+    border-color: #fecaca;
 }
 
 .btn-danger:hover:not(:disabled) {
     background: #fee2e2;
 }
 
-.status-row {
-    font-size: 0.85rem;
+/* Generic “no results” text */
+.empty {
+    font-size: 0.9rem;
     color: #6b7280;
-    margin-bottom: 10px;
+    padding: 6px 2px;
 }
+
+/* ===== REVIEWS PAGE LIST ===== */
+
+.review-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+}
+
+.review-main {
+    min-width: 0;
+    flex: 1 1 260px;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.review-client {
+    font-weight: 600;
+    color: #111827;
+}
+
+.review-rating {
+    font-size: 0.85rem;
+    color: #f97316;
+}
+
+.review-subject {
+    font-size: 0.92rem;
+    color: #111827;
+}
+
+.review-meta {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.review-text {
+    margin: 6px 0 0;
+    font-size: 0.9rem;
+    color: #374151;
+}
+
+.review-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+
+/* ===== MANAGE PAGE – TREE VIEW ===== */
 
 .results-list {
     list-style: none;
@@ -167,6 +472,8 @@
     flex-direction: column;
     gap: 8px;
     align-items: stretch;
+    max-width: 100%;
+    margin-inline: auto;
 }
 
 .result-item {
@@ -176,16 +483,13 @@
 }
 
 .result-item.just-renamed {
-    background: #ecfdf5;          /* soft green */
+    background: #ecfdf5;
     transition: background-color 0.8s ease;
 }
 
-.file-title[data-rename-active="1"]::after {
-    content: "Enter to save / Esc to cancel";
-    display: block;
-    font-size: 0.7rem;
-    color: #9ca3af;
-    margin-top: 2px;
+.result-item.active {
+    border-color: #3b82f6;
+    background: #eff6ff;
 }
 
 .result-title {
@@ -204,73 +508,17 @@
     gap: 8px;
 }
 
-.btn-pill {
-    padding: 6px 12px;
-    border-radius: 999px;
-    border: 1px solid #d1d5db;
-    font-size: 0.85rem;
-    text-decoration: none;
-    color: #111827;
-    background: #f9fafb;
-}
+/* folder + file hierarchy */
 
-.btn-pill:hover {
-    background: #e5e7eb;
-}
-
-.empty {
-    font-size: 0.9rem;
-    color: #6b7280;
-    padding: 8px 2px;
-}
-
-.result-item.active {
-    border-color: #3b82f6;
-    background: #eff6ff;
-}
 .item-header {
     display: flex;
     align-items: center;
-    gap: 0.35rem;      /* less space between caret + text */
+    gap: 0.35rem;
 }
 
 .select-checkbox {
-    margin-left: 0.35rem; /* bring checkbox closer to the label */
+    margin-left: 0.35rem;
     flex-shrink: 0;
-}
-
-.child-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;         /* space between text and checkbox */
-}
-
-.child-info {
-    flex: 1 1 auto;
-    min-width: 0;        /* <-- critical so ellipsis can kick in on small screens */
-}
-
-.rename-wrapper {
-    position: relative;
-    display: inline-block;
-    max-width: 100%;
-}
-
-.name-display {
-    cursor: pointer;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    max-width: 100%;
-}
-
-.rename-input {
-    font-size: inherit;
-    padding: 2px 4px;
-    border: 1px solid #9ca3af;
-    border-radius: 4px;
-    width: 100%;
 }
 
 /* Get rid of bullets everywhere in this tree */
@@ -283,17 +531,7 @@ ul.children-list li {
     padding: 0;
 }
 
-/* Overall list – keep it centered and spaced */
-ul.results-list {
-    max-width: 100%;
-    margin-inline: auto;
-    display: flex;
-    padding-inline: 0;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-/* Each top-level folder “card” */
+/* Folder “cards” */
 ul.results-list > li.result-item {
     background: #ffffff;
     border-radius: 12px;
@@ -303,13 +541,7 @@ ul.results-list > li.result-item {
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
-/* Nested files inside a folder */
-ul.children-list > li {
-    padding: 0.5rem 0;
-    border-top: 1px solid #f3f4f6;
-}
-
-/* Folder row: [caret] [label] [checkbox] in one line (desktop) */
+/* Folder row: caret + label + checkbox */
 ul.results-list > li.result-item > div.item-header {
     display: flex;
     align-items: center;
@@ -317,7 +549,6 @@ ul.results-list > li.result-item > div.item-header {
     gap: 0.2rem;
 }
 
-/* caret immediately left of label */
 ul.results-list > li.result-item > div.item-header > button.expand-btn {
     border: none;
     background: transparent;
@@ -330,7 +561,7 @@ ul.results-list > li.result-item > div.item-header > button.expand-btn {
     align-items: center;
 }
 
-/* label: left aligned, takes middle space */
+/* folder label */
 ul.results-list > li.result-item > div.item-header > div.item-text {
     flex: 1;
     text-align: left;
@@ -340,69 +571,44 @@ ul.results-list > li.result-item > div.item-header > div.item-text {
     color: #111827;
 }
 
-/* checkbox pinned to far right (desktop) */
+/* folder checkbox */
 ul.results-list > li.result-item > div.item-header > input.select-checkbox {
-    margin-right: 01.5rem;
+    margin-right: 1.5rem;
     flex-shrink: 0;
 }
 
-/* Children (files) list, indented with vertical guide */
+/* nested files list */
 ul.results-list ul.children-list {
     margin: 0.2rem 0 0.35rem 1.5rem;
     padding: 0;
     border-left: 1px dashed #e5e7eb;
 }
 
-/* File rows: [label left] [checkbox right] */
-ul.results-list ul.children-list > li.child-item {
+ul.children-list > li.child-item {
     display: flex;
     align-items: flex-start;
-    gap: 0.25rem;
+    gap: 0.5rem;
     padding: 0.25rem 0;
     border-bottom: 1px dashed #eef2f7;
     position: relative;
 }
-ul.results-list ul.children-list > li.child-item:last-child {
+
+ul.children-list > li.child-item:last-child {
     border-bottom: none;
 }
 
-/* file text column */
-ul.results-list ul.children-list > li.child-item > div.child-info {
+.child-info {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Container for name + meta */
+.image-info {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
+    min-width: 0;
 }
 
 /* filename */
-ul.results-list ul.children-list .image-name {
-    font-size: 0.92rem;
-    font-weight: 500;
-}
-
-/* size + date */
-ul.results-list ul.children-list .image-meta {
-    font-size: 0.82rem;
-    color: #6b7280;
-}
-
-/* checkbox on right for files */
-ul.results-list ul.children-list > li.child-item > input.select-checkbox {
-    margin-right: 01.5rem;
-    flex-shrink: 0;
-}
-
-ul.children-list > li.child-item { min-width: 0; }
-.child-item .child-info { flex: 1; min-width: 0; }
-
-/* Container for name + meta must be allowed to shrink */
-.image-info {
-    flex: 1;
-    min-width: 0; /* critical so ellipsis can work */
-}
-.child-info { min-width: 0; }/* critical so ellipsis can work */
-
-/* File name: single line with ellipsis */
 .image-name {
     font-size: 0.9rem;
     color: #111827;
@@ -411,32 +617,163 @@ ul.children-list > li.child-item { min-width: 0; }
     white-space: nowrap;
     position: relative;
     display: block;
-    align-items: center;
-    gap: 0.25rem;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
 }
 
-.child-item:hover .image-name::after { opacity: 0.6;}
-/* --- ADMIN: layout + checkbox behavior --- */
+.image-meta {
+    font-size: 0.82rem;
+    color: #6b7280;
+}
 
+/* file checkbox on right */
+ul.results-list ul.children-list > li.child-item > input.select-checkbox {
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* ===== FOOTER ===== */
+.admin-footer {
+    background: var(--brand, #3f5422);
+    color: #f9fafb;
+    padding: 0.6rem clamp(1.25rem, 4vw, 2.25rem);
+    margin-top: auto;
+}
+
+.admin-footer-inner {
+    max-width: var(--max, 1200px);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    font-size: 0.85rem;
+}
+
+.admin-footer-inner::before {
+    content: "";
+    flex: 1;            /* fake left column to balance the logout button */
+}
+
+.admin-footer-textwrap {
+    flex: 1;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.admin-footer-text {
+    margin: 0;
+}
+
+.admin-footer-logout {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+}
+
+/* ===== RESPONSIVE TWEAKS ===== */
+
+@media (min-width: 720px) {
+
+    /* dashboard buttons in one row */
+    .admin-actions {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
+    }
+
+    .admin-btn {
+        max-width: 320px;
+        white-space: nowrap;
+    }
+}
+
+/* vertically centre the card a bit more on larger screens */
+@media (min-width: 1024px) {
+    .admin-main {
+        align-items: center;
+    }
+}
+
+/* Mobile tweaks */
 @media (max-width: 700px) {
     .admin-main {
-        padding: 1rem 1rem 1.5rem;
+        padding: 1.75rem 1rem 2rem;
+        align-items: flex-start;
     }
 
     .admin-card {
         border-radius: 22px;
-        margin-top: 0.5rem;
+        margin-top: 1.5rem;
+        padding: 1.6rem 1.35rem 1.9rem;
+    }
+
+    .admin-actions {
+        flex-direction: column;
     }
 
     .admin-actions a {
         margin-bottom: 20px;
     }
+    .admin-btn {
+        max-width: 85%;
+    }
 }
 
-/* Put folder checkbox on its own row */
+@media (max-width: 640px) {
+    .admin-header {
+        padding: 0.55rem 1rem;
+    }
+
+    .admin-header-inner {
+        flex-wrap: wrap;
+        row-gap: 0.35rem;
+    }
+
+    .admin-logo-img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .admin-brand {
+        justify-self: stretch;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .admin-header-link--back {
+        justify-self: end;
+    }
+
+    .admin-logo-img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .admin-brand-main {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .admin-header-link {
+        font-size: 0.85rem;
+        padding: 0.3rem 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .admin-card {
+        border-radius: 22px;
+        margin-top: 1.25rem;
+    }
+    .admin-footer-inner {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+/* Folder / file checkbox stacking on very small devices */
 @media (max-width: 520px) {
     ul.results-list > li.result-item > div.item-header {
         flex-wrap: wrap;
@@ -463,15 +800,6 @@ ul.children-list > li.child-item { min-width: 0; }
         margin-left: 0;
         margin-top: 2px;
         align-self: flex-start;
-    }
-}
-
-/* Stack checkbox under row instead of next to text */
-@media (max-width: 480px) {
-    ul.results-list > li.result-item > .item-header > input.select-checkbox {
-        flex-basis: auto;
-        margin-left: auto;
-        margin-top: 0;
     }
 }
 

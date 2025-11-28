@@ -1,8 +1,13 @@
 ---
 import AdminLayout from "../layout/AdminLayout.astro";
+import {
+    safeEquals,
+    recordLoginAttempt,
+    tooManyLoginAttempts,
+} from "../utils/adminAuth";
 
 const cookies = Astro.cookies;
-let error = Astro.url.searchParams.get("error");
+let error = Astro.url.searchParams.get("error") ?? "";
 
 // Cloudflare runtime env
 const env = (Astro.locals as any).runtime?.env ?? {};
@@ -11,8 +16,21 @@ const ADMIN_USER   = env.ADMIN_USER;
 const ADMIN_PASS   = env.ADMIN_PASS;
 const ADMIN_SECRET = env.ADMIN_SECRET;
 
+// Fail CLOSED if env is misconfigured
 if (!ADMIN_USER || !ADMIN_PASS || !ADMIN_SECRET) {
-    console.warn("[admin] Missing ADMIN_* in runtime env");
+    console.error("[admin] Missing ADMIN_* in runtime env");
+    return new Response("Admin auth misconfigured", { status: 500 });
+}
+
+// Basic per-IP rate limiting using helpers
+const ip =
+    Astro.request.headers.get("CF-Connecting-IP") ||
+    Astro.request.headers.get("x-forwarded-for") ||
+    "unknown";
+
+if (tooManyLoginAttempts(ip)) {
+    console.warn("[login] too many attempts from", ip);
+    return new Response("Too many attempts, try again later", { status: 429 });
 }
 
 if (Astro.request.method === "POST") {
@@ -20,11 +38,14 @@ if (Astro.request.method === "POST") {
     const username = formData.get("username");
     const password = formData.get("password");
 
-    const valid =
-        typeof username === "string" &&
-        typeof password === "string" &&
-        username === ADMIN_USER &&
-        password === ADMIN_PASS;
+    const userStr = typeof username === "string" ? username : "";
+    const passStr = typeof password === "string" ? password : "";
+
+    const userOk = safeEquals(userStr, ADMIN_USER);
+    const passOk = safeEquals(passStr, ADMIN_PASS);
+    const valid = userOk && passOk;
+
+    recordLoginAttempt(ip, valid);
 
     if (!valid) {
         error = "Invalid username or password";
@@ -34,14 +55,14 @@ if (Astro.request.method === "POST") {
             httpOnly: true,
             secure: import.meta.env.PROD,
             sameSite: "strict",
-            maxAge: 60 * 60 * 6,
+            maxAge: 60 * 60 * 2, // 2 hours, tweak if you want
         });
 
-        // Use Astro.redirect so the cookie is attached correctly
         return Astro.redirect("/admin/dashboard");
     }
 }
 ---
+
 <AdminLayout title="Admin Login">
     <h1 class="admin-title">Admin Login</h1>
 
