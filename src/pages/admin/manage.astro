@@ -11,7 +11,7 @@ const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_SECRET = env.ADMIN_SECRET;
 
 // build-time public API URL for the worker
-const PUBLIC_GALLERY_API = import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery";
+const GALLERY_API = Astro.env.PUBLIC_GALLERY_API || "/api/gallery-api";
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -47,7 +47,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
         <div id="status" class="status-row">Loading projects…</div>
 
-        <ul id="results" class="results-list" data-public-api={PUBLIC_GALLERY_API} data-admin-api="/api/gallery"></ul>
+        <ul id="results" class="results-list" data-api={GALLERY_API}></ul>
     </section>
 
     <script>
@@ -64,8 +64,9 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 return;
             }
 
-            const publicApiBase = (listEl.dataset.publicApi || "").replace(/\/$/, "");
-            const adminApiBase = (listEl.dataset.adminApi || "").replace(/\/$/, "");
+            const API_BASE = (
+                import.meta.env.PUBLIC_GALLERY_API || "/api/gallery-api"
+            ).replace(/\/$/, "");
 
             if (!publicApiBase || !adminApiBase) {
                 statusEl.textContent = "Missing gallery API URL.";
@@ -82,7 +83,11 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     statusEl.textContent = "Loading projects…";
                     listEl.innerHTML = "";
 
-                    const res = await fetch(`${publicApiBase}?all=1`);
+                    const res = await fetch(`${API_BASE}/upload`, {
+                        method: "POST",
+                        body: formData,
+                    });
+
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                     const data = await res.json();
@@ -176,10 +181,11 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 childrenEl.innerHTML = `<li class="empty">Loading files…</li>`;
 
                 try {
-                    const res = await fetch(
-                        `${adminApiBase}/list-images?` + new URLSearchParams({ prefix }),
-                        { method: "GET" }
-                    );
+                    const res = await fetch(`${API_BASE}/upload`, {
+                        method: "POST",
+                        body: formData,
+                    });
+
                     /** @type {{ objects?: any[] }} */
                     const data = await res.json().catch(() => ({}));
 
