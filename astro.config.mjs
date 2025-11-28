@@ -9,5 +9,11 @@ export default defineConfig({
     site: 'https://kilcon.work',
     base,
     output: 'server',
-    adapter: cloudflare(),
+    adapter: cloudflare({
+        mode: 'directory',        // <-- important for Cloudflare Pages
+        routes: {
+            strategy: 'include',
+            include: ['/api/*'],    // ensure all API routes are wired as Functions
+        },
+    }),
 });
