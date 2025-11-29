@@ -1,4 +1,7 @@
 export function requireAdmin(request: Request): Response | null {
+    if (!request) {
+        return new Response("Unauthorized", { status: 401 });
+    }
     const secret = import.meta.env.ADMIN_SECRET;
     if (!secret) {
         // Fail CLOSED if env is misconfigured
