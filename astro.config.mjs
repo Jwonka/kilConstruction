@@ -9,5 +9,5 @@ export default defineConfig({
     site: 'https://kilcon.work',
     base,
     output: 'server',
-    adapter: cloudflare(),
+    adapter: /** @type any */ (cloudflare)({ mode: "directory" }),
 });
