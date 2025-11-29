@@ -6,50 +6,53 @@ type R2Object = { key: string };
 type R2ListOptions = { prefix?: string; cursor?: string; limit?: number };
 type R2ListResult = { objects: R2Object[]; truncated: boolean; cursor?: string };
 type R2Bucket = {
-    list: (opts: R2ListOptions) => Promise<R2ListResult>;
-    delete: (keys: string[] | { key: string }[]) => Promise<void>;
+    list(opts: R2ListOptions): Promise<R2ListResult>;
+    delete(keys: string[] | { key: string }[]): Promise<void>;
 };
 
 export const POST: APIRoute = async ({ request, locals }) => {
-    const authResp = requireAdmin(request);
+    const env = (locals as any).runtime?.env ?? {};
+    const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
+    const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
+
+    const authResp = requireAdmin(request, ADMIN_SECRET);
     if (authResp) return authResp;
 
+    if (!bucket) {
+        console.error("[gallery/delete-project] Missing GALLERY_BUCKET binding");
+        return new Response("R2 not configured", { status: 500 });
+    }
+
+    let body: any;
     try {
-        const body: any = await request.json().catch(() => ({}));
-        const rawPrefix = typeof body?.prefix === "string" ? body.prefix.trim() : null;
-        const prefix = sanitizePrefix(rawPrefix);
-        if (!prefix) return new Response("Invalid prefix", { status: 400 });
+        body = await request.json();
+    } catch {
+        return new Response("Invalid JSON body", { status: 400 });
+    }
 
-        const env = (locals as any).runtime?.env ?? (locals as any).env ?? {};
-        const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
+    const rawPrefix = body.prefix as string | undefined;
+    const prefix = sanitizePrefix(rawPrefix ?? null);
+    if (!prefix) {
+        return new Response("Invalid prefix", { status: 400 });
+    }
 
-        if (!bucket) {
-            console.error("[gallery/delete-project] Missing GALLERY_BUCKET binding");
-            return new Response("R2 not configured", { status: 500 });
-        }
-
-        // Make sure prefix ends with a slash so we only hit that "folder"
-        const normalizedPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
-
+    try {
+        const allKeys: string[] = [];
         let cursor: string | undefined;
-        const keys: string[] = [];
 
         do {
-            const page = await bucket.list({ prefix: normalizedPrefix, cursor, limit: 1000 });
-            for (const obj of page.objects) {
-                keys.push(obj.key);
-            }
+            const page = await bucket.list({ prefix, cursor, limit: 1000 });
+            allKeys.push(...page.objects.map((o) => o.key));
             cursor = page.truncated ? page.cursor : undefined;
         } while (cursor);
 
-        if (keys.length > 0) {
-            // R2 delete can take an array of keys
-            await bucket.delete(keys);
+        if (allKeys.length > 0) {
+            await bucket.delete(allKeys);
         }
 
         return new Response(
-            JSON.stringify({ ok: true, deleted: keys.length }),
-            { status: 200, headers: { "content-type": "application/json" } },
+            JSON.stringify({ ok: true, deleted: allKeys.length }),
+            { status: 200, headers: { "content-type": "application/json" } }
         );
     } catch (err) {
         console.error("[gallery/delete-project] Failed:", err);

@@ -1,24 +1,34 @@
-export function requireAdmin(request: Request): Response | null {
+export function requireAdmin(
+    request: Request | undefined,
+    runtimeSecret?: string | null
+): Response | null {
     if (!request) {
         return new Response("Unauthorized", { status: 401 });
     }
-    const secret = import.meta.env.ADMIN_SECRET;
+
+    const secret =
+        runtimeSecret ||
+        (typeof import.meta !== "undefined"
+            ? (import.meta as any).env?.ADMIN_SECRET
+            : undefined);
+
     if (!secret) {
-        // Fail CLOSED if env is misconfigured
-        console.error("ADMIN_SECRET is not set");
+        console.error("[requireAdmin] ADMIN_SECRET is not set");
         return new Response("Admin auth misconfigured", { status: 500 });
     }
 
-    const cookie = request.headers.get("Cookie") || "";
-    const match = /admin_auth=([^;]+)/.exec(cookie);
+    const cookieHeader =
+        request.headers.get("cookie") || request.headers.get("Cookie") || "";
+    const match = /(?:^|;\s*)admin_auth=([^;]+)/.exec(cookieHeader);
     const token = match ? decodeURIComponent(match[1]) : "";
 
     if (!token || token !== secret) {
         return new Response("Unauthorized", { status: 401 });
     }
 
-    return null; // OK
+    return null;
 }
+
 
 export function safeEquals(a: string, b: string): boolean {
     if (a.length !== b.length) return false;

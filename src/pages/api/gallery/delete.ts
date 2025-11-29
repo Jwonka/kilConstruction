@@ -2,7 +2,6 @@ import type { APIContext } from "astro";
 import { requireAdmin } from "../../../utils/adminAuth";
 import { sanitizeKey } from "../../../utils/galleryPaths";
 
-
 const ALLOWED_TOP = [
     "Furniture",
     "Highlights",
@@ -13,36 +12,36 @@ const ALLOWED_TOP = [
     "uploads",
 ];
 
+type R2Bucket = {
+    delete(key: string | string[]): Promise<void>;
+};
+
 export async function POST(Astro: APIContext) {
-    const authResp = requireAdmin(Astro.request);
+    const { request, locals } = Astro;
+
+    const env = (locals as any).runtime?.env ?? {};
+    const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
+    const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
+
+    const authResp = requireAdmin(request, ADMIN_SECRET);
     if (authResp) return authResp;
 
-    const env = (Astro.locals as any).runtime?.env ?? {};
-    const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
-    const bucket = (env as any).GALLERY_BUCKET;
-
-    // Basic auth: same secret you use for admin pages
-    const cookieAuth = Astro.cookies.get("admin_auth")?.value || "";
-    if (!ADMIN_SECRET || cookieAuth !== ADMIN_SECRET) {
-        return new Response("Unauthorized", { status: 401 });
-    }
-
     if (!bucket) {
-        console.error("[gallery/delete] Missing R2_BUCKET binding");
+        console.error("[gallery/delete] Missing GALLERY_BUCKET binding");
         return new Response("R2 not configured", { status: 500 });
     }
 
     let body: any;
     try {
-        body = await Astro.request.json();
+        body = await request.json();
     } catch {
         return new Response("Invalid JSON body", { status: 400 });
     }
 
-    const rawKey = body?.key;
-    const key = sanitizeKey(rawKey);
+    const rawKey = body.key as string | undefined;
+    const key = sanitizeKey(rawKey ?? null);
     if (!key) {
-        return new Response("Missing 'key' string in body", { status: 400 });
+        return new Response("Invalid key", { status: 400 });
     }
 
     const topLevel = key.split("/")[0];
@@ -52,10 +51,10 @@ export async function POST(Astro: APIContext) {
 
     try {
         await bucket.delete(key);
-        return new Response(
-            JSON.stringify({ ok: true }),
-            { status: 200, headers: { "content-type": "application/json" } },
-        );
+        return new Response(JSON.stringify({ ok: true }), {
+            status: 200,
+            headers: { "content-type": "application/json" },
+        });
     } catch (err) {
         console.error("[gallery/delete] Failed:", err);
         return new Response("Delete failed", { status: 500 });

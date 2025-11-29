@@ -12,58 +12,81 @@ const ALLOWED_TOP = [
     "uploads",
 ];
 
+type R2ObjectMeta = { httpMetadata?: any };
+type R2GetResult = { blob(): Promise<Blob> };
+
+type R2Bucket = {
+    head(key: string): Promise<R2ObjectMeta | null>;
+    get(key: string): Promise<R2GetResult | null>;
+    put(
+        key: string,
+        value:
+            | Blob
+            | ArrayBuffer
+            | ArrayBufferView
+            | ReadableStream
+            | string,
+        options?: { httpMetadata?: any }
+    ): Promise<void>;
+    delete(key: string | string[]): Promise<void>;
+};
+
 export const POST: APIRoute = async ({ request, locals }) => {
-    // 1) Admin gate – same pattern as upload/delete
-    const authResp = requireAdmin(request);
+    const env = (locals as any).runtime?.env ?? {};
+    const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
+    const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
+
+    const authResp = requireAdmin(request, ADMIN_SECRET);
     if (authResp) return authResp;
 
-    const bucket = (locals as any).runtime?.env?.GALLERY_BUCKET;
     if (!bucket) {
         console.error("[rename] Missing GALLERY_BUCKET binding");
         return jsonResponse({ error: "R2 not configured" }, 500);
     }
 
-    const body = await request.json().catch(() => ({} as any));
+    let body: any;
+    try {
+        body = await request.json();
+    } catch {
+        return jsonResponse({ error: "Invalid JSON body" }, 400);
+    }
+
     const rawOldKey = body.oldKey as string | undefined;
     const rawNewKey = body.newKey as string | undefined;
 
-    // Sanitize both sides
     const oldKey = sanitizeKey(rawOldKey ?? null);
     const newKey = sanitizeKey(rawNewKey ?? null);
 
-    console.log("[rename] request", { oldKey, newKey });
-
     if (!oldKey || !newKey) {
-        return jsonResponse({ error: "Missing oldKey, newKey" }, 400);
+        return jsonResponse({ error: "Invalid key(s)" }, 400);
     }
 
-    const topLevel = oldKey.split("/")[0];
-    const levelTop = newKey.split("/")[0];
-    if (!ALLOWED_TOP.includes(topLevel) || !ALLOWED_TOP.includes(levelTop)) {
-        return new Response("Invalid key", { status: 400 });
+    const oldTop = oldKey.split("/")[0];
+    const newTop = newKey.split("/")[0];
+
+    if (!ALLOWED_TOP.includes(oldTop) || !ALLOWED_TOP.includes(newTop)) {
+        return jsonResponse({ error: "Invalid top-level folder" }, 400);
     }
 
-    if (oldKey === newKey) {
-        return jsonResponse({ ok: true, skipped: true }, 200);
+    const meta = await bucket.head(oldKey);
+    if (!meta) {
+        return jsonResponse({ error: "Source object not found" }, 404);
     }
 
-    // Load existing object
     const src = await bucket.get(oldKey);
     if (!src) {
-        console.error("[rename] source not found", oldKey);
-        return jsonResponse({ error: "Source not found" }, 404);
+        return jsonResponse({ error: "Source object not readable" }, 404);
     }
 
-    // Write under the new key, preserving metadata
-    await bucket.put(newKey, src.body, {
-        httpMetadata: src.httpMetadata,
+    const blob = await src.blob();
+
+    await bucket.put(newKey, blob, {
+        httpMetadata: meta.httpMetadata,
     });
 
-    // Delete old key
     await bucket.delete(oldKey);
 
     console.log("[rename] success", { oldKey, newKey });
-
     return jsonResponse({ ok: true }, 200);
 };
 
