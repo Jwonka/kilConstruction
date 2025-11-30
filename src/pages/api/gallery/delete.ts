@@ -23,8 +23,8 @@ export async function POST(Astro: APIContext) {
     const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
     const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
 
-    const authResp = requireAdmin(request, ADMIN_SECRET);
-    if (authResp) return authResp;
+    const authError = requireAdmin(request, env);
+    if (authError) return authError;
 
     if (!bucket) {
         console.error("[gallery/delete] Missing GALLERY_BUCKET binding");

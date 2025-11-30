@@ -11,7 +11,7 @@ const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_SECRET = env.ADMIN_SECRET;
 
 // build-time public API URL for the worker
-const GALLERY_API = import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery-api";
+const galleryApiBase = "/api/gallery/projects.json";
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -47,7 +47,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
         <div id="status" class="status-row">Loading projects…</div>
 
-        <ul id="results" class="results-list" data-api={GALLERY_API}></ul>
+        <ul id="results" class="results-list"></ul>
     </section>
 
     <script>
@@ -65,10 +65,8 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             }
 
             // READ-ONLY worker API (lists projects & public stuff)
-            const galleryApiBase = (
-                import.meta.env.PUBLIC_GALLERY_API ||
-                "https://kilcon.work/api/gallery-api"
-            ).replace(/\/$/, "");
+            const galleryApiBase = "/api/gallery/projects.json";
+
 
             // ADMIN API (Astro routes that talk to R2 directly)
             // /api/gallery/list-images, /delete, /delete-project, /rename

@@ -1,37 +1,7 @@
-export function requireAdmin(
-    request: Request | undefined,
-    runtimeSecret?: string | null
-): Response | null {
-    if (!request) {
-        return new Response("Unauthorized", { status: 401 });
-    }
-
-    const secret =
-        runtimeSecret ||
-        (typeof import.meta !== "undefined"
-            ? (import.meta as any).env?.ADMIN_SECRET
-            : undefined);
-
-    if (!secret) {
-        console.error("[requireAdmin] ADMIN_SECRET is not set");
-        return new Response("Admin auth misconfigured", { status: 500 });
-    }
-
-    const cookieHeader =
-        request.headers.get("cookie") || request.headers.get("Cookie") || "";
-    const match = /(?:^|;\s*)admin_auth=([^;]+)/.exec(cookieHeader);
-    const token = match ? decodeURIComponent(match[1]) : "";
-
-    if (!token || token !== secret) {
-        return new Response("Unauthorized", { status: 401 });
-    }
-
-    return null;
-}
-
-
-export function safeEquals(a: string, b: string): boolean {
+export function safeEquals(a: string | undefined, b: string | undefined): boolean {
+    if (typeof a !== "string" || typeof b !== "string") return false;
     if (a.length !== b.length) return false;
+
     let result = 0;
     for (let i = 0; i < a.length; i++) {
         result |= a.charCodeAt(i) ^ b.charCodeAt(i);
@@ -39,30 +9,73 @@ export function safeEquals(a: string, b: string): boolean {
     return result === 0;
 }
 
-// simple in-memory rate limit (per instance) for login attempts
-const LOGIN_ATTEMPTS = new Map<string, { count: number; last: number }>();
+// Very simple in-memory login attempt tracking
+// (resets when the serverless instance is recycled)
+type AttemptInfo = { count: number; last: number };
+const attempts = new Map<string, AttemptInfo>();
 
-export function tooManyLoginAttempts(ip: string, max = 20, windowMs = 10 * 60 * 1000): boolean {
+export function tooManyLoginAttempts(ip: string, limit = 10, windowMs = 15 * 60 * 1000): boolean {
+    const info = attempts.get(ip);
+    if (!info) return false;
+
     const now = Date.now();
-    const rec = LOGIN_ATTEMPTS.get(ip);
-    if (!rec) return false;
-
-    // reset window after windowMs
-    if (now - rec.last > windowMs) {
-        LOGIN_ATTEMPTS.delete(ip);
+    if (now - info.last > windowMs) {
+        attempts.delete(ip);
         return false;
     }
-    return rec.count >= max;
+    return info.count >= limit;
 }
 
-export function recordLoginAttempt(ip: string, success: boolean) {
+export function recordLoginAttempt(ip: string, success: boolean): void {
     const now = Date.now();
-    const rec = LOGIN_ATTEMPTS.get(ip) || { count: 0, last: now };
-    if (!success) {
-        rec.count++;
-        rec.last = now;
-        LOGIN_ATTEMPTS.set(ip, rec);
-    } else {
-        LOGIN_ATTEMPTS.delete(ip);
+    const info = attempts.get(ip) ?? { count: 0, last: now };
+
+    if (success) {
+        attempts.delete(ip);
+        return;
     }
+
+    info.count += 1;
+    info.last = now;
+    attempts.set(ip, info);
+}
+
+// Extract ADMIN_SECRET from either env object or a direct string
+function resolveAdminSecret(envOrSecret: any): string | undefined {
+    if (!envOrSecret) return undefined;
+    if (typeof envOrSecret === "string") return envOrSecret;
+    if (typeof envOrSecret === "object") {
+        return envOrSecret.ADMIN_SECRET ?? envOrSecret.ADMIN_KEY;
+    }
+    return undefined;
+}
+
+// Main guard used by API routes
+export function requireAdmin(
+    request: Request | undefined,
+    envOrSecret: any
+): Response | null {
+    if (!request) {
+        return new Response("Unauthorized", { status: 401 });
+    }
+
+    const secret = resolveAdminSecret(envOrSecret);
+    if (!secret) {
+        console.error("[requireAdmin] Missing ADMIN_SECRET/ADMIN_KEY");
+        return new Response("Unauthorized", { status: 401 });
+    }
+
+    const cookieHeader = request.headers.get("cookie") ?? "";
+    const match = cookieHeader.match(/(?:^|;\s*)admin_auth=([^;]+)/i);
+    if (!match) {
+        return new Response("Unauthorized", { status: 401 });
+    }
+
+    const cookieValue = decodeURIComponent(match[1]);
+
+    if (!safeEquals(cookieValue, secret)) {
+        return new Response("Unauthorized", { status: 401 });
+    }
+
+    return null;
 }
