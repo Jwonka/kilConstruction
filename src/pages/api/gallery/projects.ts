@@ -34,10 +34,10 @@ export const GET: APIRoute = async ({ locals }) => {
     const env = (locals as any).runtime?.env ?? {};
     const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
 
-    // Local astro dev won’t have a real R2 binding – just return empty list,
-    // so the UI says “Loaded 0 folders” instead of throwing a 500.
+    // In local dev with plain "npm run dev", GALLERY_BUCKET won't exist.
+    // Just return an empty list instead of blowing up.
     if (!bucket) {
-        console.warn("[projects.json] No GALLERY_BUCKET in env; returning empty list");
+        console.warn("[projects] No GALLERY_BUCKET in env; returning empty list");
         return new Response(JSON.stringify({ projects: [] }), {
             status: 200,
             headers: { "Content-Type": "application/json; charset=utf-8" },
@@ -45,8 +45,10 @@ export const GET: APIRoute = async ({ locals }) => {
     }
 
     try {
-        // Map of folderPrefix -> project info
-        const folders = new Map<string, { slug: string; name: string; prefix: string }>();
+        const folders = new Map<
+            string,
+            { slug: string; name: string; prefix: string }
+        >();
 
         for (const topPrefix of TOP_LEVELS) {
             let cursor: string | undefined;
@@ -59,9 +61,8 @@ export const GET: APIRoute = async ({ locals }) => {
                     const parts = key.split("/");
                     if (parts.length < 3) continue; // need at least top/folder/file
 
-                    const topLevel = parts[0]; // e.g. "Furniture"
-                    const folder = parts[1];   // e.g. "Cabinets"
-
+                    const topLevel = parts[0];
+                    const folder = parts[1];
                     if (!topLevel || !folder) continue;
 
                     const prefix = `${topLevel}/${folder}/`; // e.g. "Furniture/Cabinets/"
@@ -89,7 +90,7 @@ export const GET: APIRoute = async ({ locals }) => {
             headers: { "Content-Type": "application/json; charset=utf-8" },
         });
     } catch (err) {
-        console.error("[projects.json] error", err);
+        console.error("[projects] error", err);
         return new Response(
             JSON.stringify({ projects: [], error: "Failed to list projects" }),
             {

@@ -11,7 +11,8 @@ const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_SECRET = env.ADMIN_SECRET;
 
 // build-time public API URL for the worker
-const galleryApiBase = "/api/gallery/projects.json";
+// frontmatter
+const galleryApiBase = "/api/gallery/projects";
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -65,7 +66,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             }
 
             // READ-ONLY worker API (lists projects & public stuff)
-            const galleryApiBase = "/api/gallery/projects.json";
+            const galleryApiBase = "/api/gallery/projects";
 
 
             // ADMIN API (Astro routes that talk to R2 directly)
