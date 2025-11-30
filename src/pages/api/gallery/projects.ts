@@ -16,9 +16,7 @@ const TOP_LEVELS = [
     "Services/",
 ];
 
-/**
- * Very simple slugifier – matches what you use elsewhere.
- */
+// basic slugify, same as before
 function slugify(name: string): string {
     return (
         (name || "")
@@ -30,17 +28,26 @@ function slugify(name: string): string {
     );
 }
 
+// CORS headers – allow any origin to read this (no cookies involved)
+const CORS_HEADERS = {
+    "Content-Type": "application/json; charset=utf-8",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export const OPTIONS: APIRoute = async () =>
+    new Response(null, { status: 204, headers: CORS_HEADERS });
+
 export const GET: APIRoute = async ({ locals }) => {
     const env = (locals as any).runtime?.env ?? {};
     const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
 
-    // In local dev with plain "npm run dev", GALLERY_BUCKET won't exist.
-    // Just return an empty list instead of blowing up.
     if (!bucket) {
         console.warn("[projects] No GALLERY_BUCKET in env; returning empty list");
         return new Response(JSON.stringify({ projects: [] }), {
             status: 200,
-            headers: { "Content-Type": "application/json; charset=utf-8" },
+            headers: CORS_HEADERS,
         });
     }
 
@@ -59,14 +66,14 @@ export const GET: APIRoute = async ({ locals }) => {
                 for (const obj of page.objects ?? []) {
                     const key = obj.key || "";
                     const parts = key.split("/");
-                    if (parts.length < 3) continue; // need at least top/folder/file
+                    if (parts.length < 3) continue;
 
                     const topLevel = parts[0];
                     const folder = parts[1];
                     if (!topLevel || !folder) continue;
 
-                    const prefix = `${topLevel}/${folder}/`; // e.g. "Furniture/Cabinets/"
-                    const name = `${topLevel}/${folder}`;    // label shown in the list
+                    const prefix = `${topLevel}/${folder}/`;
+                    const name = `${topLevel}/${folder}`;
 
                     if (!folders.has(prefix)) {
                         folders.set(prefix, {
@@ -80,9 +87,6 @@ export const GET: APIRoute = async ({ locals }) => {
                 cursor = page.truncated ? page.cursor : undefined;
             } while (cursor);
         }
-        console.log("[projects] handler start");
-        console.log("[projects] env keys", Object.keys(env || {}));
-        console.log("[projects] bucket bound?", !!bucket);
 
         const projects = Array.from(folders.values()).sort((a, b) =>
             a.name.localeCompare(b.name, "en", { sensitivity: "base" })
@@ -90,17 +94,13 @@ export const GET: APIRoute = async ({ locals }) => {
 
         return new Response(JSON.stringify({ projects }), {
             status: 200,
-            headers: { "Content-Type": "application/json; charset=utf-8" },
+            headers: CORS_HEADERS,
         });
     } catch (err) {
         console.error("[projects] error", err);
         return new Response(
             JSON.stringify({ projects: [], error: "Failed to list projects" }),
-            {
-                status: 500,
-                headers: { "Content-Type": "application/json; charset=utf-8" },
-            }
+            { status: 500, headers: CORS_HEADERS }
         );
     }
 };
-
