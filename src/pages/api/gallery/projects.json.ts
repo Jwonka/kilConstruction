@@ -34,28 +34,29 @@ export const GET: APIRoute = async ({ locals }) => {
     const env = (locals as any).runtime?.env ?? {};
     const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
 
+    // Local astro dev won’t have a real R2 binding – just return empty list,
+    // so the UI says “Loaded 0 folders” instead of throwing a 500.
     if (!bucket) {
-        console.error("[projects.json] Missing GALLERY_BUCKET binding");
-        return new Response(JSON.stringify({ projects: [], error: "R2 not configured" }), {
-            status: 500,
+        console.warn("[projects.json] No GALLERY_BUCKET in env; returning empty list");
+        return new Response(JSON.stringify({ projects: [] }), {
+            status: 200,
             headers: { "Content-Type": "application/json; charset=utf-8" },
         });
     }
 
     try {
         // Map of folderPrefix -> project info
-        const folders = new Map<
-            string,
-            { slug: string; name: string; prefix: string }
-        >();
+        const folders = new Map<string, { slug: string; name: string; prefix: string }>();
 
-        for (const top of TOP_LEVELS) {
+        for (const topPrefix of TOP_LEVELS) {
             let cursor: string | undefined;
 
             do {
-                const page = await bucket.list({ prefix: top, cursor, limit: 1000 });
+                const page = await bucket.list({ prefix: topPrefix, cursor, limit: 1000 });
+
                 for (const obj of page.objects ?? []) {
-                    const parts = obj.key.split("/");
+                    const key = obj.key || "";
+                    const parts = key.split("/");
                     if (parts.length < 3) continue; // need at least top/folder/file
 
                     const topLevel = parts[0]; // e.g. "Furniture"
@@ -63,8 +64,9 @@ export const GET: APIRoute = async ({ locals }) => {
 
                     if (!topLevel || !folder) continue;
 
-                    const prefix = `${topLevel}/${folder}/`;      // e.g. "Furniture/Cabinets/"
-                    const name = `${topLevel}/${folder}`;         // what you display in the list
+                    const prefix = `${topLevel}/${folder}/`; // e.g. "Furniture/Cabinets/"
+                    const name = `${topLevel}/${folder}`;    // label shown in the list
+
                     if (!folders.has(prefix)) {
                         folders.set(prefix, {
                             slug: slugify(name),
@@ -88,9 +90,13 @@ export const GET: APIRoute = async ({ locals }) => {
         });
     } catch (err) {
         console.error("[projects.json] error", err);
-        return new Response(JSON.stringify({ projects: [], error: "Failed to list projects" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json; charset=utf-8" },
-        });
+        return new Response(
+            JSON.stringify({ projects: [], error: "Failed to list projects" }),
+            {
+                status: 500,
+                headers: { "Content-Type": "application/json; charset=utf-8" },
+            }
+        );
     }
 };
+
