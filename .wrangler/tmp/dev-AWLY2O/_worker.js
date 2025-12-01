@@ -9222,7 +9222,7 @@ var init_astro_designed_error_pages_DJJf7cX5 = __esm({
       actionName: "_action"
     };
     ACTION_RPC_ROUTE_PATTERN = "/_actions/[...path]";
-    __vite_import_meta_env__ = { "ASSETS_PREFIX": void 0, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_CONTACT_ENDPOINT": "http://127.0.0.1:8787/api/contact", "PUBLIC_GALLERY_API": "https://kilcon.work/api/gallery-api", "PUBLIC_TURNSTILE_SITE_KEY": "1x00000000000000000000AA", "PUBLIC_UPLOAD_ENDPOINT": "https://r2-uploader.kil-con-contact.workers.dev/", "SITE": "https://kilcon.work", "SSR": true };
+    __vite_import_meta_env__ = { "ASSETS_PREFIX": void 0, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_CONTACT_ENDPOINT": "http://127.0.0.1:8787/api/contact", "PUBLIC_GALLERY_API": "https://kilcon.work/api/gallery", "PUBLIC_TURNSTILE_SITE_KEY": "1x00000000000000000000AA", "PUBLIC_UPLOAD_ENDPOINT": "https://r2-uploader.kil-con-contact.workers.dev/", "SITE": "https://kilcon.work", "SSR": true };
     ACTION_QUERY_PARAMS = ACTION_QUERY_PARAMS$1;
     codeToStatusMap = {
       // Implemented from IANA HTTP Status Code Registry
@@ -22883,7 +22883,7 @@ var init_manage_astro = __esm({
       const auth = cookies.get("admin_auth")?.value || "";
       const env2 = Astro2.locals.runtime?.env ?? {};
       const ADMIN_SECRET = env2.ADMIN_SECRET;
-      const GALLERY_API2 = "https://kilcon.work/api/gallery-api";
+      const GALLERY_API2 = "https://kilcon.work/api/gallery";
       if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         return new Response(null, {
           status: 302,
@@ -23734,7 +23734,7 @@ var init_gallery_astro = __esm({
     init_renderers();
     globalThis.process ??= {};
     globalThis.process.env ??= {};
-    GALLERY_API = "https://kilcon.work/api/gallery-api"?.replace(/\/$/, "") || "https://kilcon.work/api/gallery-api";
+    GALLERY_API = "https://kilcon.work/api/gallery-api"?.replace(/\/$/, "") || "https://kilcon.work/api/gallery";
     GET4 = /* @__PURE__ */ __name(async ({ request, url }) => {
       const search = url.search;
       const target = `${GALLERY_API}${search}`;
