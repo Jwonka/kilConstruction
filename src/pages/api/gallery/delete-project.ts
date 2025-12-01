@@ -17,8 +17,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     try {
         const body: any = await request.json().catch(() => ({}));
         const rawPrefix = typeof body?.prefix === "string" ? body.prefix.trim() : null;
-        const prefix = sanitizePrefix(rawPrefix);
+        let prefix = sanitizePrefix(rawPrefix);
+
         if (!prefix) return new Response("Invalid prefix", { status: 400 });
+        if (!prefix.endsWith("/")) { prefix += "/"; }
 
         const env = (locals as any).runtime?.env ?? (locals as any).env ?? {};
         const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
