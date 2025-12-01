@@ -336,7 +336,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     function resetRename() {
                         nameDisplay.style.display = "inline-block";
                         nameInput.style.display = "none";
-                        delete title.dataset.renameActive;
                     }
 
                     async function commitRename() {
