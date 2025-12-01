@@ -12,7 +12,7 @@ const ADMIN_SECRET = env.ADMIN_SECRET;
 
 // build-time public API URL for the worker
 const galleryApiBase =
-    (import.meta.env.PUBLIC_GALLERY_API || "/api/gallery-api").replace(/\/$/, "");
+    (import.meta.env.PUBLIC_GALLERY_API || "/api/gallery").replace(/\/$/, "");
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -66,7 +66,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             }
 
             // READ-ONLY worker API (lists projects & public stuff)
-            const galleryApiBase = (listEl.dataset.api || "/api/gallery-api").replace(/\/$/, "");
+            const galleryApiBase = (listEl.dataset.api || "/api/gallery").replace(/\/$/, "");
 
             // ADMIN API (Astro routes that talk to R2 directly)
             // /api/gallery/list-images, /delete, /delete-project, /rename
