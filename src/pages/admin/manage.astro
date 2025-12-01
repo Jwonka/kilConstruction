@@ -175,7 +175,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
                 try {
                     const url =
-                        `${adminApiBase}/list-images?prefix=${encodeURIComponent(normPrefix)}`;
+                        `${adminApiBase}/list-images.json?prefix=${encodeURIComponent(normPrefix)}`;
                     console.log("[manage] loading", url);
                     const res = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
