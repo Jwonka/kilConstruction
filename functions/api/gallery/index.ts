@@ -2,7 +2,7 @@
 // The replace(/\/$/, "") strips trailing slashes
 const GALLERY_API =
     import.meta.env.PUBLIC_GALLERY_API?.replace(/\/$/, "") ||
-    "https://kilcon.work/api/gallery-api";
+    "https://kilcon.work/api/gallery";
 
 export async function onRequestGet(context: { request: any; env: any; }) {
     const request = context.request;
