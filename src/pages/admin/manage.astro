@@ -13,6 +13,10 @@ const ADMIN_SECRET = env.ADMIN_SECRET;
 // build-time public API URL for the worker
 const PUBLIC_GALLERY_API = import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery-api";
 
+const ADMIN_API_BASE = import.meta.env.DEV
+    ? PUBLIC_GALLERY_API          // dev → hit remote worker
+    : "/api/gallery-api";
+
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
         status: 302,
@@ -47,7 +51,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
         <div id="status" class="status-row">Loading projects…</div>
 
-        <ul id="results" class="results-list" data-public-api={PUBLIC_GALLERY_API} data-admin-api="/api/gallery-api"></ul>
+        <ul id="results" class="results-list" data-public-api={PUBLIC_GALLERY_API} data-admin-api={ADMIN_API_BASE}></ul>
     </section>
 
     <script>
@@ -82,7 +86,9 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     statusEl.textContent = "Loading projects…";
                     listEl.innerHTML = "";
 
-                    const res = await fetch(`${publicApiBase}?all=1`);
+                    const res = await fetch(`${publicApiBase}?all=1`, {
+                        credentials: "include",
+                        });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                     const data = await res.json();
@@ -178,7 +184,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 try {
                     const res = await fetch(
                         `${adminApiBase}/list-images?` + new URLSearchParams({ prefix }),
-                        { method: "GET" }
+                        { method: "GET",credentials: "include" }
                     );
                     /** @type {{ objects?: any[] }} */
                     const data = await res.json().catch(() => ({}));
@@ -228,7 +234,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
                 try {
                     const url = `${adminApiBase}/list-images?prefix=${encodeURIComponent(prefix)}`;
-                    const res = await fetch(url);
+                    const res = await fetch(url, { credentials: "include" });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                     const data = await res.json();
@@ -346,7 +352,8 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                             const res = await fetch(`${adminApiBase}/rename`, {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ oldKey: obj.key, newKey })
+                                body: JSON.stringify({ oldKey: obj.key, newKey }),
+                                credentials: "include",
                             });
 
                             if (res.ok) {
@@ -468,6 +475,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                                 method: "POST",
                                 headers: { "content-type": "application/json" },
                                 body: JSON.stringify({ prefix }),
+                                credentials: "include",
                             });
                             if (!res.ok) {
                                 console.error("Project delete failed for", prefix, res.status);
@@ -484,6 +492,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                                 method: "POST",
                                 headers: { "content-type": "application/json" },
                                 body: JSON.stringify({ key }),
+                                credentials: "include",
                             });
                             if (!res.ok) {
                                 console.error("File delete failed for", key, res.status);

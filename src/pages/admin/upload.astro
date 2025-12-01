@@ -166,11 +166,14 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             submitBtn.disabled = true;
 
             try {
-                const API_BASE ="/api/gallery-api";
+                const API_BASE = import.meta.env.DEV
+                    ? (import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery-api")
+                    : "/api/gallery-api";
 
                 const res = await fetch(`${API_BASE}/upload`, {
                     method: "POST",
                     body: formData,
+                    credentials: "include",
                 });
 
                 const data = await res.json().catch(() => ({}));
