@@ -5,7 +5,7 @@ const UPSTREAM_BASE = "https://kilconstruction.pages.dev/api/gallery/projects";
 export const GET: APIRoute = async ({ request }) => {
     try {
         const url = new URL(request.url);
-        const search = url.search; // ?all=1 etc.
+        const search = url.search; // e.g. ?all=1
 
         const upstreamUrl = `${UPSTREAM_BASE}${search}`;
         const upstream = await fetch(upstreamUrl, {
@@ -20,7 +20,8 @@ export const GET: APIRoute = async ({ request }) => {
             status: upstream.status,
             headers: {
                 "Content-Type":
-                    upstream.headers.get("content-type") || "application/json; charset=utf-8",
+                    upstream.headers.get("content-type") ||
+                    "application/json; charset=utf-8",
             },
         });
     } catch (err) {
