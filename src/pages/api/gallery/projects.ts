@@ -14,9 +14,9 @@ const TOP_LEVELS = [
     "New Construction/",
     "Remodels/",
     "Services/",
+    "uploads/",
 ];
 
-// basic slugify, same as before
 function slugify(name: string): string {
     return (
         (name || "")
@@ -28,10 +28,8 @@ function slugify(name: string): string {
     );
 }
 
-// CORS headers – allow any origin to read this (no cookies involved)
 const CORS_HEADERS = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": "*",          // allow localhost + kilcon.work
     "Access-Control-Allow-Methods": "GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
 };
@@ -39,7 +37,7 @@ const CORS_HEADERS = {
 export const OPTIONS: APIRoute = async () =>
     new Response(null, { status: 204, headers: CORS_HEADERS });
 
-export const GET: APIRoute = async ({ locals }) => {
+export const GET: APIRoute = async ({ locals, request }) => {
     const env = (locals as any).runtime?.env ?? {};
     const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
 
@@ -47,7 +45,10 @@ export const GET: APIRoute = async ({ locals }) => {
         console.warn("[projects] No GALLERY_BUCKET in env; returning empty list");
         return new Response(JSON.stringify({ projects: [] }), {
             status: 200,
-            headers: CORS_HEADERS,
+            headers: {
+                ...CORS_HEADERS,
+                "Content-Type": "application/json; charset=utf-8",
+            },
         });
     }
 
@@ -94,13 +95,23 @@ export const GET: APIRoute = async ({ locals }) => {
 
         return new Response(JSON.stringify({ projects }), {
             status: 200,
-            headers: CORS_HEADERS,
+            headers: {
+                ...CORS_HEADERS,
+                "Content-Type": "application/json; charset=utf-8",
+            },
         });
     } catch (err) {
         console.error("[projects] error", err);
         return new Response(
             JSON.stringify({ projects: [], error: "Failed to list projects" }),
-            { status: 500, headers: CORS_HEADERS }
+            {
+                status: 500,
+                headers: {
+                    ...CORS_HEADERS,
+                    "Content-Type": "application/json; charset=utf-8",
+                },
+            }
         );
     }
 };
+
