@@ -26,7 +26,7 @@ let projectDesc: string | undefined;
 
 try {
     const API_ORIGIN = 'https://kilcon.work';
-    const API = new URL('/api/gallery', API_ORIGIN);
+    const API = new URL('/api/gallery-api', API_ORIGIN);
     // Fetch album items
     const apiItems = new URL(API);
     apiItems.searchParams.set('project', slug);

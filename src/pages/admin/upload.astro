@@ -166,7 +166,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             submitBtn.disabled = true;
 
             try {
-                const API_BASE ="/api/gallery";
+                const API_BASE ="/api/gallery-api";
 
                 const res = await fetch(`${API_BASE}/upload`, {
                     method: "POST",

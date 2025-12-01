@@ -11,7 +11,7 @@ const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_SECRET = env.ADMIN_SECRET;
 
 // build-time public API URL for the worker
-const PUBLIC_GALLERY_API = import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery";
+const PUBLIC_GALLERY_API = import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery-api";
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
