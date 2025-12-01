@@ -1,15 +1,14 @@
-import type { APIContext } from "astro";
 import { requireAdmin } from "../../../src/utils/adminAuth";
 
-export async function POST(Astro: APIContext) {
-    const { request, locals } = Astro;
+export async function onRequestGet(context: { request: any; env: any; }) {
+    const request = context.request;
+    const env = context.env;
+    const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
 
     // 1) Admin-only gate
-    const authResp = requireAdmin(request);
+    const authResp = requireAdmin(request, ADMIN_SECRET);
     if (authResp) return authResp;
 
-    // 2) Read env from Pages Functions runtime
-    const env = (locals as any).runtime?.env ?? {};
     const WORKER_URL = env.UPLOAD_WORKER_URL as string | undefined;
     const UPLOAD_SECRET = env.UPLOAD_SECRET as string | undefined;
 

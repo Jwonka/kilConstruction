@@ -37,8 +37,9 @@ const CORS_HEADERS = {
 export const OPTIONS: APIRoute = async () =>
     new Response(null, { status: 204, headers: CORS_HEADERS });
 
-export const GET: APIRoute = async ({ locals, request }) => {
-    const env = (locals as any).runtime?.env ?? {};
+export async function onRequestGet(context: { request: any; env: any; }) {
+    const request = context.request;
+    const env = context.env;
     const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
 
     if (!bucket) {

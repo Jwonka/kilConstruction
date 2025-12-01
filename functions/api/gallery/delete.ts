@@ -1,4 +1,3 @@
-import type { APIContext } from "astro";
 import { requireAdmin } from "../../../src/utils/adminAuth";
 import { sanitizeKey } from "../../../src/utils/galleryPaths";
 
@@ -16,10 +15,9 @@ type R2Bucket = {
     delete(key: string | string[]): Promise<void>;
 };
 
-export async function POST(Astro: APIContext) {
-    const { request, locals } = Astro;
-
-    const env = (locals as any).runtime?.env ?? {};
+export const onRequestGet = async (context: { request: any; env: any; }) => {
+    const request = context.request;
+    const env = context.env;
     const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
     const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
 

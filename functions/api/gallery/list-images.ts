@@ -11,8 +11,9 @@ type R2Bucket = {
     list(opts: R2ListOptions): Promise<R2ListResult>;
 };
 
-export const GET: APIRoute = async ({ request, locals }) => {
-    const env = (locals as any).runtime?.env ?? {};
+export async function onRequestGet(context: { request: any; env: any; }) {
+    const request = context.request;
+    const env = context.env;
     const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
     const bucket = env.GALLERY_BUCKET as R2Bucket | undefined;
 
