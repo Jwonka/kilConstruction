@@ -297,9 +297,10 @@ body {
     font-size: 1.12rem;
     font-weight: 600;
     text-decoration: none;
-    padding: 1rem 2.4rem;
+    padding: 1.1rem 2.4rem;
     border-radius: 10px;
     box-sizing: border-box;
+    min-width: 220px;
 }
 
 .admin-btn .icon {
@@ -307,7 +308,7 @@ body {
 }
 
 .admin-actions a {
-    margin: 20px;
+    margin: 0;
 }
 
 /* ===== TOOLBAR (Manage + Reviews) ===== */
@@ -645,27 +646,20 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 }
 
 .admin-footer-inner {
-    max-width: var(--max, 1200px);
+    width: 100%;
+    max-width: none;
     margin: 0 auto;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 1rem;
     font-size: 0.85rem;
-}
-
-.admin-footer-inner::before {
-    content: "";
-    flex: 1;            /* fake left column to balance the logout button */
+    position: relative;
 }
 
 .admin-footer-textwrap {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
     text-align: center;
     line-height: 1.4;
-    white-space: nowrap;
 }
 
 .admin-footer-text {
@@ -676,7 +670,11 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-left: auto;
+    position: absolute;
+    right: clamp(1.25rem, 4vw, 2.25rem);
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
 }
 
 /* ===== RESPONSIVE TWEAKS ===== */
@@ -686,8 +684,9 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     /* dashboard buttons in one row */
     .admin-actions {
         flex-direction: row;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         justify-content: center;
+        gap: 1.75rem;
     }
 
     .admin-btn {
@@ -725,7 +724,7 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     }
     .admin-btn {
         max-width: 90%;
-        padding: 1.05rem 2.6rem;
+        padding: 1.15rem 3.1rem;
     }
 }
 
@@ -813,36 +812,29 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 /* Footer refinements for small screens */
 @media (max-width: 480px) {
     .admin-footer-inner {
-        position: static;
-        justify-content: space-between;
-        padding-inline: 16px;
+        width: 100%;
+        max-width: none;
+        justify-content: flex-start;
+        position: relative;
     }
 
-    /* Remove fake left column on mobile – wastes space */
-    .admin-footer-inner::before {
-        display: none;
-    }
-
-    /* Let the text use its natural width and align left */
     .admin-footer-textwrap {
-        position: static;
-        transform: none;
-        flex: 0 1 auto;
-        text-align: right;
+        text-align: center;
+        white-space: normal;
+        margin-left: 1rem;
+        margin-right: auto;
+        padding-right: 4.5rem;
     }
 
-    /* Keep each <p> on a single line:
-       "Admin access for KIL Construction."
-       "Keep this page private." */
     .admin-footer-text {
         display: block;
-        white-space: nowrap;
     }
 
     /* Make sure Logout stays hard right */
     .admin-footer-logout {
-        margin-left: 0;
-        margin-right: auto;
+        right: 0.75rem;
+        left: auto;
+        margin: 0;
     }
 }
 
