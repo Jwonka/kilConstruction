@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
-import { requireAdmin } from "../../../utils/adminAuth";
-import { sanitizeKey } from "../../../utils/galleryPaths";
+import { requireAdmin } from "../../../src/utils/adminAuth";
+import { sanitizeKey } from "../../../src/utils/galleryPaths";
 
 const ALLOWED_TOP = [
     "Furniture",

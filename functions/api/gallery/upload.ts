@@ -1,5 +1,5 @@
 import type { APIContext } from "astro";
-import { requireAdmin } from "../../../utils/adminAuth";
+import { requireAdmin } from "../../../src/utils/adminAuth";
 
 export async function POST(Astro: APIContext) {
     const { request, locals } = Astro;

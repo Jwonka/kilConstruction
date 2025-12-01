@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
-import { requireAdmin } from "../../../utils/adminAuth";
-import { sanitizePrefix } from "../../../utils/galleryPaths";
+import { requireAdmin } from "../../../src/utils/adminAuth";
+import { sanitizePrefix } from "../../../src/utils/galleryPaths";
 
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif)$/i;
 
