@@ -11,9 +11,8 @@ const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_SECRET = env.ADMIN_SECRET;
 
 // build-time public API URL for the worker
-const galleryApiBase = import.meta.env.DEV
-    ? "/api/gallery/projects-proxy"
-    : "https://kilconstruction.pages.dev/api/gallery/projects";
+const galleryApiBase =
+    (import.meta.env.PUBLIC_GALLERY_API || "/api/gallery").replace(/\/$/, "");
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -89,7 +88,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
                     const data = await res.json();
                     allProjects = data.projects || [];
-
+                    console.log("[manage] projects response", data);
                     statusEl.textContent = `Loaded ${allProjects.length} folders.`;
                     renderProjects();
                 } catch (err) {
