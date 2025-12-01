@@ -57,7 +57,7 @@ try {
 
     // fallback if worker doesn’t yet recognize list=remodels
     if (!res.ok || res.status === 404) {
-        const fallback = new URL("/api/gallery?list=remodels", "https://kilcon.work");
+        const fallback = new URL("/api/gallery-api?list=remodels", "https://kilcon.work");
         res = await fetch(fallback, { cache: "no-store" });
     }
 

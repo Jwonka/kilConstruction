@@ -15,7 +15,7 @@ export const GET: APIRoute = async ({ site }) => {
     let projectSlugs: string[] = [];
 
     try {
-        const api = new URL("/api/gallery", origin);
+        const api = new URL("/api/gallery-api", origin);
         api.searchParams.set("list", "projects");
 
         const res = await fetch(api.toString(), { cache: "no-store" });

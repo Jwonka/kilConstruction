@@ -641,6 +641,7 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     color: #f9fafb;
     padding: 0.6rem clamp(1.25rem, 4vw, 2.25rem);
     margin-top: auto;
+    flex-shrink: 0;
 }
 
 .admin-footer-inner {

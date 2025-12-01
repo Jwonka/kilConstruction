@@ -56,7 +56,7 @@ try {
 
     // Fallback if the worker hasn’t been updated yet
     if (!res.ok || res.status === 404) {
-        const fallback = new URL("/api/gallery?list=furniture", "https://kilcon.work");
+        const fallback = new URL("/api/gallery-api?list=furniture", "https://kilcon.work");
         res = await fetch(fallback, { cache: "no-store" });
     }
 

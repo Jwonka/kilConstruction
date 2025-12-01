@@ -41,7 +41,7 @@ try {
     u.searchParams.set('list', 'projects');
     let res = await fetch(u, { cache: 'no-store' });
     if (!res.ok || res.status === 404) {
-        const fallback = new URL('/api/gallery?list=projects', 'https://kilcon.work');
+        const fallback = new URL('/api/gallery-api?list=projects', 'https://kilcon.work');
         res = await fetch(fallback, { cache: 'no-store' });
     }
     if (res.ok && res.headers.get('content-type')?.includes('application/json')) {

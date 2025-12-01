@@ -55,7 +55,7 @@ try {
 
     // fallback if worker doesn’t recognize list=new-construction yet
     if (!res.ok || res.status === 404) {
-        const fallback = new URL("/api/gallery?list=new-construction", "https://kilcon.work");
+        const fallback = new URL("/api/gallery-api?list=new-construction", "https://kilcon.work");
         res = await fetch(fallback, { cache: "no-store" });
     }
 
