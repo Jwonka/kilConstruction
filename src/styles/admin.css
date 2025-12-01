@@ -190,7 +190,7 @@ body {
 .admin-form-flex .admin-btn {
     max-width: 260px;
     font-size: 1rem;
-    padding: 0.7rem 1.2rem;
+    padding: 0.9rem 1.6rem;
     margin-inline: auto;
 }
 
@@ -297,7 +297,7 @@ body {
     font-size: 1.12rem;
     font-weight: 600;
     text-decoration: none;
-    padding-inline: 18px;
+    padding: 1rem 2.4rem;
     border-radius: 10px;
     box-sizing: border-box;
 }
@@ -649,7 +649,7 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     margin: 0 auto;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 1rem;
     font-size: 0.85rem;
 }
@@ -660,9 +660,12 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 }
 
 .admin-footer-textwrap {
-    flex: 1;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     text-align: center;
     line-height: 1.4;
+    white-space: nowrap;
 }
 
 .admin-footer-text {
@@ -721,7 +724,8 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
         margin-bottom: 20px;
     }
     .admin-btn {
-        max-width: 85%;
+        max-width: 90%;
+        padding: 1.05rem 2.6rem;
     }
 }
 
@@ -803,6 +807,42 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
         margin-left: 0;
         margin-top: 2px;
         align-self: flex-start;
+    }
+}
+
+/* Footer refinements for small screens */
+@media (max-width: 480px) {
+    .admin-footer-inner {
+        position: static;
+        justify-content: space-between;
+        padding-inline: 16px;
+    }
+
+    /* Remove fake left column on mobile – wastes space */
+    .admin-footer-inner::before {
+        display: none;
+    }
+
+    /* Let the text use its natural width and align left */
+    .admin-footer-textwrap {
+        position: static;
+        transform: none;
+        flex: 0 1 auto;
+        text-align: right;
+    }
+
+    /* Keep each <p> on a single line:
+       "Admin access for KIL Construction."
+       "Keep this page private." */
+    .admin-footer-text {
+        display: block;
+        white-space: nowrap;
+    }
+
+    /* Make sure Logout stays hard right */
+    .admin-footer-logout {
+        margin-left: 0;
+        margin-right: auto;
     }
 }
 

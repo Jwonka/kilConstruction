@@ -87,7 +87,7 @@
                         return;
                     }
 
-                    img.src = urls[0];
+                    if (!img.src) { img.src = urls[0]; }
                     img.setAttribute("fetchpriority", "high");
 
                     if (urls.length > 1) {
