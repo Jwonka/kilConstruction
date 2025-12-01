@@ -12,7 +12,7 @@ const ADMIN_SECRET = env.ADMIN_SECRET;
 
 // build-time public API URL for the worker
 const galleryApiBase =
-    (import.meta.env.PUBLIC_GALLERY_API || "/api/gallery").replace(/\/$/, "");
+    (import.meta.env.PUBLIC_GALLERY_API || "/api/gallery-api").replace(/\/$/, "");
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -66,12 +66,11 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             }
 
             // READ-ONLY worker API (lists projects & public stuff)
-            const galleryApiBase = "/api/gallery/projects";
-
+            const galleryApiBase = (listEl.dataset.api || "/api/gallery-api").replace(/\/$/, "");
 
             // ADMIN API (Astro routes that talk to R2 directly)
             // /api/gallery/list-images, /delete, /delete-project, /rename
-            const adminApiBase = "/api/gallery";
+            const adminApiBase = galleryApiBase;
 
             /** @type {{ slug: string; name?: string; prefix?: string }[]} */
             let allProjects = [];
@@ -83,7 +82,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     statusEl.textContent = "Loading projects…";
                     listEl.innerHTML = "";
 
-                    const res = await fetch(`${galleryApiBase}?all=1`);
+                    const res = await fetch(`${galleryApiBase}/projects?all=1`);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                     const data = await res.json();
@@ -174,8 +173,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 childrenEl.innerHTML = `<li class="empty">Loading files…</li>`;
 
                 try {
-                    const url =
-                        `${adminApiBase}/list-images.json?prefix=${encodeURIComponent(normPrefix)}`;
+                    const url = `${adminApiBase}/list-images?prefix=${encodeURIComponent(normPrefix)}`;
                     console.log("[manage] loading", url);
                     const res = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
