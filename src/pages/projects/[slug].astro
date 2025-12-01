@@ -59,10 +59,13 @@ try {
     loadError = e?.message ?? 'Network error';
 }
 
-const cropName = (s: string) => s
-    .replace(/\.[^.]+$/, '')
-    .replace(/_/g, ' ')
-    .replace(/\s*\d+\s*$/, "").trim();
+const cropName = (s: string) =>
+    s
+        .replace(/\.[^.]+$/, "")        // remove extension
+        .replace(/[_]+/g, " ")          // underscores -> spaces
+        .replace(/^\s*\d+[\s_-]*/, "")  // strip leading digits + separators
+        .replace(/[\s_-]*\d+\s*$/, "")  // strip trailing digits + separators
+        .trim();
 ---
 
 <MainLayout title={projectName} noSticky>

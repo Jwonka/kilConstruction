@@ -1,0 +1,161 @@
+---
+import MainLayout from "../../layout/MainLayout.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import "../../styles/global.css";
+import "../../styles/projects.css";
+
+const PROD_ORIGIN = Astro.site?.origin || "https://kilcon.work";
+const API_BASE = import.meta.env.DEV ? "https://kilcon.work" : PROD_ORIGIN;
+const API = new URL("/api/gallery-api", API_BASE);
+
+type AlbumFromApi = {
+    slug: string;
+    name: string;
+    summary?: string;
+    year?: string;
+    location?: string;
+    previews?: { thumb?: string; full?: string }[];
+    images?: { thumb?: string; full?: string };
+};
+
+type Card = {
+    p: {
+        slug: string;
+        name: string;
+        summary?: string;
+        year?: string;
+        location?: string;
+    };
+    first?: { name?: string; url?: string } | string;
+    src?: string;
+    rotList: string[];
+};
+
+type ListResponse = {
+    apparel?: AlbumFromApi[];
+    projects?: AlbumFromApi[];
+};
+
+let cards: Card[] = [];
+let loadError: string | null = null;
+
+try {
+    const u = new URL(API);
+    u.searchParams.set("list", "apparel");
+
+    let res = await fetch(u, { cache: "no-store" });
+    if (!res.ok || res.status === 404) {
+        const fallback = new URL("/api/gallery-api?list=apparel", "https://kilcon.work");
+        res = await fetch(fallback, { cache: "no-store" });
+    }
+
+    if (res.ok && res.headers.get("content-type")?.includes("application/json")) {
+        const json = (await res.json()) as ListResponse;
+        const albums = json.apparel ?? [];
+
+        cards = albums.map((proj) => {
+            const previews = proj.previews ?? [];
+            const firstPreview = previews[0];
+
+            const cover =
+                proj.images?.thumb ||
+                proj.images?.full ||
+                firstPreview?.thumb ||
+                firstPreview?.full;
+
+            const rotList = previews
+                .map((p) => p.thumb || p.full)
+                .filter((u): u is string => !!u);
+
+            return {
+                p: {
+                    slug: proj.slug,
+                    name: proj.name,
+                    summary: proj.summary,
+                    year: proj.year,
+                    location: proj.location,
+                },
+                first: firstPreview
+                    ? {
+                        name: firstPreview.full?.split("/").pop() ?? "",
+                        url: firstPreview.thumb || firstPreview.full,
+                    }
+                    : undefined,
+                src: cover,
+                rotList,
+            };
+        });
+    } else {
+        loadError = "Failed to load apparel albums.";
+    }
+} catch {
+    loadError = "Failed to load apparel albums.";
+}
+
+function hasUrl(x: unknown): x is { url: string } {
+    return !!x && typeof (x as any).url === "string";
+}
+---
+
+<MainLayout
+        title="KIL Construction Apparel"
+        description="Order KIL Construction hats, hoodies, and other apparel."
+>
+    <Fragment slot="head">
+        <link rel="preconnect" href="https://kilcon.work" crossorigin />
+        {cards.slice(0, 6).map((c) => {
+            if (!c.src) return null;
+            return (
+                    <link
+                            rel="preload"
+                            as="image"
+                            href={c.src}
+                            imagesrcset={`${c.src.replace("=s0","=w600")} 600w, ${c.src.replace("=s0","=w1200")} 1200w, ${c.src.replace("=s0","=w2000")} 2000w`}
+                            imagesizes="680px"
+                    />
+            );
+        })}
+    </Fragment>
+
+    <h1 class="page-head container">Order KIL Construction Apparel</h1>
+    <p class="section-intro-strong">
+        Hats, hoodies, and more – support KIL Construction with branded gear.
+    </p>
+    <p class="section-intro">
+        Browse the apparel options below. Open an item to see all photos and submit an order
+        using the form on that page.
+    </p>
+
+    <section class="container page-section">
+        {loadError && (
+                <p class="status status--error">
+                    Couldn’t load apparel right now. Please try again later.
+                </p>
+        )}
+
+        {!loadError && cards.length === 0 && (
+                <p class="status status--empty">
+                    No apparel items uploaded yet. Check back soon.
+                </p>
+        )}
+
+        {!loadError && cards.length > 0 && (
+                <div class="grid grid--projects">
+                    {cards.map((c, i) => (
+                            <ProjectCard
+                                    p={c.p}
+                                    first={c.first}
+                                    src={c.src}
+                                    rotList={c.rotList}
+                                    eager={i < 4}
+                                    cover={c.src ?? (hasUrl(c.first) ? c.first.url : undefined)}
+                                    baseHref="/apparel"
+                            />
+                    ))}
+                </div>
+        )}
+    </section>
+
+    <script src="/js/rotator.js?v=13" defer></script>
+    <script src="/js/grid-enhancer.js?v=6" defer></script>
+</MainLayout>

@@ -1,7 +1,7 @@
 ---
-import MainLayout from "../../../layout/MainLayout.astro";
-import "../../../styles/global.css";
-import "../../../styles/projects.css";
+import MainLayout from "../../layout/MainLayout.astro";
+import "../../styles/global.css";
+import "../../styles/projects.css";
 
 export const prerender = false;
 
@@ -28,10 +28,9 @@ let albumName: string = slugToTitle(slug);
 let albumDesc: string | undefined;
 
 try {
-    // 1) Primary: furniture-specific request
+    // 1) Apparel-specific request
     const apiItems = new URL(API);
-    apiItems.searchParams.set("project", `furniture/${slug}`);
-
+    apiItems.searchParams.set("project", `apparel/${slug}`);
     const r1 = await fetch(apiItems, { cache: "no-store" });
 
     if (!r1.ok) {
@@ -41,65 +40,32 @@ try {
     } else if (!r1.headers.get("content-type")?.includes("application/json")) {
         loadError = "Bad response (not JSON)";
     } else {
-        const j1 = (await r1.json()) as {
-            items?: Photo[];
-            project?: ProjectMeta;
-        };
-
+        const j1 = (await r1.json()) as { items?: Photo[]; project?: ProjectMeta };
         items = j1.items ?? [];
         items.sort((a, b) =>
-            a.name.localeCompare(b.name, undefined, {
-                numeric: true,
-                sensitivity: "base",
-            }),
+            a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }),
         );
 
         if (j1.project?.name) albumName = j1.project.name;
         if (j1.project?.description) albumDesc = j1.project.description;
     }
 
-    // 2) If no description yet, pull from furniture album list
+    // 2) optional meta from apparel list
     if (!albumDesc) {
         const apiList = new URL(API);
-        apiList.searchParams.set("list", "furniture");
+        apiList.searchParams.set("list", "apparel");
 
         const r2 = await fetch(apiList, { cache: "no-store" });
         if (r2.ok && r2.headers.get("content-type")?.includes("application/json")) {
             const j2 = (await r2.json()) as {
-                furniture?: { slug: string; name?: string; description?: string }[];
+                apparel?: { slug: string; name?: string; description?: string }[];
                 projects?: { slug: string; name?: string; description?: string }[];
             };
 
-            const list = j2.furniture ?? j2.projects ?? [];
+            const list = j2.apparel ?? j2.projects ?? [];
             const m = list.find((p) => p.slug === slug);
-
             if (m?.name) albumName = m.name;
             if (m?.description) albumDesc = m.description;
-        }
-    }
-
-    // 3) Backwards-compat fallback: old `?project=<slug>` if nothing came back
-    if (!items.length && !loadError) {
-        const apiItems2 = new URL(API);
-        apiItems2.searchParams.set("project", slug);
-
-        const r3 = await fetch(apiItems2, { cache: "no-store" });
-        if (r3.ok && r3.headers.get("content-type")?.includes("application/json")) {
-            const j3 = (await r3.json()) as {
-                items?: Photo[];
-                project?: ProjectMeta;
-            };
-
-            items = j3.items ?? [];
-            items.sort((a, b) =>
-                a.name.localeCompare(b.name, undefined, {
-                    numeric: true,
-                    sensitivity: "base",
-                }),
-            );
-
-            if (j3.project?.name) albumName = j3.project.name;
-            if (j3.project?.description) albumDesc = j3.project.description;
         }
     }
 } catch (e: any) {
@@ -162,5 +128,63 @@ function slugToTitle(s: string): string {
         )}
 
         {loadError && <p class="error">Failed to load: {loadError}</p>}
+    </section>
+
+    {/* Apparel order form */}
+    <section class="container page-section">
+        <h2>Order this item</h2>
+        <p class="section-intro">
+            Fill out the form below to request {albumName}. We’ll follow up by email to confirm
+            pricing and availability.
+        </p>
+
+        <form method="POST" action="/api/contact">
+            <input type="hidden" name="itemName" value={albumName} />
+
+            <label>
+                Item
+                <input type="text" value={albumName} readonly />
+            </label>
+
+            <label>
+                Size / color / variant
+                <input type="text" name="itemVariant" placeholder="e.g. Large hoodie, black" />
+            </label>
+
+            <label>
+                Quantity
+                <input type="number" name="itemQuantity" min="1" value="1" />
+            </label>
+
+            <label>
+                Your name
+                <input type="text" name="name" required />
+            </label>
+
+            <label>
+                Email
+                <input type="email" name="email" required />
+            </label>
+
+            <label>
+                Phone
+                <input type="tel" name="phone" />
+            </label>
+
+            <label>
+                Shipping address
+                <input type="text" name="address" />
+            </label>
+
+            <label>
+                Notes
+                <textarea name="message" rows="3" placeholder="Anything else we should know?"></textarea>
+            </label>
+
+            {/* Turnstile field – keep the name consistent with handleContact */}
+            <input type="hidden" name="cf-turnstile-response" id="cf-turnstile-response" />
+
+            <button type="submit" class="btn cta">Submit order request</button>
+        </form>
     </section>
 </MainLayout>
