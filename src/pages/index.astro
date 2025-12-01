@@ -10,7 +10,7 @@ type Highlight = {
 };
 
 const PROD_ORIGIN = Astro.site?.origin || "https://kilcon.work";
-const API = new URL("/api/gallery", PROD_ORIGIN);
+const API = new URL("/api/gallery-api", PROD_ORIGIN);
 
 let highlights: Highlight[] = [];
 let heroError: string | null = null;
