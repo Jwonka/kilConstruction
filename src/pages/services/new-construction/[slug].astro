@@ -107,7 +107,10 @@ try {
 }
 
 const cropName = (s: string) =>
-    s.replace(/\.[^.]+$/, "").replace(/[_]+/g, " ");
+    s.replace(/\.[^.]+$/, "")
+        .replace(/[_]+/g, " ")
+        .replace(/\s*\d+\s*$/, "")    // drop trailing number block
+        .trim();
 
 function slugToTitle(s: string): string {
     return s

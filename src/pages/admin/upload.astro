@@ -75,17 +75,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 </small>
             </label>
 
-            <label class="admin-field-label">
-                <span>Notes (optional)</span>
-                <textarea
-                        id="notes"
-                        name="notes"
-                        rows="3"
-                        class="admin-input"
-                        style="resize: vertical;"
-                ></textarea>
-            </label>
-
             <div class="actions-row">
                 <button type="submit" class="btn admin-btn" id="submitBtn">
                     📤 Upload
@@ -153,12 +142,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 const cleanedName = file.name || "image";
                 const fullPath = `${category}/${subfolder}/${cleanedName}`.replace(/\/+/g, "/");
                 formData.append(fullPath, file);
-            }
-
-            const notesEl = document.getElementById("notes");
-            const notes = notesEl && notesEl.value ? notesEl.value.trim() : "";
-            if (notes) {
-                formData.append("notes", notes);
             }
 
             statusEl.textContent = "Uploading…";

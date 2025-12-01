@@ -59,7 +59,10 @@ try {
     loadError = e?.message ?? 'Network error';
 }
 
-const cropName = (s: string) => s.replace(/\.[^.]+$/, '').replace(/_/g, ' ');
+const cropName = (s: string) => s
+    .replace(/\.[^.]+$/, '')
+    .replace(/_/g, ' ')
+    .replace(/\s*\d+\s*$/, "").trim();
 ---
 
 <MainLayout title={projectName} noSticky>
