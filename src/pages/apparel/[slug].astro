@@ -131,7 +131,10 @@ function slugToTitle(s: string): string {
 
     {/* Apparel order form */}
     <section class="container page-section">
-        <h2>Order this item</h2>
+        <h2>Order {albumName}</h2>
+        <p id="order-success" class="order-success hidden">
+            Thanks! We’ll be in touch about your order.
+        </p>
         <p class="section-intro">
             Fill out the form below to request {albumName}. We’ll follow up by email to confirm
             pricing and availability.
@@ -183,9 +186,6 @@ function slugToTitle(s: string): string {
             <input type="hidden" name="cf-turnstile-response" id="cf-turnstile-response" />
 
             <button type="submit" class="btn cta">Submit order request</button>
-            <p id="order-success" class="order-success hidden">
-                Thanks! We’ll be in touch about your order.
-            </p>
         </form>
     </section>
     <script>
