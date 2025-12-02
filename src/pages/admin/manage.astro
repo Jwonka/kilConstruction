@@ -149,7 +149,11 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     // Show full directory path as the *only* label, e.g. "Furniture/Cabinets"
                     const title = document.createElement("div");
                     title.className = "result-title";
-                    title.textContent = prefix.replace(/\/$/, "") || "(unnamed)";
+                    const displayPrefix = prefix
+                        .replace(/\/$/, "")      // drop trailing slash
+                        .replace(/_/g, " ");     // make "Fox_Hollow_Retriever" → "Fox Hollow Retriever"
+
+                    title.textContent = displayPrefix || "(unnamed)";
 
                     textWrap.appendChild(title);
 

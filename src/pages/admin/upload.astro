@@ -66,9 +66,11 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         id="subfolder"
                         name="subfolder"
                         type="text"
+                        list="subfolder-list"
                         placeholder="e.g. Pfaffe House"
                         class="admin-input"
                 />
+                <datalist id="subfolder-list"></datalist>
                 <small class="hint">
                     Leave subfolder blank to infer a name from the first file.
                     For Projects, this becomes the project folder and slug (Pfaffe House → /projects/pfaffe-house/).
@@ -96,6 +98,62 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         const statusEl = document.getElementById("status");
         const resultEl = document.getElementById("result");
         const submitBtn = document.getElementById("submitBtn");
+        const subfolderListEl = document.getElementById("subfolder-list");
+
+        // cache of all prefixes from the API
+        let allPrefixes = [];
+
+        // same base we use for uploads
+        const API_BASE = import.meta.env.DEV
+            ? (import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery-api")
+            : "/api/gallery-api";
+
+        async function loadAllFolders() {
+            try {
+                const res = await fetch(`${API_BASE}?all=1`, { credentials: "include" });
+                const data = await res.json().catch(() => ({}));
+                // shape matches manage.astro: { projects: [{ prefix, slug, name, ... }, ...] }
+                allPrefixes = Array.isArray(data.projects) ? data.projects : [];
+                updateSubfolderOptions();
+            } catch (e) {
+                console.error("[upload] failed to load folders", e);
+            }
+        }
+
+        function updateSubfolderOptions() {
+            if (!subfolderListEl) return;
+            const category = (categoryEl.value || "").trim();
+            subfolderListEl.innerHTML = "";
+
+            if (!category || !allPrefixes.length) return;
+
+            // Filter to this category and extract the folder name segment
+            const seen = new Set();
+
+            for (const p of allPrefixes) {
+                const rawPrefix = p.prefix || decodeURIComponent(p.slug || "");
+                if (!rawPrefix) continue;
+
+                const noSlash = rawPrefix.replace(/\/$/, "");      // "Projects/Pfaffe House"
+                const [top, ...rest] = noSlash.split("/");         // ["Projects", "Pfaffe House"]
+                if (top !== category) continue;
+
+                const folderName = rest.join("/");                 // "Pfaffe House" (or "Fox_Hollow_Retriever")
+                if (!folderName || seen.has(folderName)) continue;
+                seen.add(folderName);
+
+                const opt = document.createElement("option");
+                opt.value = folderName;
+                opt.label = folderName.replace(/_/g, " ");         // pretty display
+                subfolderListEl.appendChild(opt);
+            }
+        }
+
+        // reload list when category changes
+        categoryEl.addEventListener("change", updateSubfolderOptions);
+
+        // initial load
+        loadAllFolders();
 
         function slugifyName(name) {
             return (name || "")
@@ -150,10 +208,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             submitBtn.disabled = true;
 
             try {
-                const API_BASE = import.meta.env.DEV
-                    ? (import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery-api")
-                    : "/api/gallery-api";
-
                 const res = await fetch(`${API_BASE}/upload`, {
                     method: "POST",
                     body: formData,
@@ -174,6 +228,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         `<p>Uploaded ${(data.uploaded ?? data.urls?.length) || 0} files:</p><ul>${list}</ul>`;
                     statusEl.textContent = "Upload complete.";
                     fileInput.value = "";
+                    loadAllFolders();
                 } else {
                     statusEl.textContent = "Upload failed.";
                     resultEl.textContent = data.error || "Server returned an error.";
