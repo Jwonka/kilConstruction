@@ -149,12 +149,23 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     // Show full directory path as the *only* label, e.g. "Furniture/Cabinets"
                     const title = document.createElement("div");
                     title.className = "result-title";
-                    const displayPrefix = prefix
-                        .replace(/\/$/, "")      // drop trailing slash
-                        .replace(/_/g, " ");     // make "Fox_Hollow_Retriever" → "Fox Hollow Retriever"
 
-                    title.textContent = displayPrefix || "(unnamed)";
+                    const displayPrefix = prefix.replace(/\/$/, "");
+                    const folderLabel = displayPrefix.split("/").slice(1).join("/") || displayPrefix;
 
+                    // pretty label for user (strip underscores)
+                    const folderNameDisplay = document.createElement("span");
+                    folderNameDisplay.className = "folder-name-display";
+                    folderNameDisplay.textContent = folderLabel.replace(/_/g, " ");
+
+                    const folderNameInput = document.createElement("input");
+                    folderNameInput.type = "text";
+                    folderNameInput.className = "folder-rename-input";
+                    folderNameInput.value = folderNameDisplay.textContent;
+                    folderNameInput.style.display = "none";
+
+                    title.appendChild(folderNameDisplay);
+                    title.appendChild(folderNameInput);
                     textWrap.appendChild(title);
 
                     // Order: [checkbox] [caret] [Folder path]
@@ -175,6 +186,68 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
                     li.appendChild(children);
                     listEl.appendChild(li);
+                    function resetFolderRename() {
+                        folderNameDisplay.style.display = "inline";
+                        folderNameInput.style.display = "none";
+                        folderNameInput.value = folderNameDisplay.textContent;
+                    }
+
+                    async function commitFolderRename() {
+                        const newName = folderNameInput.value.trim();
+                        const currentName = folderNameDisplay.textContent.trim();
+
+                        if (!newName || newName === currentName) {
+                            resetFolderRename();
+                            return;
+                        }
+
+                        // Build new prefix: keep the top-level category, replace the folder segment
+                        const parts = displayPrefix.split("/"); // e.g. ["Projects", "Fox_Hollow_Retriever"]
+                        const category = parts[0] || "";
+                        const newPrefix =
+                            (category ? category + "/" : "") +
+                            newName.replace(/\/+$/, "") + "/";
+
+                        try {
+                            const res = await fetch(`${adminApiBase}/rename-prefix`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                credentials: "include",
+                                body: JSON.stringify({
+                                    oldPrefix: displayPrefix,
+                                    newPrefix,
+                                }),
+                            });
+
+                            if (res.ok) {
+                                folderNameDisplay.textContent = newName;
+                                li.dataset.prefix = newPrefix;
+                                // reload full list so tree + search are accurate
+                                await loadProjects();
+                                alert("Folder renamed successfully.");
+                            } else {
+                                alert("Folder rename failed.");
+                            }
+                        } catch (err) {
+                            console.error("Folder rename error", err);
+                            alert("Folder rename failed.");
+                        } finally {
+                            resetFolderRename();
+                        }
+                    }
+
+                    folderNameDisplay.addEventListener("click", () => {
+                        folderNameDisplay.style.display = "none";
+                        folderNameInput.style.display = "inline-block";
+                        folderNameInput.focus();
+                        folderNameInput.select();
+                    });
+
+                    folderNameInput.addEventListener("blur", commitFolderRename);
+                    folderNameInput.addEventListener("keydown", (e) => {
+                        if (e.key === "Enter") commitFolderRename();
+                        if (e.key === "Escape") resetFolderRename();
+                    });
                 }
             }
 
