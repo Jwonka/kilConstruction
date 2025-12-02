@@ -121,6 +121,17 @@ button{ all:unset; box-sizing:border-box; }
 }
 .page-section {margin-bottom: clamp(10px, 1.5vw, 20px);padding-block-end: clamp(8px, 1vw, 16px);}
 .no-sticky header { position: static !important; top: auto; }
+.order-success {
+    text-align: center;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background-color: #e6ffed;
+    border: 1px solid #34a853;
+}
+.hidden {
+    display: none;
+}
 /* Inline link that lifts upward on hover (no background) */
 .inline-link {
     font-weight: 600;
