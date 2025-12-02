@@ -108,7 +108,6 @@ function slugToTitle(s: string): string {
                                         class="photo"
                                         loading="lazy"
                                         decoding="async"
-                                        referrerpolicy="no-referrer"
                                         src={i.thumb || i.full}
                                         srcset={`${(i.thumb || i.full).replace("=s0","=w600")} 600w, ${(i.thumb || i.full).replace("=s0","=w1200")} 1200w, ${(i.thumb || i.full).replace("=s0","=w2000")} 2000w`}
                                         alt={i.name}
