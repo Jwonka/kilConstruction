@@ -103,7 +103,7 @@ main { flex: 1 0 auto; }
 .footer-apparel a {font-size: 0.85rem;color: #fff;opacity: 0.8;text-decoration: none;transition: opacity 0.2s ease;}
 .footer-apparel a:hover,
 .footer-apparel a:focus-visible {opacity: 1;text-decoration: none;}
-form{display:grid;gap:12px;max-width:640px}
+form{display:grid;gap:12px;max-width:640px;}
 label{font-weight:600}
 input:not([type="checkbox"]):not([type="radio"]),
 textarea {
