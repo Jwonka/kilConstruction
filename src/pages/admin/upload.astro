@@ -99,7 +99,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         // @ts-nocheck
         const formEl = document.getElementById("admin-upload-form");
         const categoryEl = document.getElementById("category");
-        const subfolderEl = document.getElementById("subfolder");
         const fileInput = document.getElementById("fileInput");
         const statusEl = document.getElementById("status");
         const resultEl = document.getElementById("result");
@@ -107,6 +106,22 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         const subfolderSelectEl = document.getElementById("subfolder-select");
         const subfolderCustomEl = document.getElementById("subfolder-custom");
         const subfoldersByCategory = new Map();
+        const defaultStatusText = statusEl.textContent || "";
+
+        function flashStatus(message, variant = "info", timeoutMs = 2200) {
+            statusEl.textContent = message;
+            statusEl.classList.remove("status--success", "status--error");
+
+            if (variant === "success") statusEl.classList.add("status--success");
+            if (variant === "error") statusEl.classList.add("status--error");
+
+            if (timeoutMs > 0) {
+                setTimeout(() => {
+                    statusEl.textContent = defaultStatusText || "";
+                    statusEl.classList.remove("status--success", "status--error");
+                }, timeoutMs);
+            }
+        }
 
         // cache of all prefixes from the API
         let allPrefixes = [];
@@ -144,6 +159,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 rebuildSubfolderSelect();
             } catch (e) {
                 console.error("[upload] failed to load folders", e);
+                flashStatus("Failed to load folder list.", "error", 3000);
             }
         }
 
@@ -205,13 +221,13 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
             const files = fileInput.files;
             if (!files || !files.length) {
-                alert("Please choose at least one image.");
+                flashStatus("Please choose at least one image.", "error", 2600);
                 return;
             }
 
             const category = categoryEl.value.trim();
             if (!category) {
-                alert("Please choose a category.");
+                flashStatus("Please choose a category.", "error", 2600);
                 return;
             }
 
@@ -249,7 +265,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 formData.append(fullPath, file);
             }
 
-            statusEl.textContent = "Uploading…";
+            flashStatus("Uploading…", "info", 0);
             resultEl.innerHTML = "";
             submitBtn.disabled = true;
 
@@ -272,16 +288,16 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
                     resultEl.innerHTML =
                         `<p>Uploaded ${(data.uploaded ?? data.urls?.length) || 0} files:</p><ul>${list}</ul>`;
-                    statusEl.textContent = "Upload complete.";
+                    flashStatus("Upload complete.", "success");
                     fileInput.value = "";
                     loadAllFolders();
                 } else {
-                    statusEl.textContent = "Upload failed.";
+                    flashStatus("Upload failed.", "error", 4000);
                     resultEl.textContent = data.error || "Server returned an error.";
                 }
             } catch (err) {
                 console.error(err);
-                statusEl.textContent = "Upload error – see console.";
+                flashStatus("Upload error – see console.", "error", 4000);
                 resultEl.textContent = "";
             } finally {
                 submitBtn.disabled = false;
