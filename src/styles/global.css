@@ -115,6 +115,11 @@ textarea {
 }
 button.btn{cursor:pointer;text-align:center}
 button{ all:unset; box-sizing:border-box; }
+button.btn.cta {
+    display: inline-flex !important;
+    width: auto;
+    min-width: 140px;
+}
 .page-head {
     margin: clamp(14px, 3vw, 28px) 0 clamp(8px, 1.6vw, 16px);
     font-weight: 800; letter-spacing: 0.2px;
