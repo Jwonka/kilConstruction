@@ -62,15 +62,21 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
             <label class="admin-field-label">
                 <span>Subfolder (project / album name)</span>
+
+                <div class="subfolder-row">
+                    <select id="subfolder-select" class="admin-input">
+                        <option value="">— Select folder —</option>
+                        <option value="__NEW__">➕ Create new folder…</option>
+                    </select>
+                </div>
+
                 <input
-                        id="subfolder"
-                        name="subfolder"
+                        id="subfolder-custom"
                         type="text"
-                        list="subfolder-list"
-                        placeholder="e.g. Pfaffe House"
                         class="admin-input"
+                        placeholder="Enter new folder name…"
+                        style="display:none;margin-top:8px;"
                 />
-                <datalist id="subfolder-list"></datalist>
                 <small class="hint">
                     Leave subfolder blank to infer a name from the first file.
                     For Projects, this becomes the project folder and slug (Pfaffe House → /projects/pfaffe-house/).
@@ -98,7 +104,9 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         const statusEl = document.getElementById("status");
         const resultEl = document.getElementById("result");
         const submitBtn = document.getElementById("submitBtn");
-        const subfolderListEl = document.getElementById("subfolder-list");
+        const subfolderSelectEl = document.getElementById("subfolder-select");
+        const subfolderCustomEl = document.getElementById("subfolder-custom");
+        const subfoldersByCategory = new Map();
 
         // cache of all prefixes from the API
         let allPrefixes = [];
@@ -112,45 +120,73 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             try {
                 const res = await fetch(`${API_BASE}?all=1`, { credentials: "include" });
                 const data = await res.json().catch(() => ({}));
-                // shape matches manage.astro: { projects: [{ prefix, slug, name, ... }, ...] }
-                allPrefixes = Array.isArray(data.projects) ? data.projects : [];
-                updateSubfolderOptions();
+
+                const projects = Array.isArray(data.projects) ? data.projects : [];
+                subfoldersByCategory.clear();
+
+                for (const p of projects) {
+                    const rawPrefix = p.prefix || decodeURIComponent(p.slug || "");
+                    if (!rawPrefix) continue;
+
+                    const noSlash = rawPrefix.replace(/\/$/, ""); // "Projects/Pfaffe House"
+                    const [top, ...rest] = noSlash.split("/");    // ["Projects", "Pfaffe House"]
+                    if (!top || !rest.length) continue;
+
+                    const folderName = rest.join("/");           // "Pfaffe House" or "Fox_Hollow_Retriever"
+                    if (!folderName) continue;
+
+                    if (!subfoldersByCategory.has(top)) {
+                        subfoldersByCategory.set(top, new Set());
+                    }
+                    subfoldersByCategory.get(top).add(folderName);
+                }
+
+                rebuildSubfolderSelect();
             } catch (e) {
                 console.error("[upload] failed to load folders", e);
             }
         }
 
-        function updateSubfolderOptions() {
-            if (!subfolderListEl) return;
+        function rebuildSubfolderSelect() {
+            if (!subfolderSelectEl) return;
+
             const category = (categoryEl.value || "").trim();
-            subfolderListEl.innerHTML = "";
+            subfolderSelectEl.innerHTML = "";
 
-            if (!category || !allPrefixes.length) return;
+            // always have base options
+            subfolderSelectEl.appendChild(new Option("— Select folder —", ""));
+            const set =
+                subfoldersByCategory.get(category) ||
+                subfoldersByCategory.get(category.toLowerCase()) ||
+                new Set();
 
-            // Filter to this category and extract the folder name segment
-            const seen = new Set();
+            // sort for cleaner UX
+            const sorted = Array.from(set).sort((a, b) =>
+                a.localeCompare(b, undefined, { sensitivity: "base", numeric: true })
+            );
 
-            for (const p of allPrefixes) {
-                const rawPrefix = p.prefix || decodeURIComponent(p.slug || "");
-                if (!rawPrefix) continue;
-
-                const noSlash = rawPrefix.replace(/\/$/, "");      // "Projects/Pfaffe House"
-                const [top, ...rest] = noSlash.split("/");         // ["Projects", "Pfaffe House"]
-                if (top.toLowerCase() !== category.toLowerCase()) continue;
-
-                const folderName = rest.join("/");                 // "Pfaffe House" (or "Fox_Hollow_Retriever")
-                if (!folderName || seen.has(folderName)) continue;
-                seen.add(folderName);
-
-                const opt = document.createElement("option");
-                opt.value = folderName;
-                opt.label = folderName.replace(/_/g, " ");         // pretty display
-                subfolderListEl.appendChild(opt);
+            for (const name of sorted) {
+                const label = name.replace(/_/g, " ");
+                subfolderSelectEl.appendChild(new Option(label, name));
             }
-        }
 
+            subfolderSelectEl.appendChild(new Option("➕ Create new folder…", "__NEW__"));
+            subfolderSelectEl.value = "";
+            subfolderCustomEl.style.display = "none";
+            subfolderCustomEl.value = "";
+        }
         // reload list when category changes
-        categoryEl.addEventListener("change", updateSubfolderOptions);
+        categoryEl.addEventListener("change", rebuildSubfolderSelect);
+
+        subfolderSelectEl.addEventListener("change", () => {
+            if (subfolderSelectEl.value === "__NEW__") {
+                subfolderCustomEl.style.display = "block";
+                subfolderCustomEl.focus();
+            } else {
+                subfolderCustomEl.style.display = "none";
+                subfolderCustomEl.value = "";
+            }
+        });
 
         // initial load
         loadAllFolders();
@@ -179,20 +215,30 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 return;
             }
 
-            let subfolder = subfolderEl.value.trim().replace(/\/+$/, "");
+            let subfolder = "";
 
-            // If no subfolder, infer from first file name for projects; otherwise "misc"
+            // 1) existing folder from dropdown
+            if (subfolderSelectEl.value && subfolderSelectEl.value !== "__NEW__") {
+                subfolder = subfolderSelectEl.value.trim();
+            }
+
+            // 2) "Create new" path → use custom text
+            if (!subfolder && subfolderSelectEl.value === "__NEW__") {
+                subfolder = subfolderCustomEl.value.trim();
+            }
+
+            // 3) Fallbacks
             if (!subfolder) {
                 if (category === "Projects") {
                     const first = files[0];
                     const base = (first.webkitRelativePath || first.name || "project")
-                        .split("/")
-                        .shift();
+                        .split("/")[0];
                     subfolder = base || "project";
                 } else {
                     subfolder = "misc";
                 }
             }
+            subfolder = subfolder.replace(/\/+$/, "");
 
             const formData = new FormData();
 
