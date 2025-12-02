@@ -1,7 +1,12 @@
 (() => {
-    const INTERVAL_MS = 6000;  // 6s
-    const GALLERY_INTERVAL_MS = 4000; // 4s for galleries
-    const FADE_MS = 900;
+    // Hero (index highlights)
+    const HERO_INTERVAL_MS = 6000;   // 6s between hero swaps
+    const HERO_FADE_MS = 900;        // 0.9s hero fade
+
+    // Gallery (projects / services / furniture / apparel grids)
+    const GALLERY_INTERVAL_MS = 1000; // pause *after* a card finishes fading, in ms
+    const GALLERY_FADE_MS = 800;     // 0.8s fade per gallery card
+
     const MIN_OPACITY = 0;
     const SEL = 'img.photo[data-rot-srcs], img.photo[data-rot]';
 
@@ -9,7 +14,6 @@
     const galleryItems = [];
     let galleryIndex = 0;
     let galleryTimer = null;
-    let galleryBusy = false;
 
     const norm = (u) => {
         if (!u) return '';
@@ -79,7 +83,7 @@
         }
 
         // Make sure the image has a transition configured
-        img.style.transition = `opacity ${FADE_MS}ms ease-in-out`;
+        img.style.transition = `opacity ${GALLERY_FADE_MS}ms ease-in-out`;
         img.style.willChange = 'opacity';
         img.style.opacity = img.style.opacity || '1';
 
@@ -109,7 +113,7 @@
         // fade out towards black (MIN_OPACITY background shows through)
         await new Promise((resolve) => {
             img.style.opacity = String(MIN_OPACITY);
-            setTimeout(resolve, FADE_MS);
+            setTimeout(resolve, GALLERY_FADE_MS);
         });
 
         // swap the image while “hidden”
@@ -126,25 +130,29 @@
         });
     };
 
+    const runGalleryLoop = async () => {
+        if (!galleryItems.length) {
+            galleryTimer = null;
+            return;
+        }
+
+        if (galleryIndex >= galleryItems.length) galleryIndex = 0;
+        const item = galleryItems[galleryIndex++];
+
+        await rotateGalleryItem(item);
+
+        // As soon as the fade is done, wait a short pause, then move to the next card
+        galleryTimer = setTimeout(runGalleryLoop, GALLERY_INTERVAL_MS);
+    };
+
     const startGalleryTimer = () => {
         if (galleryTimer || !galleryItems.length) return;
-        const interval = GALLERY_INTERVAL_MS;
-        galleryTimer = setInterval(async () => {
-            if (galleryBusy || !galleryItems.length) return;
-            galleryBusy = true;
-            try {
-                if (galleryIndex >= galleryItems.length) galleryIndex = 0;
-                const item = galleryItems[galleryIndex++];
-                await rotateGalleryItem(item);
-            } finally {
-                galleryBusy = false;
-            }
-        }, interval);
+        galleryTimer = setTimeout(runGalleryLoop, GALLERY_INTERVAL_MS);
     };
 
     const stopGalleryTimer = () => {
         if (galleryTimer) {
-            clearInterval(galleryTimer);
+            clearTimeout(galleryTimer);
             galleryTimer = null;
         }
     };
@@ -179,7 +187,7 @@
         if (pool.length < 1) return;
         const link = img.closest('a');
 
-        img.style.transition = `opacity ${FADE_MS}ms ease-in-out`;
+        img.style.transition = `opacity ${HERO_FADE_MS}ms ease-in-out`;
         img.style.willChange = 'opacity';
         img.style.opacity = '1';
 
@@ -191,7 +199,7 @@
             new Promise((resolve) => {
                 const target = Math.max(op, MIN_OPACITY);
                 img.style.opacity = String(target);
-                setTimeout(resolve, FADE_MS);
+                setTimeout(resolve, HERO_FADE_MS);
             });
 
 
@@ -227,7 +235,7 @@
         const tick = async () => {
             if (busy) return;
             const now = performance.now();
-            if (now - lastSwitch < INTERVAL_MS * 0.9) return;
+            if (now - lastSwitch < HERO_INTERVAL_MS * 0.9) return;
             lastSwitch = now;
             busy = true;
             try {
@@ -246,7 +254,7 @@
             }
         };
 
-        const myInterval = INTERVAL_MS + Math.floor(Math.random() * 1500);
+        const myInterval = HERO_INTERVAL_MS + Math.floor(Math.random() * 1500);
         const run = () => { if (!timer) timer = setInterval(tick, myInterval); };
         const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
 
