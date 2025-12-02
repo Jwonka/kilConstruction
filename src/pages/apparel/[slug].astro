@@ -138,11 +138,10 @@ function slugToTitle(s: string): string {
         </p>
 
         <form method="POST" action="/api/contact">
-            <input type="hidden" name="itemName" value={slug} />
 
             <label>
                 Item
-                <input type="text" value={slug} readonly />
+                <input type="text" name="itemName" value={slug} readonly />
             </label>
 
             <label>
