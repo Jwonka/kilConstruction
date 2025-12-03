@@ -157,8 +157,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 const projectCell = document.createElement("td");
                 projectCell.innerHTML = `
                   ${escapeHtml(projectTypeLabel(r.projectType))}<br>
-                  <small class="admin-review-body">${escapeHtml(fullText)}</small>
-                  ${r.createdAt ? `<br><small class="admin-date">${escapeHtml(formatDate(r.createdAt))}</small>` : ""}
+                  ${r.text ? `<small class="admin-review-body">${escapeHtml(r.text)}</small>` : ""}
                 `;
 
                 const ratingCell = document.createElement("td");

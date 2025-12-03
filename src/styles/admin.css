@@ -740,8 +740,25 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 /* ===== Reviews table refinements ===== */
 .admin-table {
     width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;  /* prevents last column from overflowing weirdly */
+    table-layout: fixed;
+    border-collapse: separate;        /* allow row spacing */
+    border-spacing: 0 0.75rem;        /* vertical gap between “cards” */
+}
+
+.admin-table tbody tr {
+    background: #ffffff;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    border-radius: 12px;
+}
+
+/* round row corners */
+.admin-table tbody tr td:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+.admin-table tbody tr td:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
 }
 
 /* Let the actions column wrap but stay inside the cell */
@@ -767,6 +784,7 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 .admin-table td {
     padding: 0.45rem 0.75rem;
     font-size: 0.86rem;
+    vertical-align: top;
 }
 
 /* Center short numeric / status columns */
@@ -828,24 +846,24 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 }
 /* PROJECT COLUMN — multiline, controlled height, wrapped text */
 .admin-table td:nth-child(2) {
-    max-width: 360px;
-    width: 360px;
+    width: 40%;
+    max-width: 420px;
     white-space: normal;
     word-break: break-word;
+    overflow-wrap: anywhere;
     line-height: 1.35;
 }
 
-/* Inner preview text */
-.admin-table td:nth-child(2) small {
-    display: -webkit-box;
+/* Review body + other small text */
+.admin-table td:nth-child(2) small,
+.admin-review-body {
+    display: block;
     margin-top: 0.25rem;
     color: #6b7280;
-    font-size: 0.8rem;
-
-    /* Multiline clamp */
-    -webkit-line-clamp: 6;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    font-size: 0.82rem;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 /* ===== RESPONSIVE TWEAKS ===== */
@@ -901,19 +919,19 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     .admin-table td {
         display: block;
         padding: 0.15rem 0;
+        word-break: break-word; /* keep text inside the card */
+        overflow-wrap: anywhere; /* long “no space” strings wrap */
     }
 
     .admin-table td:last-child {
         margin-top: 0.4rem;
-        flex-direction: row;
+        display: flex;
         flex-wrap: wrap;
         gap: 0.35rem;
-        justify-content: center;
     }
 
     .admin-table td:last-child .admin-button-sm {
-        flex: 1 1 45%;
-        max-width: 48%;
+        flex: 1 1 calc(50% - 0.35rem);
         text-align: center;
     }
 }
