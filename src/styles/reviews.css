@@ -1,6 +1,11 @@
 /* two-column layout for reviews page */
 .reviews-layout {
-    padding: 2rem 1rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 1rem 4rem;
+    display: grid;
+    grid-template-columns: 2fr 1.1fr;
+    gap: 2rem;
 }
 
 .card--reviews-page {
@@ -11,16 +16,54 @@
     gap: 2rem;
 }
 
+.reviews-sidebar {
+    padding: 1.75rem 1.75rem 1.5rem;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
 /* list of review cards on the left */
 .reviews-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
 }
 
 /* full review card tweak */
 .card--review-full {
     padding-top: 1.5rem; /* small extra room under the green strip */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 260px;
+}
+
+/* Clamp body text to ~4 lines and keep it inside the card */
+.card--review-full .review-text {
+    margin-top: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    color: #111827;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 4;          /* <= 4 lines max */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Photo stays at the bottom part of the card, fits width */
+.card--review-full .review-photo-wrap {
+    margin-top: auto;               /* pushes photo toward bottom */
+}
+
+.card--review-full .review-photo-wrap img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
 }
 
 .review-reply {
@@ -37,7 +80,7 @@
 }
 .homepage-reviews {
     padding: 3rem 1rem 4rem;
-    background-color: #f7f7f7;
+    background-color: transparent;
 }
 
 .card--reviews-shell {
@@ -79,6 +122,11 @@
 .homepage-reviews .inner {
     max-width: 1100px;
     margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    padding: 1.75rem 1.75rem 1.5rem;
 }
 
 .reviews-heading {
@@ -113,19 +161,24 @@
 
 .reviews-strip {
     display: flex;
-    gap: 1rem;
+    gap: 1.25rem;
     overflow-x: auto;
-    padding-bottom: 0.5rem;
-    scroll-snap-type: x mandatory;
+    padding: 0.5rem 0 0.75rem;
+    scroll-behavior: smooth;
 }
 
+/* individual review card inside the strip */
 .review-card {
-    flex: 0 0 260px;
+    flex: 0 0 260px;                /* fixed card width */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* text at top, image at bottom */
     border-radius: 12px;
+    border: 1px solid #e5e7eb;
     background: #ffffff;
-    padding: 1rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    scroll-snap-align: start;
+    padding: 1rem 1rem 0.9rem;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    min-height: 320px;
 }
 
 .review-card-header {
@@ -148,28 +201,36 @@
 }
 
 .review-text {
+    margin-top: 0.5rem;
     font-size: 0.9rem;
-    line-height: 1.4;
-    margin: 0.5rem 0;
+    color: #333;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;          /* <= 4 line cap */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .review-photo-wrap {
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
 }
 
 .review-photo-wrap img {
     display: block;
     width: 100%;
-    max-height: 140px;
+    height: auto;
     object-fit: cover;
     border-radius: 8px;
 }
 
 .reviews-cta-row {
-    margin-top: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+    margin-top: 1.25rem;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.reviews-cta-separator {
+    margin: 0 0.5rem;
+    color: #9ca3af;
 }
 
 .reviews-cta-row .button {
@@ -193,5 +254,14 @@
 @media (max-width: 800px) {
     .card--reviews-page {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 900px) {
+    .reviews-layout {
+        grid-template-columns: 1fr;
+    }
+    .reviews-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
