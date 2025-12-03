@@ -21,9 +21,9 @@
     width: 100%;
 }
 
-.reviews-sidebar {
-    position: sticky;
-    top: calc(var(--header-h, 84px) + 16px);
+.reviews-layout > .reviews-sidebar {
+    position: sticky !important;
+    top: calc(var(--header-h, 84px) + 16px) !important;
     align-self: flex-start;
 }
 
@@ -343,9 +343,9 @@
         grid-template-columns: 1fr;
     }
 
-    .reviews-sidebar {
-        position: static;
-        top: auto;
+    .reviews-layout > .reviews-sidebar {
+        position: static !important;
+        top: auto !important;
     }
 }
 
