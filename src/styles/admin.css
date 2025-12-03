@@ -311,6 +311,12 @@ body {
     margin: 0;
 }
 
+.admin-button-sm.is-disabled {
+    opacity: 0.55;
+    cursor: default;
+    pointer-events: none;
+}
+
 /* ===== TOOLBAR (Manage + Reviews) ===== */
 
 .toolbar {

@@ -182,15 +182,29 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 } else {
                     photoCell.innerHTML = `<span class="admin-no-photo">—</span>`;
                 }
+                const isApproved = r.status === "approved";
+                const isHidden = r.status === "hidden";
+                const approveLabel = isApproved ? "Approved" : "Approve";
+                const hideLabel = isHidden ? "Unhide" : "Hide";
+
 
                 const actionsCell = document.createElement("td");
                 actionsCell.innerHTML = `
-          <button class="admin-button-sm js-approve">Approve</button>
-          <button class="admin-button-sm js-hide">Hide</button>
-          <button class="admin-button-sm js-toggle-feature">${r.featured ? "Unfeature" : "Feature"}</button>
-          <button class="admin-button-sm js-reply">Reply</button>
-          <button class="admin-button-sm admin-button-danger js-delete">Delete</button>
-        `;
+                  <button
+                    class="admin-button-sm js-approve${isApproved ? " is-disabled" : ""}"
+                    ${isApproved ? "disabled" : ""}
+                  >
+                    ${approveLabel}
+                  </button>
+                  <button class="admin-button-sm js-hide">
+                    ${hideLabel}
+                  </button>
+                  <button class="admin-button-sm js-toggle-feature">
+                    ${r.featured ? "Unfeature" : "Feature"}
+                  </button>
+                  <button class="admin-button-sm js-reply">Reply</button>
+                  <button class="admin-button-sm admin-button-danger js-delete">Delete</button>
+                `;
 
                 tr.appendChild(clientCell);
                 tr.appendChild(projectCell);
@@ -271,9 +285,21 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 const id = tr.dataset.id;
 
                 if (target.classList.contains("js-approve")) {
-                    updateStatus(id, "approved", tr.querySelector(".js-toggle-feature")?.textContent === "Unfeature");
+                    if (target.hasAttribute("disabled")) return;
+
+                    const featuredCell = tr.querySelector("td:nth-child(5)");
+                    const isFeatured = (featuredCell?.textContent || "").trim() === "Yes";
+
+                    updateStatus(id, "approved", isFeatured);
                 } else if (target.classList.contains("js-hide")) {
-                    updateStatus(id, "hidden", false);
+                    const statusCell = tr.querySelector("td:nth-child(4)");
+                    const currentStatus = (statusCell?.textContent || "").trim();
+                    const featuredCell = tr.querySelector("td:nth-child(5)");
+                    const isFeatured = (featuredCell?.textContent || "").trim() === "Yes";
+
+                    // Toggle between hidden and approved
+                    const nextStatus = currentStatus === "hidden" ? "approved" : "hidden";
+                    updateStatus(id, nextStatus, isFeatured);
                 } else if (target.classList.contains("js-toggle-feature")) {
                     const currentlyFeatured = target.textContent === "Unfeature";
                     updateStatus(id, tr.querySelector("td:nth-child(4)")?.textContent || "approved", !currentlyFeatured);
