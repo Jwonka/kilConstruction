@@ -168,11 +168,12 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                                         {review.photoUrl && (
                                                 <div class="review-photo-wrap">
                                                     <a href={review.photoUrl} target="_blank" rel="noopener">
-                                                    <img
-                                                        src={review.photoUrl}
-                                                        alt="Client submitted photo"
-                                                        loading="lazy"
-                                                    />
+                                                        <img
+                                                            src={review.photoUrl}
+                                                            alt="Client submitted photo"
+                                                            loading="lazy"
+                                                        />
+                                                    </a>
                                                 </div>
                                         )}
 
@@ -301,7 +302,7 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                     class="cf-turnstile"
                     data-sitekey={SITEKEY}
                     data-theme="auto"
-                    data-size="normal"
+                    data-size="compact"
                     data-refresh-expired="auto">
                 </div>
 
