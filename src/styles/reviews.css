@@ -18,10 +18,6 @@
 
 .reviews-sidebar {
     padding: 1.75rem 1.75rem 1.5rem;
-    background: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
 }
 
 /* list of review cards on the left */
@@ -47,11 +43,10 @@
     margin-bottom: 0.75rem;
     font-size: 0.95rem;
     color: #111827;
-
-    display: -webkit-box;
-    -webkit-line-clamp: 4;          /* <= 4 lines max */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    display: block;
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: unset;
+    overflow: visible;
 }
 
 /* Photo stays at the bottom part of the card, fits width */
@@ -181,6 +176,19 @@
     min-height: 320px;
 }
 
+.review-card-link {
+    flex: 0 0 260px;
+    max-width: 320px;
+    scroll-snap-align: start;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.review-card-link .card--review-tile {
+    height: 100%;
+}
+
 .review-card-header {
     margin-bottom: 0.5rem;
 }
@@ -248,6 +256,13 @@
     .card--review-tile {
         flex: 0 0 80%;
     }
+    .card--reviews-shell {
+        padding: 1.4rem 1rem 1.5rem;
+    }
+    .reviews-summary-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 /* mobile: stack everything */
@@ -257,10 +272,13 @@
     }
 }
 
-@media (min-width: 900px) {
+@media (max-width: 840px) {
     .reviews-layout {
         grid-template-columns: 1fr;
     }
+}
+
+@media (min-width: 900px) {
     .reviews-list {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }

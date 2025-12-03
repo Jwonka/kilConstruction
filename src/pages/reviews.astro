@@ -143,7 +143,7 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                 {reviews.length > 0 && (
                         <div class="reviews-list">
                             {reviews.map((review) => (
-                                    <article class="card card--review-full">
+                                    <article class="card card--review-full" id={`review-${review.id}`}>
                                         <header class="review-card-header">
                                             <h2 class="review-name">{review.clientNamePublic}</h2>
                                             <p class="review-meta">
@@ -167,10 +167,11 @@ const hasReviews = !!summary && summary.totalReviews > 0;
 
                                         {review.photoUrl && (
                                                 <div class="review-photo-wrap">
+                                                    <a href={review.photoUrl} target="_blank" rel="noopener">
                                                     <img
-                                                            src={review.photoUrl}
-                                                            alt="Client submitted photo"
-                                                            loading="lazy"
+                                                        src={review.photoUrl}
+                                                        alt="Client submitted photo"
+                                                        loading="lazy"
                                                     />
                                                 </div>
                                         )}
@@ -208,7 +209,7 @@ const hasReviews = !!summary && summary.totalReviews > 0;
             </div>
         </div>
 
-        <aside class="reviews-sidebar" id="leave-review">
+        <aside class="card reviews-sidebar" id="leave-review">
             <h2>Leave a review</h2>
             <p>We appreciate your feedback. Your review helps other homeowners choose KIL Construction with confidence.</p>
             {sent && (

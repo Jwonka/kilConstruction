@@ -63,7 +63,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     <th>Rating</th>
                     <th>Status</th>
                     <th>Featured</th>
-                    <th>Submitted</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -145,16 +144,19 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
                 const clientCell = document.createElement("td");
                 clientCell.innerHTML = `
-          <strong>${escapeHtml(r.clientNamePublic || "Client")}</strong><br>
-          <small>${escapeHtml(r.clientEmail || "")}</small>
-          ${r.location ? `<br><small>${escapeHtml(r.location)}</small>` : ""}
-        `;
+                  <strong>${escapeHtml(r.clientNamePublic || "Client")}</strong>
+                  ${r.location ? `<br><small>${escapeHtml(r.location)}</small>` : ""}
+                `;
 
-                const projectCell = document.createElement("td");
+                if (r.clientEmail) {
+                    clientCell.title = r.clientEmail; // still accessible on hover
+                }
+
                 projectCell.innerHTML = `
-          ${escapeHtml(projectTypeLabel(r.projectType))}<br>
-          <small>${escapeHtml((r.text || "").slice(0, 80))}${r.text && r.text.length > 80 ? "…" : ""}</small>
-        `;
+                  ${escapeHtml(projectTypeLabel(r.projectType))}<br>
+                  <small>${escapeHtml((r.text || "").slice(0, 80))}${r.text && r.text.length > 80 ? "…" : ""}</small>
+                  ${r.createdAt ? `<br><small class="admin-date">${escapeHtml(formatDate(r.createdAt))}</small>` : ""}
+                `;
 
                 const ratingCell = document.createElement("td");
                 ratingCell.textContent = `${r.rating} ★`;
@@ -164,9 +166,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
                 const featuredCell = document.createElement("td");
                 featuredCell.textContent = r.featured ? "Yes" : "No";
-
-                const dateCell = document.createElement("td");
-                dateCell.textContent = formatDate(r.createdAt);
 
                 const actionsCell = document.createElement("td");
                 actionsCell.innerHTML = `
@@ -182,7 +181,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 tr.appendChild(ratingCell);
                 tr.appendChild(statusCell);
                 tr.appendChild(featuredCell);
-                tr.appendChild(dateCell);
                 tr.appendChild(actionsCell);
 
                 tbody.appendChild(tr);

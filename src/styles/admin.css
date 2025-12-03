@@ -480,6 +480,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    margin: 0 0.25rem 0.35rem 0;
     padding: 0.35rem 0.7rem;
     border-radius: 9999px;
     border: 1px solid #cbd5e1;
@@ -870,6 +871,33 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
         flex-direction: column;
         align-items: stretch;
         gap: 0.75rem;
+    }
+
+    .table-wrap {
+        overflow: visible;
+    }
+
+    .admin-table thead {
+        display: none;
+    }
+
+    .admin-table tr {
+        display: block;
+        margin-bottom: 1rem;
+        padding: 0.75rem 0.9rem 0.6rem;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
+
+    .admin-table td {
+        display: block;
+        padding: 0.15rem 0;
+    }
+
+    .admin-table td:last-child {
+        margin-top: 0.4rem;
     }
 
     .admin-table td:last-child {
