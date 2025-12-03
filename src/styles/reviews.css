@@ -26,6 +26,12 @@
     width: 100%;
 }
 
+.reviews-sidebar {
+    position: sticky;
+    top: calc(var(--header-h, 84px) + 16px);
+    align-self: flex-start;
+}
+
 /* list of review cards on the left */
 .reviews-list {
     display: grid;
