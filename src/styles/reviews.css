@@ -343,6 +343,7 @@
 /* Desktop: keep the form column sticky like contact page */
 @media (min-width: 840px) {
     .reviews-sidebar {
+        position: sticky;
         top: calc(var(--header-h, 84px) + 16px);
         align-self: flex-start;
     }
