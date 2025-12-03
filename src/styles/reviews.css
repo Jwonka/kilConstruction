@@ -1,16 +1,26 @@
 /* two-column layout for reviews page */
 .reviews-layout {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 2.5rem 1rem 4rem;
     display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.3fr);
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
     gap: 1.5rem;
 }
 
 /* keep all review-page cards from letting content overflow (Turnstile) */
 .reviews-layout-full {
     overflow: hidden;
+}
+/* clip any overflowing content */
+.reviews-layout .card {
+    overflow: hidden;
+}
+
+/* Prevent the form from forcing a min-width on small screens */
+.review-form,
+.review-form .btn {
+    min-width: 0;
 }
 
 .card--reviews-page {
@@ -41,7 +51,7 @@
 
 /* full review card tweak */
 .card--review-full {
-    padding-top: 1.5rem; /* small extra room under the green strip */
+    padding: 1.5rem 1.1rem 1.5rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -90,7 +100,7 @@
 }
 
 .card--reviews-shell {
-    max-width: 1100px;
+    max-width: 1145px;
     margin: 0 auto;
 }
 
@@ -256,18 +266,10 @@
     text-decoration: none;
 }
 
-.review-form .cf-turnstile {
-    margin-top: 0.75rem;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
+.review-form .cf-turnstile,
 .reviews-sidebar .cf-turnstile {
-    margin-top: 0.75rem;
-    display: flex;
-    justify-content: center;
+    margin-top: 0.75rem;  /* let Turnstile handle its own width */
 }
-
 /* mobile tweaks */
 @media (max-width: 640px) {
     .homepage-reviews {
@@ -300,28 +302,12 @@
         grid-template-columns: 1fr;
     }
 }
-/* Desktop: keep the review form centered and sticky next to the list */
-@media (min-width: 900px) {
-    .reviews-sidebar {
-        position: sticky;
-        top: 50%;
-        transform: translateY(-50%);
-        align-self: flex-start;
 
-        /* if viewport is short, let the form scroll inside the card */
-        max-height: calc(100vh - 32px);
-        overflow-y: auto;
-    }
-}
 /* Desktop: keep the form column sticky like contact page */
 @media (min-width: 840px) {
     .reviews-sidebar {
         position: sticky;
         top: calc(var(--header-h, 84px) + 16px);
         align-self: flex-start;
-
-        /* keep the whole card on screen and let it scroll internally if needed */
-        max-height: calc(100vh - var(--header-h, 84px) - 32px);
-        overflow-y: auto;
     }
 }
