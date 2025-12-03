@@ -737,7 +737,22 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 }
 
 /* ===== Reviews table refinements ===== */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;  /* prevents last column from overflowing weirdly */
+}
 
+/* Let the actions column wrap but stay inside the cell */
+.admin-table td:last-child {
+    overflow: visible;
+    white-space: normal;
+}
+
+/* Make sure the outer card isn't clipping the last column */
+.admin-card {
+    overflow: visible;
+}
 /* Compact the table a bit */
 .admin-table th,
 .admin-table td {
