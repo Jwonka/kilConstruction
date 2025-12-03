@@ -916,51 +916,54 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 }
 /* Desktop column widths for admin reviews table */
 @media (min-width: 960px) {
+    .admin-container {
+        max-width: 1200px;
+    }
     /* Client */
     .admin-table th:nth-child(1),
     .admin-table td:nth-child(1) {
-        width: 180px;
-        max-width: 200px;
+        width: 130px;
+        max-width: 150px;
         white-space: nowrap;
     }
 
     /* Project / review text – give it the bulk of the width */
     .admin-table th:nth-child(2),
     .admin-table td:nth-child(2) {
-        width: 55%;
-        max-width: 640px;
+        width: 65%;
+        max-width: 800px;
     }
 
     /* Rating */
     .admin-table th:nth-child(3),
     .admin-table td:nth-child(3) {
-        width: 70px;
+        width: 60px;
     }
 
     /* Status */
     .admin-table th:nth-child(4),
     .admin-table td:nth-child(4) {
-        width: 90px;
+        width: 80px;
         white-space: nowrap;
     }
 
     /* Featured */
     .admin-table th:nth-child(5),
     .admin-table td:nth-child(5) {
-        width: 90px;
+        width: 70px;
         white-space: nowrap;
     }
 
     /* Photo thumb */
     .admin-table th:nth-child(6),
     .admin-table td:nth-child(6) {
-        width: 80px;
+        width: 90px;
     }
 
     /* Actions column – just enough for the vertical stack */
     .admin-table th:nth-child(7),
     .admin-table td:nth-child(7) {
-        width: 120px;
+        width: 130px;
     }
 }
 @media (max-width: 768px) {
