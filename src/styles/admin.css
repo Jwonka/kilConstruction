@@ -983,39 +983,41 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
         overflow: visible;
     }
 
-    .admin-table thead {
-        display: none;
-    }
-
     .admin-actions {
         flex-direction: column;
         align-items: center;
     }
 
+    /* hide table header – we’ll show labels per cell instead */
+    .admin-table thead {
+        display: none;
+    }
+
+    /* turn each row into a “card” */
     .admin-table tr {
         display: block;
         margin-bottom: 1rem;
-        padding: 0.75rem 0.9rem 0.6rem;
+        padding: 0.75rem 0.9rem 0.75rem;
         border-radius: 12px;
         border: 1px solid #e5e7eb;
         box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
         background: #ffffff;
     }
 
+    /* each cell is stacked, full-width */
     .admin-table td {
         display: block;
         position: relative;
-        padding: 0.25rem 0 0.25rem 6.75rem; /* room on the left for label */
-        word-break: break-word;     /* keep text inside the card */
-        overflow-wrap: anywhere;    /* long “no space” strings wrap */
+        padding: 0.4rem 0;          /* no big left gutter */
+        word-break: break-word;
+        overflow-wrap: anywhere;
     }
 
-    /* Label on the left: uses data-label from the TD */
+    /* label ABOVE the content instead of in a side column */
     .admin-table td::before {
         content: attr(data-label);
-        position: absolute;
-        left: 0;
-        top: 0.3rem;
+        display: block;
+        margin-bottom: 0.15rem;
         font-size: 0.72rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -1023,17 +1025,28 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
         color: #6b7280;
     }
 
+    /* project/review text: give it some extra breathing room */
+    .admin-table td:nth-child(2) {
+        margin-top: 0.1rem;
+    }
 
+    /* actions cell: keep buttons as a clear stack */
     .admin-table td:last-child {
-        margin-top: 0.4rem;
-        padding-left: 0;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid #e5e7eb;
         display: flex;
         flex-wrap: wrap;
         gap: 0.35rem;
     }
 
+    .admin-table td:last-child::before {
+        /* “Actions” label will come from data-label on the TD */
+        margin-bottom: 0.3rem;
+    }
+
     .admin-table td:last-child .admin-button-sm {
-        flex: 1 1 calc(50% - 0.35rem);
+        flex: 1 1 100%;
         text-align: center;
     }
 }

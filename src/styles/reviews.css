@@ -280,15 +280,24 @@
         margin: 0;
     }
 
+    .homepage-reviews .inner {
+        max-width: 100%;
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+        padding: 12px 10px 10px;
+        box-sizing: border-box;
+    }
+
     .homepage-reviews .card--reviews-shell {
         max-width: 100%;
         width: 100%;
         margin: 0;
         border-radius: 0;
-        padding: 12px 10px 12px;
-        box-shadow: none;           /* match other pages – no extra “flare” */
-        border-left: none;
-        border-right: none;
+        padding: 0; /* padding now handled by .inner */
     }
 
     .homepage-reviews .reviews-heading {
