@@ -6,8 +6,9 @@ import "../../styles/admin.css";
 const cookies = Astro.cookies;
 const auth = cookies.get("admin_auth")?.value || "";
 
+// Same pattern as other admin pages
 const env = (Astro.locals as any).runtime?.env ?? {};
-const ADMIN_SECRET = env.ADMIN_SECRET;
+const ADMIN_SECRET = env.ADMIN_SECRET as string | undefined;
 
 if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
     return new Response(null, {
@@ -15,142 +16,275 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         headers: { Location: "/admin" },
     });
 }
-
-// TODO: replace this with real data (KV / DB / API)
-const reviews = [
-    {
-        id: "r1",
-        client: "Jane Doe",
-        subject: "Deck rebuild",
-        rating: 5,
-        createdAt: "2024-10-01",
-        text: "KIL Construction did an awesome job on our deck.",
-    },
-    {
-        id: "r2",
-        client: "John Smith",
-        subject: "Kitchen remodel",
-        rating: 4,
-        createdAt: "2024-09-15",
-        text: "Very happy with the work and communication.",
-    },
-];
 ---
 
 <AdminLayout title="Moderate Reviews">
-    <h1 class="admin-title">Moderate Reviews</h1>
+    <h1 class="admin-title">Client Reviews</h1>
     <p class="admin-subtitle">
-        View reviews currently shown on the public site. In a later step we’ll hook
-        these actions up to a real backend for delete / moderation.
+        Approve new reviews, feature them on the homepage, reply to clients, or remove spam.
     </p>
 
     <section class="panel">
-        <div class="toolbar">
-            <label for="reviewSearch"></label><input
-                    id="reviewSearch"
-                    type="search"
-                    placeholder="Search by client name or subject…"
-                    class="search-input"
-            />
+        <div class="admin-controls-row">
+            <label>
+                Status
+                <select id="filter-status" class="admin-input">
+                    <option value="">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="hidden">Hidden</option>
+                </select>
+            </label>
+
+            <label>
+                Project type
+                <select id="filter-type" class="admin-input">
+                    <option value="">All</option>
+                    <option value="new-construction">New construction</option>
+                    <option value="remodel">Remodel</option>
+                    <option value="furniture">Furniture</option>
+                    <option value="other">Other</option>
+                </select>
+            </label>
+
+            <button id="refresh-reviews" class="admin-button">
+                Refresh
+            </button>
         </div>
 
-        <ul id="reviewList" class="review-list" data-json={JSON.stringify(reviews)}></ul>
+        <div id="reviews-status" class="admin-status"></div>
+
+        <div class="table-wrap">
+            <table class="admin-table" id="reviews-table">
+                <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Project</th>
+                    <th>Rating</th>
+                    <th>Status</th>
+                    <th>Featured</th>
+                    <th>Submitted</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="reviews-tbody">
+                <!-- filled by JS -->
+                </tbody>
+            </table>
+        </div>
     </section>
 
-    <script>
-        // @ts-nocheck
-        document.addEventListener("DOMContentLoaded", () => {
-            const listEl = document.getElementById("reviewList") as HTMLUListElement | null;
-            const searchEl = document.getElementById("reviewSearch") as HTMLInputElement | null;
+    <script type="module">
+        const API_BASE = "/api/reviews/admin";
 
-            if (!listEl || !searchEl) {
-                console.error("[admin/reviews] Missing reviewList or reviewSearch element");
-                return;
+        const tbody = document.getElementById("reviews-tbody");
+        const statusEl = document.getElementById("reviews-status");
+        const filterStatus = document.getElementById("filter-status");
+        const filterType = document.getElementById("filter-type");
+        const refreshBtn = document.getElementById("refresh-reviews");
+
+        function setStatus(msg, isError = false) {
+            if (!statusEl) return;
+            statusEl.textContent = msg || "";
+            statusEl.classList.toggle("status--error", !!isError);
+        }
+
+        function projectTypeLabel(type) {
+            switch (type) {
+                case "new-construction": return "New construction";
+                case "remodel": return "Remodel";
+                case "furniture": return "Furniture";
+                default: return "Other";
             }
+        }
 
-            const raw = listEl.dataset.json ?? "[]";
+        function formatDate(iso) {
+            if (!iso) return "";
+            const d = new Date(iso);
+            if (isNaN(d.getTime())) return "";
+            return d.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+        }
 
-            let items = JSON.parse(raw);
+        async function fetchReviews() {
+            try {
+                setStatus("Loading…");
+                const params = new URLSearchParams();
+                if (filterStatus.value) params.set("status", filterStatus.value);
+                if (filterType.value) params.set("projectType", filterType.value);
 
-            function render() {
-                const q = searchEl.value.trim().toLowerCase();
-                listEl.innerHTML = "";
-
-                const filtered = items.filter((r) => {
-                    if (!q) return true;
-                    return (
-                        r.client.toLowerCase().includes(q) ||
-                        r.subject.toLowerCase().includes(q)
-                    );
+                const res = await fetch(`/api/reviews/admin/list?${params.toString()}`, {
+                    credentials: "include",
                 });
-
-                if (!filtered.length) {
-                    listEl.innerHTML =
-                        '<li class="empty">No reviews match that search.</li>';
+                if (!res.ok) {
+                    setStatus("Failed to load reviews.", true);
                     return;
                 }
 
-                for (const r of filtered) {
-                    const li = document.createElement("li");
-                    li.className = "review-item";
+                const data = await res.json();
+                const reviews = Array.isArray(data.reviews) ? data.reviews : [];
+                renderReviews(reviews);
+                setStatus(reviews.length ? `Loaded ${reviews.length} review(s).` : "No reviews found.");
+            } catch (e) {
+                console.error("admin reviews load error", e);
+                setStatus("Error loading reviews.", true);
+            }
+        }
 
-                    li.innerHTML = `
-          <div class="review-main">
-            <div class="review-header">
-              <span class="review-client">${r.client}</span>
-              <span class="review-rating">★ ${r.rating}</span>
-            </div>
-            <div class="review-subject">${r.subject}</div>
-            <div class="review-meta">${r.createdAt}</div>
-            <p class="review-text">${r.text}</p>
-          </div>
-          <div class="review-actions">
-            <button class="btn-pill btn-danger" data-id="${r.id}" data-action="delete">
-              Delete
-            </button>
-            <button class="btn-pill btn-primary" data-id="${r.id}" data-action="reply">
-              Reply
-            </button>
-          </div>
+        function renderReviews(reviews) {
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            for (const r of reviews) {
+                const tr = document.createElement("tr");
+                tr.dataset.id = r.id;
+
+                const clientCell = document.createElement("td");
+                clientCell.innerHTML = `
+          <strong>${escapeHtml(r.clientNamePublic || "Client")}</strong><br>
+          <small>${escapeHtml(r.clientEmail || "")}</small>
+          ${r.location ? `<br><small>${escapeHtml(r.location)}</small>` : ""}
         `;
 
-                    listEl.appendChild(li);
-                }
+                const projectCell = document.createElement("td");
+                projectCell.innerHTML = `
+          ${escapeHtml(projectTypeLabel(r.projectType))}<br>
+          <small>${escapeHtml((r.text || "").slice(0, 80))}${r.text && r.text.length > 80 ? "…" : ""}</small>
+        `;
+
+                const ratingCell = document.createElement("td");
+                ratingCell.textContent = `${r.rating} ★`;
+
+                const statusCell = document.createElement("td");
+                statusCell.textContent = r.status;
+
+                const featuredCell = document.createElement("td");
+                featuredCell.textContent = r.featured ? "Yes" : "No";
+
+                const dateCell = document.createElement("td");
+                dateCell.textContent = formatDate(r.createdAt);
+
+                const actionsCell = document.createElement("td");
+                actionsCell.innerHTML = `
+          <button class="admin-button-sm js-approve">Approve</button>
+          <button class="admin-button-sm js-hide">Hide</button>
+          <button class="admin-button-sm js-toggle-feature">${r.featured ? "Unfeature" : "Feature"}</button>
+          <button class="admin-button-sm js-reply">Reply</button>
+          <button class="admin-button-sm admin-button-danger js-delete">Delete</button>
+        `;
+
+                tr.appendChild(clientCell);
+                tr.appendChild(projectCell);
+                tr.appendChild(ratingCell);
+                tr.appendChild(statusCell);
+                tr.appendChild(featuredCell);
+                tr.appendChild(dateCell);
+                tr.appendChild(actionsCell);
+
+                tbody.appendChild(tr);
             }
+        }
 
-            listEl.addEventListener("click", (ev) => {
-                const target = ev.target as HTMLElement | null;
-                if (!target) return;
+        async function updateStatus(id, status, featured) {
+            try {
+                const res = await fetch("/api/reviews/admin/status", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ id, status, featured }),
+                });
+                if (!res.ok) throw new Error("status update failed");
+                await fetchReviews();
+            } catch (e) {
+                console.error(e);
+                setStatus("Failed to update status.", true);
+            }
+        }
 
-                const action = target.dataset.action;
-                const id = target.dataset.id;
-                if (!action || !id) return;
+        async function sendReply(id, replyText) {
+            try {
+                const res = await fetch("/api/reviews/admin/reply", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ id, replyText }),
+                });
+                if (!res.ok) throw new Error("reply failed");
+                await fetchReviews();
+            } catch (e) {
+                console.error(e);
+                setStatus("Failed to save reply.", true);
+            }
+        }
 
-                const review = items.find((r) => r.id === id);
-                if (!review) return;
+        async function deleteReview(id) {
+            if (!confirm("Delete this review permanently?")) return;
+            try {
+                const res = await fetch("/api/reviews/admin/delete", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ id }),
+                });
+                if (!res.ok) throw new Error("delete failed");
+                await fetchReviews();
+            } catch (e) {
+                console.error(e);
+                setStatus("Failed to delete review.", true);
+            }
+        }
 
-                if (action === "delete") {
-                    const ok = confirm(
-                        `Delete review from "${review.client}" about "${review.subject}"?`
-                    );
-                    if (!ok) return;
-                    console.log("[admin] Would delete review:", review);
-                    alert("Delete is not wired to the backend yet; this is just a preview.");
-                }
+        function escapeHtml(s) {
+            return String(s || "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
 
-                if (action === "reply") {
-                    const subject = encodeURIComponent(
-                        `Reply to your review: ${review.subject}`
-                    );
-                    const body = encodeURIComponent(
-                        `Hi ${review.client},\n\nThanks for your review about "${review.subject}".\n\n(Write your reply here.)\n\n— KIL Construction`
-                    );
-                    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        if (tbody) {
+            tbody.addEventListener("click", (ev) => {
+                const target = ev.target;
+                if (!(target instanceof HTMLElement)) return;
+                const tr = target.closest("tr");
+                if (!tr || !tr.dataset.id) return;
+                const id = tr.dataset.id;
+
+                if (target.classList.contains("js-approve")) {
+                    updateStatus(id, "approved", tr.querySelector(".js-toggle-feature")?.textContent === "Unfeature");
+                } else if (target.classList.contains("js-hide")) {
+                    updateStatus(id, "hidden", false);
+                } else if (target.classList.contains("js-toggle-feature")) {
+                    const currentlyFeatured = target.textContent === "Unfeature";
+                    updateStatus(id, tr.querySelector("td:nth-child(4)")?.textContent || "approved", !currentlyFeatured);
+                } else if (target.classList.contains("js-reply")) {
+                    const existing = prompt("Reply to this client (leave blank to clear):", "");
+                    if (existing !== null) {
+                        sendReply(id, existing);
+                    }
+                } else if (target.classList.contains("js-delete")) {
+                    deleteReview(id);
                 }
             });
+        }
 
-            searchEl.addEventListener("input", render);
-            render();
-        });
+        if (refreshBtn) {
+            refreshBtn.addEventListener("click", () => {
+                fetchReviews();
+            });
+        }
+        if (filterStatus) {
+            filterStatus.addEventListener("change", () => fetchReviews());
+        }
+        if (filterType) {
+            filterType.addEventListener("change", () => fetchReviews());
+        }
+
+        // initial load
+        fetchReviews();
     </script>
 </AdminLayout>

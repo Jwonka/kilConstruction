@@ -9,9 +9,32 @@ type Highlight = {
     thumb: string;
 };
 
-const PROD_ORIGIN = Astro.site?.origin || "https://kilcon.work";
-const API = new URL("/api/gallery-api", PROD_ORIGIN);
+type ReviewsSummary = {
+    averageRating: number;
+    totalReviews: number;
+    ratingBreakdown: Record<number, number>;
+};
 
+type Review = {
+    id: string;
+    createdAt: string;
+    rating: number;
+    text: string;
+    clientNamePublic: string;
+    projectType: "new-construction" | "remodel" | "furniture" | "other";
+    location?: string | null;
+    photoUrl?: string | null;
+    adminReply?: string | null;
+    adminReplyAt?: string | null;
+    featured?: boolean;
+};
+
+const PROD_ORIGIN = Astro.site?.origin || "https://kilcon.work";
+const API = new URL("/api/gallery-api", PROD_ORIGIN)
+const REVIEWS_API_BASE = "https://kilcon.work/api/reviews";
+
+let reviewsSummary: ReviewsSummary | null = null;
+let homepageReviews: Review[] = [];
 let highlights: Highlight[] = [];
 let heroError: string | null = null;
 
@@ -28,6 +51,40 @@ try {
     }
 } catch {
     heroError = "Failed to load highlights.";
+}
+
+try {
+    const [summaryRes, listRes] = await Promise.all([
+        fetch(`${REVIEWS_API_BASE}/summary`),
+        fetch(`${REVIEWS_API_BASE}?page=1&pageSize=6`)
+    ]);
+
+    if (summaryRes.ok) {
+        reviewsSummary = await summaryRes.json();
+    }
+
+    if (listRes.ok) {
+        const data = await listRes.json();
+        homepageReviews = Array.isArray(data.reviews) ? data.reviews : [];
+    }
+} catch (e) {
+    console.error("Failed to load reviews for homepage:", e);
+}
+
+// simple helper to turn "new-construction" -> "New construction"
+function labelProjectType(type: Review["projectType"]): string {
+    switch (type) {
+        case "new-construction": return "New construction";
+        case "remodel": return "Remodel";
+        case "furniture": return "Furniture";
+        default: return "Project";
+    }
+}
+
+function truncate(text: string, max = 220): string {
+    if (!text) return "";
+    if (text.length <= max) return text;
+    return text.slice(0, max - 1).trimEnd() + "…";
 }
 
 const heroCover = highlights[0]?.full;
@@ -90,6 +147,67 @@ const heroRotUrls = highlights.map((h) => h.full);
 		</section>
 		<p style="text-align: center;">We provide estimates and stand behind our work. Don’t see the service you need?<br> <a href="/contact/" class="inline-link">Contact us.</a></p>
 	</section>
+    {reviewsSummary && reviewsSummary.totalReviews > 0 && (
+        <section class="homepage-reviews">
+            <div class="inner">
+                <h2 class="reviews-heading">Client reviews</h2>
+
+                <div class="reviews-summary-row">
+                    <div class="reviews-stars" aria-hidden="true">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                                <span class={i < Math.round(reviewsSummary.averageRating) ? "star filled" : "star"}>★</span>
+                        ))}
+                    </div>
+                    <p class="reviews-summary-text">
+                        <strong>{reviewsSummary.averageRating} out of 5 stars</strong><br />
+                        Based on {reviewsSummary.totalReviews} client reviews
+                    </p>
+                </div>
+
+                <div class="reviews-strip" aria-label="Client reviews" role="list">
+                    {homepageReviews.map((review: Review) => (
+                        <article class="review-card" role="listitem">
+                            <header class="review-card-header">
+                                <h3 class="review-name">{review.clientNamePublic}</h3>
+                                <p class="review-meta">
+                                    {labelProjectType(review.projectType)}
+                                    {review.location && <> · {review.location}</>}
+                                </p>
+                                <div
+                                    class="review-stars-row"
+                                    aria-label={`${review.rating} out of 5 stars`}
+                                >
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <span class={i < review.rating ? "star filled" : "star"}>★</span>
+                                    ))}
+                                </div>
+                            </header>
+                                <p class="review-text">
+                                    {truncate(review.text)}
+                                </p>
+
+                                {review.photoUrl && (
+                                    <div class="review-photo-wrap">
+                                        <img
+                                            src={review.photoUrl}
+                                            alt="Client submitted photo"
+                                            loading="lazy"
+                                        />
+                                    </div>
+                                )}
+                        </article>
+                    ))}
+                </div>
+
+                <div class="reviews-cta-row">
+                    <a class="button" href="/reviews">Read all reviews</a>
+                    <a class="button button-secondary" href="/reviews#leave-review">
+                        Leave a review
+                    </a>
+                </div>
+            </div>
+        </section>
+    )}
     <script src="/js/rotator.js?v=13" defer></script>
     <script src="/js/grid-enhancer.js?v=6" defer></script>
 </MainLayout>

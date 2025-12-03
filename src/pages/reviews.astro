@@ -1,0 +1,305 @@
+---
+import MainLayout from "../layout/MainLayout.astro";
+import "../styles/global.css";
+
+type ReviewsSummary = {
+    averageRating: number;
+    totalReviews: number;
+    ratingBreakdown: Record<number, number>;
+};
+
+type Review = {
+    id: string;
+    createdAt: string;
+    rating: number;
+    text: string;
+    clientNamePublic: string;
+    projectType: "new-construction" | "remodel" | "furniture" | "other";
+    location?: string | null;
+    photoUrl?: string | null;
+    adminReply?: string | null;
+    adminReplyAt?: string | null;
+    featured?: boolean;
+};
+
+const PROD_ORIGIN = Astro.site?.origin || "https://kilcon.work";
+const REVIEWS_API_BASE = new URL("/api/reviews", PROD_ORIGIN).toString();
+const SITEKEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+
+// simple query params for filters/paging
+const currentUrl = new URL(Astro.request.url);
+const filterType = currentUrl.searchParams.get("type") ?? "all";
+const page = Number(currentUrl.searchParams.get("page") ?? "1") || 1;
+const pageSize = 10;
+
+let summary: ReviewsSummary | null = null;
+let reviews: Review[] = [];
+let total = 0;
+let loadError: string | null = null;
+
+function projectTypeLabel(type: Review["projectType"]): string {
+    switch (type) {
+        case "new-construction": return "New construction";
+        case "remodel": return "Remodel";
+        case "furniture": return "Furniture";
+        default: return "Project";
+    }
+}
+
+function formatDate(iso: string): string {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
+}
+
+try {
+    const [summaryRes, listRes] = await Promise.all([
+        fetch(`${REVIEWS_API_BASE}/summary`),
+        fetch(
+            `${REVIEWS_API_BASE}?page=${page}&pageSize=${pageSize}${
+                filterType !== "all" ? `&projectType=${encodeURIComponent(filterType)}` : ""
+            }`
+        ),
+    ]);
+
+    if (summaryRes.ok) {
+        summary = await summaryRes.json();
+    }
+
+    if (listRes.ok) {
+        const data = await listRes.json();
+        total = Number(data.total || 0);
+        reviews = (Array.isArray(data.reviews) ? data.reviews : []) as Review[];
+    }
+} catch (e) {
+    console.error("Failed to load reviews page:", e);
+    loadError = "Could not load reviews right now.";
+}
+
+const totalPages = Math.max(1, Math.ceil(total / pageSize));
+const hasReviews = !!summary && summary.totalReviews > 0;
+---
+
+<MainLayout title="Client Reviews | KIL Construction" description="Read what clients say about working with KIL Construction.">
+    <section class="page-header">
+        <h1>Client reviews</h1>
+
+        {summary && (
+                <div class="reviews-summary-row">
+                    <div class="reviews-stars" aria-hidden="true">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                                <span class={i < Math.round(summary.averageRating) ? "star filled" : "star"}>
+              ★
+            </span>
+                        ))}
+                    </div>
+                    <p class="reviews-summary-text">
+                        {summary.totalReviews > 0 ? (
+                                <>
+                                    <strong>{summary.averageRating} out of 5 stars</strong><br />
+                                    Based on {summary.totalReviews} client reviews
+                                </>
+                        ) : (
+                                <>No reviews yet. Be the first to leave one.</>
+                        )}
+                    </p>
+                </div>
+        )}
+    </section>
+
+    <section class="reviews-layout">
+        <div class="reviews-main">
+            <header class="reviews-filters">
+                <form method="get" class="reviews-filter-form">
+                    <label>
+                        Project type:
+                        <select name="type" value={filterType}>
+                            <option value="all">All</option>
+                            <option value="new-construction">New construction</option>
+                            <option value="remodel">Remodels</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </label>
+                    <button type="submit">Apply</button>
+                </form>
+            </header>
+
+            {loadError && (
+                    <p class="status status--error">{loadError}</p>
+            )}
+
+            {hasReviews && reviews.length === 0 && !loadError && (
+                    <p>No reviews match this filter yet.</p>
+            )}
+
+            {reviews.length > 0 && (
+                    <div class="reviews-list">
+                        {reviews.map((review) => (
+                                <article class="review-card-full">
+                                    <header class="review-card-header">
+                                        <h2 class="review-name">{review.clientNamePublic}</h2>
+                                        <p class="review-meta">
+                                            {projectTypeLabel(review.projectType)}
+                                            {review.location && <> · {review.location}</>}
+                                        </p>
+                                        <div
+                                                class="review-stars-row"
+                                                aria-label={`${review.rating} out of 5 stars`}
+                                        >
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                    <span class={i < review.rating ? "star filled" : "star"}>★</span>
+                                            ))}
+                                        </div>
+                                        <p class="review-date">{formatDate(review.createdAt)}</p>
+                                    </header>
+
+                                    <p class="review-text">
+                                        {review.text}
+                                    </p>
+
+                                    {review.photoUrl && (
+                                            <div class="review-photo-wrap">
+                                                <img
+                                                        src={review.photoUrl}
+                                                        alt="Client submitted photo"
+                                                        loading="lazy"
+                                                />
+                                            </div>
+                                    )}
+
+                                    {review.adminReply && (
+                                            <div class="review-reply">
+                                                <strong>Reply from KIL Construction:</strong>
+                                                <p>{review.adminReply}</p>
+                                            </div>
+                                    )}
+                                </article>
+                        ))}
+                    </div>
+            )}
+
+            {totalPages > 1 && (
+                    <nav class="reviews-pagination" aria-label="Reviews pages">
+                        {Array.from({ length: totalPages }).map((_, idx) => {
+                            const pageNum = idx + 1;
+                            const url = new URL("/reviews", PROD_ORIGIN);
+                            url.searchParams.set("page", String(pageNum));
+                            if (filterType !== "all") url.searchParams.set("type", filterType);
+
+                            return (
+                                    <a
+                                            href={url.pathname + url.search}
+                                            class={`page-link ${pageNum === page ? "is-current" : ""}`}
+                                    >
+                                        {pageNum}
+                                    </a>
+                            );
+                        })}
+                    </nav>
+            )}
+        </div>
+
+        <aside class="reviews-sidebar" id="leave-review">
+            <h2>Leave a review</h2>
+            <p>We appreciate your feedback. Your review helps other homeowners choose KIL Construction with confidence.</p>
+
+            <form
+                    method="post"
+                    action="/api/reviews/submit"
+                    enctype="multipart/form-data"
+                    class="review-form"
+            >
+                <label>
+                    Your name
+                    <input type="text" name="name" required />
+                </label>
+
+                <label>
+                    Email
+                    <input type="email" name="email" required />
+                </label>
+
+                <label>
+                    Project type
+                    <select name="projectType" required>
+                        <option value="new-construction">New construction</option>
+                        <option value="remodel">Remodel</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="other">Other</option>
+                    </select>
+                </label>
+
+                <label>
+                    Location <span class="field-hint">(optional)</span>
+                    <input type="text" name="location" placeholder="Mondovi, WI" />
+                </label>
+
+                <fieldset class="rating-fieldset">
+                    <legend>Rating</legend>
+                    <div class="rating-stars-input">
+                        {Array.from({ length: 5 }).map((_, i) => {
+                            const value = i + 1;
+                            return (
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name="rating"
+                                            value={value}
+                                            required={value === 5}
+                                        />
+                                        <span>★</span>
+                                    </label>
+                            );
+                        })}
+                    </div>
+                </fieldset>
+
+                <label>
+                    Your review
+                    <textarea
+                            name="text"
+                            rows={4}
+                            minlength={40}
+                            required
+                            placeholder="Tell us about your project and your experience working with KIL Construction."
+                    ></textarea>
+                </label>
+
+                <label>
+                    Photo <span class="field-hint">(optional)</span>
+                    <input type="file" name="photo" accept="image/*" />
+                </label>
+
+                <label class="checkbox">
+                    <input type="checkbox" name="showFullName" />
+                    <span>Show my full name with the review.</span>
+                </label>
+
+                <label class="checkbox">
+                    <input type="checkbox" name="allowMarketing" />
+                    <span>You may use my review in marketing materials.</span>
+                </label>
+
+                <!-- Turnstile widget – copy the exact div from your contact form -->
+                <div
+                    id="cf-container"
+                    class="cf-turnstile"
+                    data-sitekey={SITEKEY}
+                    data-theme="auto"
+                    data-size="normal"
+                    data-refresh-expired="auto">
+                </div>
+
+                <button type="submit" class="btn">Submit review</button>
+            </form>
+            <!-- Turnstile loader -->
+            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        </aside>
+    </section>
+</MainLayout>

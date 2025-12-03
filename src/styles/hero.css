@@ -65,6 +65,121 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
 
+.homepage-reviews {
+    padding: 3rem 1rem 4rem;
+    background-color: #f7f7f7;
+}
+
+.homepage-reviews .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.reviews-heading {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.reviews-summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.reviews-stars .star,
+.review-stars-row .star {
+    font-size: 1.1rem;
+    opacity: 0.3;
+}
+
+.reviews-stars .star.filled,
+.review-stars-row .star.filled {
+    opacity: 1;
+}
+
+.reviews-summary-text {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.reviews-strip {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scroll-snap-type: x mandatory;
+}
+
+.review-card {
+    flex: 0 0 260px;
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    scroll-snap-align: start;
+}
+
+.review-card-header {
+    margin-bottom: 0.5rem;
+}
+
+.review-name {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.review-meta {
+    margin: 0.1rem 0 0.3rem;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+.review-stars-row {
+    font-size: 0.9rem;
+}
+
+.review-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0.5rem 0;
+}
+
+.review-photo-wrap {
+    margin-top: 0.5rem;
+}
+
+.review-photo-wrap img {
+    display: block;
+    width: 100%;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.reviews-cta-row {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.reviews-cta-row .button {
+    text-decoration: none;
+}
+
+/* mobile tweaks */
+@media (max-width: 640px) {
+    .homepage-reviews {
+        padding: 2.5rem 1rem 3rem;
+    }
+    .review-card {
+        flex: 0 0 80%;
+    }
+}
+
 /* --- HERO: responsive typography and image sizing --- */
 @media (max-width: 768px) {  .hero {padding: 32px 0 20px;}  .hero-copy h1 {font-size: clamp(1.8rem, 5vw, 2.1rem);}  }
 @media (max-width: 720px) {  .hero-card img.photo.hero-photo {height: min(52vw, 220px);}  }
