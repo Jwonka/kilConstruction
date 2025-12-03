@@ -63,6 +63,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     <th>Rating</th>
                     <th>Status</th>
                     <th>Featured</th>
+                    <th>Photo</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -169,6 +170,19 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 const featuredCell = document.createElement("td");
                 featuredCell.textContent = r.featured ? "Yes" : "No";
 
+                const photoCell = document.createElement("td");
+
+                if (r.photoUrl) {
+                    const url = escapeHtml(r.photoUrl);
+                    photoCell.innerHTML = `
+                      <a href="${url}" target="_blank" rel="noopener noreferrer" class="admin-review-thumb-link">
+                        <img src="${url}" alt="Review photo" class="admin-review-thumb" loading="lazy" />
+                      </a>
+                    `;
+                } else {
+                    photoCell.innerHTML = `<span class="admin-no-photo">—</span>`;
+                }
+
                 const actionsCell = document.createElement("td");
                 actionsCell.innerHTML = `
           <button class="admin-button-sm js-approve">Approve</button>
@@ -183,6 +197,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 tr.appendChild(ratingCell);
                 tr.appendChild(statusCell);
                 tr.appendChild(featuredCell);
+                tr.appendChild(photoCell);
                 tr.appendChild(actionsCell);
 
                 tbody.appendChild(tr);

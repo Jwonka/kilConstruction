@@ -787,18 +787,22 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     vertical-align: top;
 }
 
-/* Center short numeric / status columns */
+/* Center short numeric / status columns (rating, status, featured) */
 .admin-table th:nth-child(3),
 .admin-table td:nth-child(3), /* Rating */
 .admin-table th:nth-child(4),
 .admin-table td:nth-child(4), /* Status */
 .admin-table th:nth-child(5),
-.admin-table td:nth-child(5), /* Featured */
-.admin-table th:nth-child(6),
-.admin-table td:nth-child(6)  /* Submitted */
+.admin-table td:nth-child(5)  /* Featured */
 {
     text-align: center;
     white-space: nowrap;
+}
+
+/* Photo column centered but not forced to nowrap */
+.admin-table th:nth-child(6),
+.admin-table td:nth-child(6) { /* Photo */
+    text-align: center;
 }
 
 /* Make rating numbers line up nicely */
@@ -864,6 +868,26 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
+}
+
+/* Review photo thumbnail in admin reviews table */
+.admin-review-thumb-link {
+    display: inline-block;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+}
+
+.admin-review-thumb {
+    display: block;
+    width: 56px;
+    height: 42px;
+    object-fit: cover;
+}
+
+.admin-no-photo {
+    font-size: 0.8rem;
+    color: #9ca3af;
 }
 
 /* ===== RESPONSIVE TWEAKS ===== */
