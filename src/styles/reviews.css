@@ -4,7 +4,7 @@
     margin: 0 auto;
     padding: 2.5rem 1rem 4rem;
     display: grid;
-    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.3fr);
     gap: 1.5rem;
 }
 
@@ -32,6 +32,11 @@
     grid-template-columns: 1fr;
     gap: 1.5rem;
     margin-top: 1.5rem;
+}
+
+.reviews-list .card--review-full {
+    width: 100%;
+    max-width: 100%;
 }
 
 /* full review card tweak */
@@ -257,6 +262,11 @@
     display: flex;
     justify-content: center;
 }
+.reviews-sidebar .cf-turnstile {
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: center;
+}
 
 /* mobile tweaks */
 @media (max-width: 640px) {
@@ -288,6 +298,19 @@
 @media (max-width: 840px) {
     .reviews-layout {
         grid-template-columns: 1fr;
+    }
+}
+/* Desktop: keep the review form centered and sticky next to the list */
+@media (min-width: 900px) {
+    .reviews-sidebar {
+        position: sticky;
+        top: 50%;
+        transform: translateY(-50%);
+        align-self: flex-start;
+
+        /* if viewport is short, let the form scroll inside the card */
+        max-height: calc(100vh - 32px);
+        overflow-y: auto;
     }
 }
 /* Desktop: keep the form column sticky like contact page */
