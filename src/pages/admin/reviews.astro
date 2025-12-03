@@ -141,6 +141,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
             for (const r of reviews) {
                 const tr = document.createElement("tr");
                 tr.dataset.id = r.id;
+                tr.dataset.reply = r.adminReply || "";
 
                 const clientCell = document.createElement("td");
                 clientCell.innerHTML = `
@@ -262,12 +263,44 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     const currentlyFeatured = target.textContent === "Unfeature";
                     updateStatus(id, tr.querySelector("td:nth-child(4)")?.textContent || "approved", !currentlyFeatured);
                 } else if (target.classList.contains("js-reply")) {
-                    const existing = prompt("Reply to this client (leave blank to clear):", "");
-                    if (existing !== null) {
-                        sendReply(id, existing);
+                    // Toggle inline reply editor
+                    const actionsCell = tr.querySelector("td:last-child");
+                    if (!actionsCell) return;
+
+                    let editor = actionsCell.querySelector(".reply-editor");
+                    if (editor) {
+                        // if already open, close it
+                        editor.remove();
+                        return;
                     }
+
+                    editor = document.createElement("div");
+                    editor.className = "reply-editor";
+
+                    const existingText = tr.dataset.reply || "";
+
+                    editor.innerHTML = `
+                        <textarea class="reply-input" rows="3" placeholder="Type your reply to the client...">${escapeHtml(existingText)}</textarea>
+                        <div class="reply-editor-actions">
+                          <button type="button" class="admin-button-sm js-save-reply">Save</button>
+                          <button type="button" class="admin-button-sm js-cancel-reply">Cancel</button>
+                        </div>
+                      `;
+
+                    actionsCell.appendChild(editor);
+
+                } else if (target.classList.contains("js-save-reply")) {
+                    const editor = target.closest(".reply-editor");
+                    if (!editor) return;
+                    const textarea = editor.querySelector(".reply-input");
+                    const text = textarea ? textarea.value.trim() : "";
+                    sendReply(id, text);
+
+                } else if (target.classList.contains("js-cancel-reply")) {
+                    const editor = target.closest(".reply-editor");
+                    if (editor) editor.remove();
                 } else if (target.classList.contains("js-delete")) {
-                    deleteReview(id);
+                        deleteReview(id);
                 }
             });
         }

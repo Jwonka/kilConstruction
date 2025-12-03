@@ -475,6 +475,26 @@ body {
     align-items: flex-end;
 }
 
+.reply-editor {
+    margin-top: 0.5rem;
+}
+
+.reply-input {
+    width: 100%;
+    min-height: 3.5rem;
+    resize: vertical;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+}
+
+.reply-editor-actions {
+    margin-top: 0.4rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
 /* ===== MANAGE PAGE – TREE VIEW ===== */
 
 .results-list {

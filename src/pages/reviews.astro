@@ -31,6 +31,7 @@ const currentUrl = new URL(Astro.request.url);
 const filterType = currentUrl.searchParams.get("type") ?? "all";
 const page = Number(currentUrl.searchParams.get("page") ?? "1") || 1;
 const pageSize = 10;
+const sent = currentUrl.searchParams.get("sent") === "1";
 
 let summary: ReviewsSummary | null = null;
 let reviews: Review[] = [];
@@ -118,7 +119,7 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                 <form method="get" class="reviews-filter-form">
                     <label>
                         Project type:
-                        <select name="type" value={filterType}>
+                        <select name="type" value={filterType} onchange="this.form.submit()">
                             <option value="all">All</option>
                             <option value="new-construction">New construction</option>
                             <option value="remodel">Remodels</option>
@@ -126,7 +127,6 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                             <option value="other">Other</option>
                         </select>
                     </label>
-                    <button type="submit">Apply</button>
                 </form>
             </header>
 
@@ -208,6 +208,11 @@ const hasReviews = !!summary && summary.totalReviews > 0;
         <aside class="reviews-sidebar" id="leave-review">
             <h2>Leave a review</h2>
             <p>We appreciate your feedback. Your review helps other homeowners choose KIL Construction with confidence.</p>
+            {sent && (
+                    <p class="status status--success">
+                        Thank you — your review has been submitted and is pending approval.
+                    </p>
+            )}
 
             <form
                     method="post"
