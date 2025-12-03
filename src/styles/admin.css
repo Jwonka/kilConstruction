@@ -736,6 +736,52 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     margin: 0;
 }
 
+/* ===== Reviews table refinements ===== */
+
+/* Compact the table a bit */
+.admin-table th,
+.admin-table td {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.86rem;
+}
+
+/* Center short numeric / status columns */
+.admin-table th:nth-child(3),
+.admin-table td:nth-child(3), /* Rating */
+.admin-table th:nth-child(4),
+.admin-table td:nth-child(4), /* Status */
+.admin-table th:nth-child(5),
+.admin-table td:nth-child(5), /* Featured */
+.admin-table th:nth-child(6),
+.admin-table td:nth-child(6)  /* Submitted */
+{
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Make rating numbers line up nicely */
+.admin-table td:nth-child(3) {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Clamp email + preview text to one line with ellipsis */
+.admin-table td:first-child small {
+    display: block;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Clamp the project preview snippet in column 2 */
+.admin-table td:nth-child(2) small {
+    display: block;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* ===== RESPONSIVE TWEAKS ===== */
 
 @media (min-width: 720px) {
