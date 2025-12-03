@@ -746,8 +746,16 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 
 /* Let the actions column wrap but stay inside the cell */
 .admin-table td:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: flex-end;
     overflow: visible;
     white-space: normal;
+}
+
+.admin-table td:last-child .admin-button-sm {
+    width: 100%;
 }
 
 /* Make sure the outer card isn't clipping the last column */
@@ -897,16 +905,15 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 
     .admin-table td:last-child {
         margin-top: 0.4rem;
-    }
-
-    .admin-table td:last-child {
-        display: flex;
+        flex-direction: row;
         flex-wrap: wrap;
         gap: 0.35rem;
+        justify-content: center;
     }
 
     .admin-table td:last-child .admin-button-sm {
-        flex: 1 1 calc(50% - 0.35rem);
+        flex: 1 1 45%;
+        max-width: 48%;
         text-align: center;
     }
 }
