@@ -987,6 +987,11 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
         display: none;
     }
 
+    .admin-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
     .admin-table tr {
         display: block;
         margin-bottom: 1rem;
@@ -1102,6 +1107,7 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 
     .admin-actions {
         flex-direction: column;
+        align-items: center;
     }
 
     .admin-actions a {
@@ -1126,6 +1132,10 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     .admin-logo-img {
         width: 32px;
         height: 32px;
+    }
+
+    .admin-actions {
+        flex-direction: column;
     }
 
     .admin-brand {
