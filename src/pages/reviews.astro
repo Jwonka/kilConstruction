@@ -119,12 +119,12 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                 <form method="get" class="reviews-filter-form">
                     <label>
                         Project type:
-                        <select name="type" value={filterType} onchange="this.form.submit()">
-                            <option value="all">All</option>
-                            <option value="new-construction">New construction</option>
-                            <option value="remodel">Remodels</option>
-                            <option value="furniture">Furniture</option>
-                            <option value="other">Other</option>
+                        <select name="type" onchange="this.form.submit()">
+                            <option value="all" selected={filterType === "all"}>All</option>
+                            <option value="new-construction" selected={filterType === "new-construction"}>New construction</option>
+                            <option value="remodel" selected={filterType === "remodel"}>Remodels</option>
+                            <option value="furniture" selected={filterType === "furniture"}>Furniture</option>
+                            <option value="other" selected={filterType === "other"}>Other</option>
                         </select>
                     </label>
                 </form>

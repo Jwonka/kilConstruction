@@ -475,24 +475,53 @@ body {
     align-items: flex-end;
 }
 
+/* Base small admin buttons */
+.admin-button-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.7rem;
+    border-radius: 9999px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-button-sm:hover {
+    background: #e5edf8;
+}
+
+.admin-button-danger {
+    border-color: #f97373;
+    color: #b91c1c;
+}
+
+.admin-button-danger:hover {
+    background: #fee2e2;
+}
+
+/* Inline reply editor styling */
 .reply-editor {
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
 }
 
 .reply-input {
     width: 100%;
     min-height: 3.5rem;
     resize: vertical;
-    font-size: 0.85rem;
-    padding: 0.4rem 0.5rem;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.5rem;
     border-radius: 6px;
     border: 1px solid #cbd5e1;
 }
 
 .reply-editor-actions {
-    margin-top: 0.4rem;
+    margin-top: 0.35rem;
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
 /* ===== MANAGE PAGE – TREE VIEW ===== */
@@ -729,6 +758,25 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 @media (min-width: 1024px) {
     .admin-main {
         align-items: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-controls-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .admin-table td:last-child {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .admin-table td:last-child .admin-button-sm {
+        flex: 1 1 calc(50% - 0.35rem);
+        text-align: center;
     }
 }
 
