@@ -93,3 +93,46 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
+/* Home hero + services mobile refinements (index only) */
+@media (max-width: 640px) {
+    .hero {
+        padding: 16px 12px 12px;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .hero-card {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 10px 12px;
+        border-radius: 0;
+    }
+
+    .hero-card img.photo.hero-photo {
+        width: 100%;
+        height: auto;
+        max-height: 260px;
+        object-fit: cover;
+    }
+
+    /* “What we do” section under hero */
+    .hero + section {
+        padding: 0 12px 8px;
+    }
+
+    /* Kill any multi-column grid JS sets up and stack cards */
+    .hero + section .grid {
+        display: block !important;
+        grid-template-columns: none !important;
+        margin: 12px 0;
+    }
+
+    .hero + section .grid .card {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 0 12px 0;
+        border-radius: 8px;
+        padding: 14px 14px 12px;
+    }
+}
