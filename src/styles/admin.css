@@ -999,13 +999,29 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 
     .admin-table td {
         display: block;
-        padding: 0.15rem 0;
-        word-break: break-word; /* keep text inside the card */
-        overflow-wrap: anywhere; /* long “no space” strings wrap */
+        position: relative;
+        padding: 0.25rem 0 0.25rem 6.75rem; /* room on the left for label */
+        word-break: break-word;     /* keep text inside the card */
+        overflow-wrap: anywhere;    /* long “no space” strings wrap */
     }
+
+    /* Label on the left: uses data-label from the TD */
+    .admin-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        top: 0.3rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #6b7280;
+    }
+
 
     .admin-table td:last-child {
         margin-top: 0.4rem;
+        padding-left: 0;
         display: flex;
         flex-wrap: wrap;
         gap: 0.35rem;

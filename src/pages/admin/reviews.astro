@@ -144,6 +144,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 tr.dataset.reply = r.adminReply || "";
 
                 const clientCell = document.createElement("td");
+                clientCell.dataset.label = "Client";
                 clientCell.innerHTML = `
                   <strong>${escapeHtml(r.clientNamePublic || "Client")}</strong>
                   ${r.location ? `<br><small>${escapeHtml(r.location)}</small>` : ""}
@@ -156,21 +157,26 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 const fullText = r.text || "";
 
                 const projectCell = document.createElement("td");
+                projectCell.dataset.label = "Project";
                 projectCell.innerHTML = `
                   ${escapeHtml(projectTypeLabel(r.projectType))}<br>
                   ${r.text ? `<small class="admin-review-body">${escapeHtml(r.text)}</small>` : ""}
                 `;
 
                 const ratingCell = document.createElement("td");
+                ratingCell.dataset.label = "Rating";
                 ratingCell.textContent = `${r.rating} ★`;
 
                 const statusCell = document.createElement("td");
+                statusCell.dataset.label = "Status";
                 statusCell.textContent = r.status;
 
                 const featuredCell = document.createElement("td");
+                featuredCell.dataset.label = "Featured";
                 featuredCell.textContent = r.featured ? "Yes" : "No";
 
                 const photoCell = document.createElement("td");
+                photoCell.dataset.label = "Photo";
 
                 if (r.photoUrl) {
                     const url = escapeHtml(r.photoUrl);
@@ -189,6 +195,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
 
                 const actionsCell = document.createElement("td");
+                actionsCell.dataset.label = "Actions";
                 actionsCell.innerHTML = `
                   <button
                     class="admin-button-sm js-approve${isApproved ? " is-disabled" : ""}"
