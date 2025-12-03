@@ -264,6 +264,14 @@
 .reviews-sidebar .cf-turnstile {
     margin-top: 0.75rem;  /* let Turnstile handle its own width */
 }
+
+/* Default: sticky everywhere */
+.reviews-sidebar {
+    position: sticky;
+    top: calc(var(--header-h, 84px) + 16px);
+    align-self: flex-start;
+}
+
 /* mobile tweaks */
 @media (max-width: 640px) {
     .homepage-reviews {
@@ -310,7 +318,7 @@
         max-width: 100%;
     }
 }
-@media (min-width: 840px) { .reviews-sidebar { position: sticky; } }
+
 /* Tablet + desktop: two columns */
 @media (min-width: 800px) {
     .reviews-layout {
@@ -328,17 +336,15 @@
     }
 }
 
+/* Mobile: stack and turn off sticky so it behaves like the contact page */
 @media (max-width: 840px) {
     .reviews-layout {
         grid-template-columns: 1fr;
     }
-}
 
-/* Desktop: keep the form column sticky like contact page */
-@media (min-width: 840px) {
     .reviews-sidebar {
-        top: calc(var(--header-h, 84px) + 16px);
-        align-self: flex-start;
+        position: static;
+        top: auto;
     }
 }
 
