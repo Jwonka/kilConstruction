@@ -23,7 +23,7 @@
     max-width: 1200px;
     margin: 0 auto;
     display: block;
-    min-width: 570px;
+    min-width: clamp(250px, 100vw, 520px);
 }
 
 .reviews-sidebar {
