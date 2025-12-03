@@ -8,11 +8,6 @@
     gap: 1.75rem;
 }
 
-/* keep all review-page cards from letting content overflow (Turnstile) */
-.reviews-layout-full {
-    overflow: hidden;
-}
-
 /* Prevent the form from forcing a min-width on small screens */
 .review-form,
 .review-form .btn {
