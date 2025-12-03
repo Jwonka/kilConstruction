@@ -195,7 +195,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
 
                 const actionsCell = document.createElement("td");
-                actionsCell.dataset.label = "Actions";
+                actionsCell.dataset.label = "";
                 actionsCell.innerHTML = `
                   <button
                     class="admin-button-sm js-approve${isApproved ? " is-disabled" : ""}"
