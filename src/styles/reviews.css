@@ -1,0 +1,197 @@
+/* two-column layout for reviews page */
+.reviews-layout {
+    padding: 2rem 1rem 3rem;
+}
+
+.card--reviews-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
+    gap: 2rem;
+}
+
+/* list of review cards on the left */
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* full review card tweak */
+.card--review-full {
+    padding-top: 1.5rem; /* small extra room under the green strip */
+}
+
+.review-reply {
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e5e7eb;
+    font-size: 0.9rem;
+}
+
+/* sidebar on the right reuses global form/button styles */
+.reviews-sidebar .btn {
+    width: 100%;
+    justify-content: center;
+}
+.homepage-reviews {
+    padding: 3rem 1rem 4rem;
+    background-color: #f7f7f7;
+}
+
+.card--reviews-shell {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* horizontal scrolling strip of review cards */
+.reviews-strip {
+    display: flex;
+    gap: var(--gap);
+    overflow-x: auto;
+    padding: 0.5rem 0 0.75rem;
+    scroll-snap-type: x mandatory;
+}
+
+/* review tiles reuse .card; we just constrain size */
+.card--review-tile {
+    flex: 0 0 260px;
+    max-width: 320px;
+    scroll-snap-align: start;
+}
+
+/* keep your star / text / photo styles, but drop extra box-shadows/borders
+   since .card already handles that */
+.review-card-header { margin-bottom: 0.5rem; }
+.review-name { margin: 0; font-size: 0.95rem; }
+.review-meta { margin: 0.1rem 0 0.3rem; font-size: 0.8rem; color: #555; }
+.review-text { font-size: 0.9rem; line-height: 1.4; margin: 0.5rem 0; }
+
+.review-photo-wrap img {
+    display: block;
+    width: 100%;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.homepage-reviews .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.reviews-heading {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.reviews-summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.reviews-stars .star,
+.review-stars-row .star {
+    font-size: 1.1rem;
+    opacity: 0.3;
+}
+
+.reviews-stars .star.filled,
+.review-stars-row .star.filled {
+    opacity: 1;
+}
+
+.reviews-summary-text {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.reviews-strip {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scroll-snap-type: x mandatory;
+}
+
+.review-card {
+    flex: 0 0 260px;
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    scroll-snap-align: start;
+}
+
+.review-card-header {
+    margin-bottom: 0.5rem;
+}
+
+.review-name {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.review-meta {
+    margin: 0.1rem 0 0.3rem;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+.review-stars-row {
+    font-size: 0.9rem;
+}
+
+.review-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0.5rem 0;
+}
+
+.review-photo-wrap {
+    margin-top: 0.5rem;
+}
+
+.review-photo-wrap img {
+    display: block;
+    width: 100%;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.reviews-cta-row {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.reviews-cta-row .button {
+    text-decoration: none;
+}
+
+/* mobile tweaks */
+@media (max-width: 640px) {
+    .homepage-reviews {
+        padding: 2.5rem 1rem 3rem;
+    }
+    .review-card {
+        flex: 0 0 80%;
+    }
+    .card--review-tile {
+        flex: 0 0 80%;
+    }
+}
+
+/* mobile: stack everything */
+@media (max-width: 800px) {
+    .card--reviews-page {
+        grid-template-columns: 1fr;
+    }
+}

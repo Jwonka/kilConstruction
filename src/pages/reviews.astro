@@ -1,6 +1,7 @@
 ---
 import MainLayout from "../layout/MainLayout.astro";
 import "../styles/global.css";
+import "../styles/reviews.css";
 
 type ReviewsSummary = {
     averageRating: number;
@@ -114,95 +115,97 @@ const hasReviews = !!summary && summary.totalReviews > 0;
     </section>
 
     <section class="reviews-layout">
-        <div class="reviews-main">
-            <header class="reviews-filters">
-                <form method="get" class="reviews-filter-form">
-                    <label>
-                        Project type:
-                        <select name="type" onchange="this.form.submit()">
-                            <option value="all" selected={filterType === "all"}>All</option>
-                            <option value="new-construction" selected={filterType === "new-construction"}>New construction</option>
-                            <option value="remodel" selected={filterType === "remodel"}>Remodels</option>
-                            <option value="furniture" selected={filterType === "furniture"}>Furniture</option>
-                            <option value="other" selected={filterType === "other"}>Other</option>
-                        </select>
-                    </label>
-                </form>
-            </header>
+        <div class="card card--reviews-page">
+            <div class="reviews-main">
+                <header class="reviews-filters">
+                    <form method="get" class="reviews-filter-form">
+                        <label>
+                            Project type:
+                            <select name="type" onchange="this.form.submit()">
+                                <option value="all" selected={filterType === "all"}>All</option>
+                                <option value="new-construction" selected={filterType === "new-construction"}>New construction</option>
+                                <option value="remodel" selected={filterType === "remodel"}>Remodels</option>
+                                <option value="furniture" selected={filterType === "furniture"}>Furniture</option>
+                                <option value="other" selected={filterType === "other"}>Other</option>
+                            </select>
+                        </label>
+                    </form>
+                </header>
 
-            {loadError && (
-                    <p class="status status--error">{loadError}</p>
-            )}
+                {loadError && (
+                        <p class="status status--error">{loadError}</p>
+                )}
 
-            {hasReviews && reviews.length === 0 && !loadError && (
-                    <p>No reviews match this filter yet.</p>
-            )}
+                {hasReviews && reviews.length === 0 && !loadError && (
+                        <p>No reviews match this filter yet.</p>
+                )}
 
-            {reviews.length > 0 && (
-                    <div class="reviews-list">
-                        {reviews.map((review) => (
-                                <article class="review-card-full">
-                                    <header class="review-card-header">
-                                        <h2 class="review-name">{review.clientNamePublic}</h2>
-                                        <p class="review-meta">
-                                            {projectTypeLabel(review.projectType)}
-                                            {review.location && <> · {review.location}</>}
+                {reviews.length > 0 && (
+                        <div class="reviews-list">
+                            {reviews.map((review) => (
+                                    <article class="card card--review-full">
+                                        <header class="review-card-header">
+                                            <h2 class="review-name">{review.clientNamePublic}</h2>
+                                            <p class="review-meta">
+                                                {projectTypeLabel(review.projectType)}
+                                                {review.location && <> · {review.location}</>}
+                                            </p>
+                                            <div
+                                                    class="review-stars-row"
+                                                    aria-label={`${review.rating} out of 5 stars`}
+                                            >
+                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                        <span class={i < review.rating ? "star filled" : "star"}>★</span>
+                                                ))}
+                                            </div>
+                                            <p class="review-date">{formatDate(review.createdAt)}</p>
+                                        </header>
+
+                                        <p class="review-text">
+                                            {review.text}
                                         </p>
-                                        <div
-                                                class="review-stars-row"
-                                                aria-label={`${review.rating} out of 5 stars`}
+
+                                        {review.photoUrl && (
+                                                <div class="review-photo-wrap">
+                                                    <img
+                                                            src={review.photoUrl}
+                                                            alt="Client submitted photo"
+                                                            loading="lazy"
+                                                    />
+                                                </div>
+                                        )}
+
+                                        {review.adminReply && (
+                                                <div class="review-reply">
+                                                    <strong>Reply from KIL Construction:</strong>
+                                                    <p>{review.adminReply}</p>
+                                                </div>
+                                        )}
+                                    </article>
+                            ))}
+                        </div>
+                )}
+
+                {totalPages > 1 && (
+                        <nav class="reviews-pagination" aria-label="Reviews pages">
+                            {Array.from({ length: totalPages }).map((_, idx) => {
+                                const pageNum = idx + 1;
+                                const url = new URL("/reviews", PROD_ORIGIN);
+                                url.searchParams.set("page", String(pageNum));
+                                if (filterType !== "all") url.searchParams.set("type", filterType);
+
+                                return (
+                                        <a
+                                                href={url.pathname + url.search}
+                                                class={`page-link ${pageNum === page ? "is-current" : ""}`}
                                         >
-                                            {Array.from({ length: 5 }).map((_, i) => (
-                                                    <span class={i < review.rating ? "star filled" : "star"}>★</span>
-                                            ))}
-                                        </div>
-                                        <p class="review-date">{formatDate(review.createdAt)}</p>
-                                    </header>
-
-                                    <p class="review-text">
-                                        {review.text}
-                                    </p>
-
-                                    {review.photoUrl && (
-                                            <div class="review-photo-wrap">
-                                                <img
-                                                        src={review.photoUrl}
-                                                        alt="Client submitted photo"
-                                                        loading="lazy"
-                                                />
-                                            </div>
-                                    )}
-
-                                    {review.adminReply && (
-                                            <div class="review-reply">
-                                                <strong>Reply from KIL Construction:</strong>
-                                                <p>{review.adminReply}</p>
-                                            </div>
-                                    )}
-                                </article>
-                        ))}
-                    </div>
-            )}
-
-            {totalPages > 1 && (
-                    <nav class="reviews-pagination" aria-label="Reviews pages">
-                        {Array.from({ length: totalPages }).map((_, idx) => {
-                            const pageNum = idx + 1;
-                            const url = new URL("/reviews", PROD_ORIGIN);
-                            url.searchParams.set("page", String(pageNum));
-                            if (filterType !== "all") url.searchParams.set("type", filterType);
-
-                            return (
-                                    <a
-                                            href={url.pathname + url.search}
-                                            class={`page-link ${pageNum === page ? "is-current" : ""}`}
-                                    >
-                                        {pageNum}
-                                    </a>
-                            );
-                        })}
-                    </nav>
-            )}
+                                            {pageNum}
+                                        </a>
+                                );
+                            })}
+                        </nav>
+                )}
+            </div>
         </div>
 
         <aside class="reviews-sidebar" id="leave-review">
