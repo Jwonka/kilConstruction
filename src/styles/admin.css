@@ -782,6 +782,27 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     white-space: nowrap;
 }
 
+.admin-button-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem 0.85rem;
+    border-radius: 9999px;
+    border: 1px solid #111827;
+    background: #111827;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.admin-button-sm:hover {
+    background: #1f2937;
+    border-color: #1f2937;
+}
+
 /* ===== RESPONSIVE TWEAKS ===== */
 
 @media (min-width: 720px) {
