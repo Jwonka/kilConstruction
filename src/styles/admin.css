@@ -820,23 +820,22 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 }
 /* PROJECT COLUMN — multiline, controlled height, wrapped text */
 .admin-table td:nth-child(2) {
-    max-width: 200px;
-    width: 200px;
+    max-width: 360px;
+    width: 360px;
     white-space: normal;
     word-break: break-word;
-    line-height: 1.25;
+    line-height: 1.35;
 }
 
 /* Inner preview text */
 .admin-table td:nth-child(2) small {
-    display: block;
+    display: -webkit-box;
     margin-top: 0.25rem;
     color: #6b7280;
     font-size: 0.8rem;
 
     /* Multiline clamp */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;       /* show up to 4 lines */
+    -webkit-line-clamp: 6;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
