@@ -1034,6 +1034,60 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 }
 
 /* Mobile tweaks */
+/* Tablet widths: keep the Project / review column wide */
+@media (min-width: 769px) and (max-width: 959px) {
+    .admin-table {
+        table-layout: auto; /* let columns size more naturally */
+    }
+
+    /* Client – a bit narrower */
+    .admin-table th:nth-child(1),
+    .admin-table td:nth-child(1) {
+        width: 110px;
+        max-width: 120px;
+        white-space: nowrap;
+    }
+
+    /* Project / review text – gets most of the space */
+    .admin-table th:nth-child(2),
+    .admin-table td:nth-child(2) {
+        width: 60%;
+        max-width: none;
+    }
+
+    /* Rating */
+    .admin-table th:nth-child(3),
+    .admin-table td:nth-child(3) {
+        width: 55px;
+    }
+
+    /* Status */
+    .admin-table th:nth-child(4),
+    .admin-table td:nth-child(4) {
+        width: 70px;
+        white-space: nowrap;
+    }
+
+    /* Featured */
+    .admin-table th:nth-child(5),
+    .admin-table td:nth-child(5) {
+        width: 65px;
+        white-space: nowrap;
+    }
+
+    /* Photo thumb */
+    .admin-table th:nth-child(6),
+    .admin-table td:nth-child(6) {
+        width: 70px;
+    }
+
+    /* Actions – enough for the vertical button stack */
+    .admin-table th:nth-child(7),
+    .admin-table td:nth-child(7) {
+        width: 115px;
+    }
+}
+
 @media (max-width: 700px) {
     .admin-main {
         padding: 1.75rem 1rem 3.25rem;
