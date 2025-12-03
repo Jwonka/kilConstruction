@@ -152,6 +152,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     clientCell.title = r.clientEmail; // still accessible on hover
                 }
 
+                const projectCell = document.createElement("td");
                 projectCell.innerHTML = `
                   ${escapeHtml(projectTypeLabel(r.projectType))}<br>
                   <small>${escapeHtml((r.text || "").slice(0, 80))}${r.text && r.text.length > 80 ? "…" : ""}</small>

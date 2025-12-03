@@ -23,6 +23,7 @@
     max-width: 1200px;
     margin: 0 auto;
     display: block;
+    min-width: 570px;
 }
 
 .reviews-sidebar {
