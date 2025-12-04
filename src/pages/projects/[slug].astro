@@ -66,9 +66,13 @@ const cropName = (s: string) =>
         .replace(/^\s*\d+[\s_-]*/, "")  // strip leading digits + separators
         .replace(/[\s_-]*\d+\s*$/, "")  // strip trailing digits + separators
         .trim();
+const metaDescription =
+    projectDesc
+        ? `${projectName} – ${projectDesc}`
+        : `${projectName} from KIL Construction – view project photos and details.`;
 ---
 
-<MainLayout title={projectName} noSticky>
+<MainLayout title={projectName} description={metaDescription} noSticky>
     <h1 class="page-head container">{projectName}</h1>
     {projectDesc && <p class="container muted" style="margin-top:-6px;margin-bottom:14px;">{projectDesc}</p>}
 

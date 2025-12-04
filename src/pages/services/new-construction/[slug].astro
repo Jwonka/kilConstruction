@@ -120,9 +120,13 @@ function slugToTitle(s: string): string {
         .map((part) => part[0]?.toUpperCase() + part.slice(1))
         .join(" ");
 }
+const metaDescription =
+    albumDesc
+        ? `${albumName} – ${albumDesc}`
+        : `${albumName} – New construction project gallery by KIL Construction. See framing, exterior, and finished photos of this build.`;
 ---
 
-<MainLayout title={albumName} noSticky>
+<MainLayout title={albumName} description={metaDescription} noSticky>
     <h1 class="page-head container">{albumName}</h1>
 
     {albumDesc && (

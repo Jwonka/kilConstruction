@@ -248,10 +248,13 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    /* show ~3 tiles in view */
+    .homepage-reviews .reviews-strip {
+        gap: 1.25rem; /* slightly larger visual spacing */
+    }
+
     .homepage-reviews .review-card-link {
-        flex: 0 0 30%;
-        max-width: 340px;
+        flex: 0 0 32%;     /* perfect 3-across layout */
+        max-width: 32%;
     }
 }
 
