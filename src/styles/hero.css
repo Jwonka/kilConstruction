@@ -1,4 +1,7 @@
-.hero{
+.hero {
+    outline: 6px solid magenta !important;
+    background: #ffeeff !important;
+
     padding: 16px 0 12px;
     max-width: 1200px;
     margin: 0 auto;
