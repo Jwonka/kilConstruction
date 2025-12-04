@@ -177,26 +177,4 @@ button.btn.cta {
 @media (max-width: 480px) {  .grid { grid-template-columns: 1fr; }  }
 /* Respect users that prefer less motion */
 @media (prefers-reduced-motion: reduce){  .btn{ transition: none; }  }
-/* Hero: mobile + small tablet override (must stay last) */
-@media (max-width: 768px) {
-    .hero {
-        padding: 24px 0 32px;
-    }
-
-    .hero-copy {
-        padding: 0 1.5rem;
-        max-width: 32rem;
-        margin: 0 auto 1.5rem;
-        text-align: center;
-    }
-
-    .hero-copy h1 {
-        margin: 0 0 0.75rem;
-    }
-
-    .hero-card {
-        max-width: 32rem;
-        margin: 0 auto;
-    }
-}
 
