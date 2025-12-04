@@ -1038,6 +1038,7 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
         display: flex;
         flex-wrap: wrap;
         gap: 0.35rem;
+        justify-content: center;
     }
 
     .admin-table td:last-child::before {
@@ -1048,6 +1049,23 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
     .admin-table td:last-child .admin-button-sm {
         flex: 1 1 100%;
         text-align: center;
+    }
+    /* full width, not constrained by desktop widths */
+    .admin-table td:nth-child(1),
+    .admin-table td:nth-child(2) {
+        flex: 0 0 auto;
+        width: 80%;
+        max-width: 220px;
+        margin-inline: auto;
+    }
+
+    /* Make the content feel centred within the card without sharing space
+       with a fake “left column” */
+    .admin-table td:nth-child(1),
+    .admin-table td:nth-child(2),
+    .admin-table td:nth-child(1) * ,
+    .admin-table td:nth-child(2) * {
+        text-align: left;
     }
 }
 

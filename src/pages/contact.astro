@@ -36,6 +36,10 @@ const ENDPOINT = import.meta.env.PUBLIC_CONTACT_ENDPOINT;
         <!-- RIGHT: form -->
         <section class="card contact-panel">
             <h2>Tell us about your project</h2>
+            <p class="contact-helper">
+                Already worked with us before?{" "}
+                <a href="/reviews#leave-review" class="inline-link">Leave a review.</a>
+            </p>
             <div id="result" class="result" aria-live="polite"></div>
             <form class="contact-form" method="POST" action={import.meta.env.PUBLIC_CONTACT_ENDPOINT}>
                 <input type="hidden" name="access_key" value={ACCESS_KEY} />

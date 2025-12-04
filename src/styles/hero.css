@@ -95,18 +95,31 @@
 }
 /* Home hero + services mobile refinements (index only) */
 @media (max-width: 640px) {
+    /* Make sure the page itself never gets wider than the viewport */
+    html,
+    body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    main,
+    .container {
+        max-width: 100%;
+    }
+
     .hero {
         padding: 10px 12px 8px;
-        max-width: 100% !important;
-        margin: 0 !important;
+        max-width: 100%;
+        margin: 0;
     }
 
     .hero-card {
-        max-width: 100% !important;
-        width: 100% !important;
-        margin: 0 !important;
+        max-width: 100%;
+        width: 100%;
+        margin: 0;
         padding: 8px 10px 10px;
         border-radius: 0;
+        box-sizing: border-box;
     }
 
     .hero-card img.photo.hero-photo {
@@ -118,7 +131,9 @@
 
     /* “What we do” section under hero */
     .hero + section {
-        padding: 4px 12px 8px;      /* small gap between hero and services */
+        padding: 4px 12px 8px;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     /* Stack the three service cards full-width */
@@ -129,10 +144,19 @@
     }
 
     .hero + section .grid .card {
-        width: 100% !important;
-        max-width: 100% !important;
+        width: 100%;
+        max-width: 100%;
         margin: 0 0 10px 0;
         border-radius: 8px;
         padding: 12px 14px 10px;
+        box-sizing: border-box;
+    }
+
+    /* Clamp the homepage reviews shell so it can’t overflow */
+    .homepage-reviews,
+    .homepage-reviews .card--reviews-shell {
+        max-width: 100%;
+        box-sizing: border-box;
+        margin: 0;
     }
 }

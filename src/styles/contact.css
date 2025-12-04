@@ -2,6 +2,11 @@
     text-align:center;
     margin: 28px 0 18px;
 }
+.contact-helper {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+}
 .contact-grid{
     display:grid;
     gap: clamp(16px, 2.5vw, 28px);
