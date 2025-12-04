@@ -9,6 +9,9 @@
 html,body{height: 100%;margin:0;padding:0;overflow-x: hidden;}
 body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;display: flex;flex-direction: column;min-height: 100svh;}
 main.container { padding-bottom: var(--footer-h);}
+main.container > * {width: 100%;max-width: 100%;}
+/* Extra safety: no horizontal overflow from any section */
+main.container > * {overflow-x: hidden;}
 a{color:var(--brand);text-decoration:none}
 a:hover{text-decoration: ghostwhite}
 .container{max-width: 1400px;margin:0 auto;padding:0 var(--space)}

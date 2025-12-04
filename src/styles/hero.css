@@ -319,6 +319,8 @@
     }
 
     .homepage-reviews .reviews-strip {
+        width: 100%;
+        max-width: 100%;
         gap: 0.75rem;
         padding-inline: 0;
     }
