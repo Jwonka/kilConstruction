@@ -89,10 +89,6 @@
     width: 100%;
     justify-content: center;
 }
-.homepage-reviews {
-    padding: 3rem 1rem 4rem;
-    background-color: transparent;
-}
 
 .card--reviews-shell {
     max-width: 1145px;
@@ -128,16 +124,6 @@
     max-height: 140px;
     object-fit: cover;
     border-radius: 8px;
-}
-
-.homepage-reviews .inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-    padding: 1.75rem 2.25rem 1.5rem;
 }
 
 .reviews-heading {
@@ -271,66 +257,6 @@
     position: sticky;
     top: calc(var(--header-h, 84px) + 16px);
     align-self: flex-start;
-}
-
-/* mobile tweaks – homepage reviews ONLY */
-@media (max-width: 640px) {
-    .homepage-reviews {
-        padding: 10px 0 12px;
-        margin: 0;
-    }
-
-    .homepage-reviews .inner {
-        max-width: 100%;
-        width: 100%;
-        margin: 0;
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
-        box-shadow: none;
-        padding: 12px 10px 10px;
-        box-sizing: border-box;
-    }
-
-    .homepage-reviews .card--reviews-shell {
-        max-width: 100%;
-        width: 100%;
-        margin: 0;
-        border-radius: 0;
-        padding: 0 10px 0; /* padding now handled by .inner */
-    }
-
-    .homepage-reviews .reviews-heading {
-        font-size: 1.4rem;
-        text-align: left;
-        margin-bottom: 0.5rem;
-    }
-
-    .homepage-reviews .reviews-summary-row {
-        flex-direction: column;
-        align-items: flex-start;
-        text-align: left;
-        gap: 0.3rem;
-        margin-bottom: 0.75rem;
-    }
-
-    /* Review strip is the ONLY horizontal scroller */
-    .homepage-reviews .reviews-strip {
-        padding: 0.25rem 4px 0.5rem;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
-        scrollbar-width: none;
-    }
-    .homepage-reviews .reviews-strip::-webkit-scrollbar {
-        display: none;
-    }
-
-    /* Each review tile is full-width on small phones */
-    .homepage-reviews .review-card-link,
-    .homepage-reviews .card--review-tile {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
 }
 
 /* Tablet + desktop: two columns */
