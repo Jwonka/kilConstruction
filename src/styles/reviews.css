@@ -288,7 +288,7 @@
         border-left: none;
         border-right: none;
         box-shadow: none;
-        padding: 14px 16px 12px;
+        padding: 12px 10px 10px;
         box-sizing: border-box;
     }
 
@@ -297,7 +297,7 @@
         width: 100%;
         margin: 0;
         border-radius: 0;
-        padding: 0; /* padding now handled by .inner */
+        padding: 0 10px 0; /* padding now handled by .inner */
     }
 
     .homepage-reviews .reviews-heading {

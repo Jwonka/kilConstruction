@@ -350,12 +350,12 @@ body {
 
 .status-row.status--success {
     color: #15803d; /* green */
-    font-weight: 500;
+    font-weight: 650;
 }
 
 .status-row.status--error {
     color: #b91c1c; /* red */
-    font-weight: 500;
+    font-weight: 650;
 }
 
 /* ===== BUTTONS ===== */
