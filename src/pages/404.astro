@@ -1,0 +1,31 @@
+---
+import MainLayout from "../layout/MainLayout.astro";
+import "../styles/global.css";
+import "../styles/hero.css";
+import "../styles/not-found.css";
+---
+
+<MainLayout title="Page not found | KIL Construction">
+    <main class="container not-found">
+        <section class="not-found__card card">
+            <h1 class="not-found__title">Page not found</h1>
+            <p class="not-found__lead">
+                We could not find the page you were looking for.
+            </p>
+            <p class="not-found__text">
+                The link may be outdated or the page may have been moved.
+            </p>
+
+            <div class="not-found__actions">
+                <a href="/" class="button button--primary">Back to home</a>
+                <a href="/contact/" class="button button--ghost">
+                    Request a free quote
+                </a>
+            </div>
+
+            <p class="not-found__smallprint">
+                Still stuck? Call or text us and we will point you in the right direction.
+            </p>
+        </section>
+    </main>
+</MainLayout>
