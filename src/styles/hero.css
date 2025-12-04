@@ -1,14 +1,13 @@
 .hero {
-    padding: 32px 16px 24px;
+    padding: 16px 0 12px;
     max-width: 1200px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.6rem;
     text-align: center;
 }
-
 .hero-card {
     max-width: 1100px;
     width: 100%;
@@ -17,11 +16,10 @@
     background: #fff;
     border: 1px solid #e9ecef;
     border-radius: var(--radius);
-    padding: 16px;
+    padding: 12px;
     box-shadow: 0 2px 6px rgba(0,0,0,.12);
     transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
 }
-
 /* Hero card top green bar — identical to global card::before */
 .hero-card::before {
     content: "";
@@ -34,37 +32,20 @@
     background: #506631; /* same green as global */
     pointer-events: none;
 }
-
 .hero-card:hover,
 .hero-card:focus-within {
     transform: translateY(-2px);
     box-shadow: 0 18px 40px rgba(15,23,42,0.16);
 }
 
-.hero-copy h1 {
-    font-size: clamp(2.1rem, 3vw, 2.6rem);
-    margin: 0 0 0.35rem;
-}
-
-.hero-copy p {
-    max-width: 32rem;
-    color: #4b5563;
-    margin: 0 auto;
-}
-
-.hero-image-wrap {
-    background: #000;
-    border-radius: var(--radius);
-    overflow: hidden;
-}
-
-/* Desktop/large screens: consistent rectangle via aspect ratio */
+.hero-copy h1 { font-size: clamp(2.1rem, 3vw, 2.6rem); margin: 0 0 0.35rem; }
+.hero-copy p { max-width: 32rem; color: #4b5563; margin: 0 auto; }
+.hero-image-wrap { background: #000000; border-radius: var(--radius); overflow: hidden; }
 .hero-card img.photo.hero-photo {
     display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
+    width: 100% !important;
+    height: clamp(340px, 40vh, 420px);
+    object-fit: cover !important;
     border-radius: var(--radius);
     background: transparent;
 }
@@ -77,7 +58,6 @@
     color: #e5e7eb;
     font-weight: 600;
 }
-
 .hero-status {
     margin-top: 6px;
     font-size: 0.8rem;
@@ -85,9 +65,10 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
 
-/* ===========================
-   "What we do" section under hero
-   =========================== */
+/* --- HERO: responsive typography and image sizing --- */
+@media (max-width: 768px) {  .hero {padding: 32px 0 20px;}  .hero-copy h1 {font-size: clamp(1.8rem, 5vw, 2.1rem);}  }
+@media (max-width: 700px) {  .hero { padding: 40px 0 24px; } .hero h1 { margin: 0 0 6px;}  }
+/* --- HOME: "What we do" cards under hero --- */
 
 /* Mobile-first: 1 column */
 .hero + section .grid {
@@ -105,10 +86,7 @@
     text-align: left;
 }
 
-/* ===========================
-   Homepage reviews shell tweaks
-   =========================== */
-
+/* homepage reviews shell – keep everything you have plus this tweak */
 .homepage-reviews .card--reviews-shell {
     padding: 18px 18px 20px;
 }
@@ -119,44 +97,9 @@
     padding-left: 4px;
 }
 
-/* ===========================
-   Breakpoints
-   =========================== */
-
-/* Medium screens: tighten padding and width a bit */
-@media (max-width: 1024px) {
-    .hero {
-        padding: 28px 16px 20px;
-    }
-    .hero-card {
-        max-width: 960px;
-    }
-}
-
-/* Tablets / small laptops */
-@media (max-width: 768px) {
-    .hero {
-        padding: 24px 12px 16px;
-    }
-
-    .hero-copy h1 {
-        font-size: clamp(1.8rem, 5vw, 2.1rem);
-    }
-
-    .hero-card {
-        max-width: 720px;
-    }
-}
-
-/* Tablet / desktop: 3 cards in a single row for "What we do" */
-@media (min-width: 720px) {
-    .hero + section .grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-/* Clamp hero + reviews width on mid-range screens */
+/* Home hero – medium screens: keep card inside viewport */
 @media (min-width: 650px) and (max-width: 1100px) {
+    /* clamp the hero card to the viewport and center it */
     .hero-card {
         width: 100%;
         max-width: 720px;
@@ -164,17 +107,26 @@
         margin-right: auto;
     }
 
+    /* make sure the hero image scales with the card */
+    .hero-card picture,
+    .hero-card img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
     .homepage-reviews .card--reviews-shell {
         max-width: 720px;
         margin-left: auto;
         margin-right: auto;
     }
 
+    /* tighten padding so text & first card don’t hug the left edge */
     .homepage-reviews .inner {
         padding-left: 16px;
         padding-right: 16px;
     }
 
+    /* only one card per "page" in the horizontal scroll */
     .homepage-reviews .review-card-link,
     .homepage-reviews .card--review-tile {
         flex: 0 0 100%;
@@ -188,7 +140,13 @@
     }
 }
 
-/* Mobile: hero becomes full-width card with slightly taller aspect */
+/* Tablet / desktop: 3 cards in a single row */
+@media (min-width: 720px) {
+    .hero + section .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+/* Home hero + services mobile refinements (index only) */
 @media (max-width: 640px) {
     /* Make sure the page itself never gets wider than the viewport */
     html,
@@ -203,7 +161,7 @@
     }
 
     .hero {
-        padding: 12px 0 8px;
+        padding: 10px 12px 8px;
         max-width: 100%;
         margin: 0;
     }
@@ -212,14 +170,9 @@
         max-width: 100%;
         width: 100%;
         margin: 0;
-        padding: 10px 10px 12px;
+        padding: 8px 10px 10px;
         border-radius: 0;
         box-sizing: border-box;
-    }
-
-    /* Slightly taller card on mobile, but still rectangular */
-    .hero-card img.photo.hero-photo {
-        aspect-ratio: 4 / 3;
     }
 
     /* “What we do” section under hero */
@@ -231,8 +184,8 @@
 
     /* Stack the three service cards full-width */
     .hero + section .grid {
-        display: block;
-        grid-template-columns: none;
+        display: block !important;
+        grid-template-columns: none !important;
         margin: 8px 0;
     }
 
