@@ -44,7 +44,7 @@
 .hero-card img.photo.hero-photo {
     display: block;
     width: 100% !important;
-    height: clamp(340px, 40vh, 420px);
+    height: 400px;
     object-fit: cover !important;
     border-radius: var(--radius);
     background: transparent;
