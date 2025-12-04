@@ -256,6 +256,7 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                                             type="radio"
                                             name="rating"
                                             value={value}
+                                            aria-label={value}" star"
                                             required={value === 5}
                                         />
                                         <span>★</span>

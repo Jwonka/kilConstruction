@@ -110,7 +110,7 @@ function slugToTitle(s: string): string {
                                         decoding="async"
                                         src={i.thumb || i.full}
                                         srcset={`${(i.thumb || i.full).replace("=s0","=w600")} 600w, ${(i.thumb || i.full).replace("=s0","=w1200")} 1200w, ${(i.thumb || i.full).replace("=s0","=w2000")} 2000w`}
-                                        alt={i.name}
+                                        alt={i.name.includes("IMG_") ? "" : i.name}
                                         sizes="(max-width: 560px) 90vw, (max-width: 1200px) 45vw, 28vw"
                                     />
                                 </a>
@@ -141,51 +141,52 @@ function slugToTitle(s: string): string {
         </p>
 
         <form method="POST" action="/api/contact">
+            <div aria-live="polite" id="form-status" class="visually-hidden">
+                <label>
+                    Item
+                    <input type="text" name="itemName" value={slug} readonly />
+                </label>
 
-            <label>
-                Item
-                <input type="text" name="itemName" value={slug} readonly />
-            </label>
+                <label>
+                    Size / color / variant
+                    <input type="text" name="itemVariant" placeholder="e.g. Large hoodie, black" />
+                </label>
 
-            <label>
-                Size / color / variant
-                <input type="text" name="itemVariant" placeholder="e.g. Large hoodie, black" />
-            </label>
+                <label>
+                    Quantity
+                    <input type="number" name="itemQuantity" min="1" value="1" />
+                </label>
 
-            <label>
-                Quantity
-                <input type="number" name="itemQuantity" min="1" value="1" />
-            </label>
+                <label>
+                    Your name
+                    <input type="text" name="name" required />
+                </label>
 
-            <label>
-                Your name
-                <input type="text" name="name" required />
-            </label>
+                <label>
+                    Email
+                    <input type="email" name="email" required />
+                </label>
 
-            <label>
-                Email
-                <input type="email" name="email" required />
-            </label>
+                <label>
+                    Phone
+                    <input type="tel" name="phone" />
+                </label>
 
-            <label>
-                Phone
-                <input type="tel" name="phone" />
-            </label>
+                <label>
+                    Shipping address
+                    <input type="text" name="address" />
+                </label>
 
-            <label>
-                Shipping address
-                <input type="text" name="address" />
-            </label>
+                <label>
+                    Notes
+                    <textarea name="message" rows="3" placeholder="Anything else we should know?"></textarea>
+                </label>
 
-            <label>
-                Notes
-                <textarea name="message" rows="3" placeholder="Anything else we should know?"></textarea>
-            </label>
+                {/* Turnstile field – keep the name consistent with handleContact */}
+                <input type="hidden" name="cf-turnstile-response" id="cf-turnstile-response" />
 
-            {/* Turnstile field – keep the name consistent with handleContact */}
-            <input type="hidden" name="cf-turnstile-response" id="cf-turnstile-response" />
-
-            <button type="submit" class="btn cta">Submit order request</button>
+                <button type="submit" class="btn cta">Submit order request</button>
+            </div>
         </form>
     </section>
     <script>

@@ -145,7 +145,7 @@ function slugToTitle(s: string): string {
                                             referrerpolicy="no-referrer"
                                             src={i.thumb || i.full}
                                             srcset={`${(i.thumb || i.full).replace("=s0","=w600")} 600w, ${(i.thumb || i.full).replace("=s0","=w1200")} 1200w, ${(i.thumb || i.full).replace("=s0","=w2000")} 2000w`}
-                                            alt={i.name}
+                                            alt={i.name.includes("IMG_") ? "" : i.name}
                                             sizes="(max-width: 560px) 90vw, (max-width: 1200px) 45vw, 28vw"
                                     />
                                 </a>

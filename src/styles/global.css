@@ -160,6 +160,16 @@ button.btn.cta {
 .section-intro-strong {max-width: 44rem;margin: 0 auto 0.5rem;text-align: center;font-weight: 600;}
 .cta-div {max-width: 44rem;margin: 1rem auto 0;text-align: center;}
 .section-cta {margin: 0.25rem 0;padding: 0;}
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    border: 0;
+    padding: 0;
+}
 @media (max-width:900px){ :root{ --header-h: 76px; } }
 @media (max-width: 720px) {
     .card.card-media img.photo:not(.hero-photo) {

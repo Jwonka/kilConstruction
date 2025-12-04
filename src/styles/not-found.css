@@ -1,9 +1,8 @@
 .not-found {
-    padding: 2.5rem 1.25rem 3.5rem;
+    padding: 6rem 1.25rem 3.5rem;
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    margin-top: 0;
 }
 
 .not-found__card {
@@ -44,8 +43,7 @@
 /* Tablet and up */
 @media (min-width: 640px) {
     .not-found {
-        margin-top: 200px;
-        padding: 3rem 1.5rem 4rem;
+        padding-top: 8rem;
     }
 
     .not-found__title {
@@ -66,8 +64,7 @@
 /* Desktop */
 @media (min-width: 1024px) {
     .not-found {
-        padding: 4rem 2rem 5rem;
-        margin-top: 200px;
+        padding-top: 10rem;
     }
 
     .not-found__card {
