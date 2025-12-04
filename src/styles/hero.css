@@ -89,13 +89,56 @@
 
 /* homepage reviews shell – keep everything you have plus this tweak */
 .homepage-reviews .card--reviews-shell {
-    padding: 18px 18px 20px; 
+    padding: 18px 18px 20px;
 }
 
 /* give the heading a nudge in from the left */
 .homepage-reviews .reviews-heading {
     margin-bottom: 0.5rem;
     padding-left: 4px;
+}
+
+/* Home hero – medium screens: keep card inside viewport */
+@media (min-width: 650px) and (max-width: 1100px) {
+    /* clamp the hero card to the viewport and center it */
+    .hero-card {
+        width: 100%;
+        max-width: 720px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* make sure the hero image scales with the card */
+    .hero-card picture,
+    .hero-card img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    .homepage-reviews .card--reviews-shell {
+        max-width: 720px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* tighten padding so text & first card don’t hug the left edge */
+    .homepage-reviews .inner {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    /* only one card per "page" in the horizontal scroll */
+    .homepage-reviews .review-card-link,
+    .homepage-reviews .card--review-tile {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .homepage-reviews .reviews-strip {
+        padding-left: 0;
+        padding-right: 0;
+        overflow-x: auto;
+    }
 }
 
 /* Tablet / desktop: 3 cards in a single row */
