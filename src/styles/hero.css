@@ -227,6 +227,10 @@
     margin: 0 0.5rem;
     color: #9ca3af;
 }
+.homepage-reviews .review-text {
+    overflow-wrap: anywhere;
+    word-wrap: break-word;
+}
 
 /* --- Responsive tweaks for homepage reviews --- */
 
@@ -339,7 +343,7 @@
         display: block;
         width: 100%;
         max-width: 100%;
-        flex: 0 0 100%; 
+        flex: 0 0 100%;
         margin-bottom: 0.75rem;
     }
 
