@@ -115,6 +115,13 @@
     padding: 24px 1rem 32px;
 }
 
+/* NEW: everything inside homepage reviews must wrap, never widen the page */
+.homepage-reviews,
+.homepage-reviews * {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
 .homepage-reviews .card--reviews-shell {
     max-width: 1100px;
     margin: 0 auto;
