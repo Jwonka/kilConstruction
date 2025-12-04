@@ -29,7 +29,7 @@
     right: 0;
     height: 6px;
     border-radius: var(--radius) var(--radius) 0 0;
-    background: #506631; /* same green as global */
+    background: #506631;
     pointer-events: none;
 }
 .hero-card:hover,
@@ -40,11 +40,12 @@
 
 .hero-copy h1 { font-size: clamp(2.1rem, 3vw, 2.6rem); margin: 0 0 0.35rem; }
 .hero-copy p { max-width: 32rem; color: #4b5563; margin: 0 auto; }
-.hero-image-wrap { background: #000000; border-radius: var(--radius); overflow: hidden; }
+.hero-image-wrap { background: #000000; border-radius: var(--radius); overflow: hidden; margin-top: 4px;}
 .hero-card img.photo.hero-photo {
     display: block;
     width: 100% !important;
-    height: clamp(340px, 40vh, 420px);
+    height: 600px;
+    max-height: 400px;
     object-fit: cover !important;
     border-radius: var(--radius);
     background: transparent;
@@ -266,13 +267,6 @@
     main,
     .container {
         max-width: 100%;
-    }
-
-    .hero-card img.photo.hero-photo {
-        width: 100% !important;
-        height: auto !important;
-        max-height: 220px !important;
-        object-fit: cover !important;
     }
 
     .hero {
