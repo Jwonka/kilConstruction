@@ -44,7 +44,7 @@
 .hero-card img.photo.hero-photo {
     display: block;
     width: 100% !important;
-    height: 400px;
+    height: clamp(340px, 40vh, 420px);
     object-fit: cover !important;
     border-radius: var(--radius);
     background: transparent;
@@ -174,13 +174,6 @@
         padding: 8px 10px 10px;
         border-radius: 0;
         box-sizing: border-box;
-    }
-
-    .hero-card img.photo.hero-photo {
-        width: 100%;
-        height: auto;
-        max-height: 220px;          /* shrink hero image like a project card */
-        object-fit: cover;
     }
 
     /* “What we do” section under hero */
