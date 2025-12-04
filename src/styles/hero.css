@@ -43,9 +43,9 @@
 .hero-image-wrap { background: #000000; border-radius: var(--radius); overflow: hidden; }
 .hero-card img.photo.hero-photo {
     display: block;
-    width: 100%;
+    width: 100% !important;
     height: clamp(340px, 40vh, 420px);
-    object-fit: cover;
+    object-fit: cover !important;
     border-radius: var(--radius);
     background: transparent;
 }
@@ -179,7 +179,7 @@
     .hero-card img.photo.hero-photo {
         width: 100%;
         height: auto;
-        max-height: 200px;          /* shrink hero image like a project card */
+        max-height: 220px;          /* shrink hero image like a project card */
         object-fit: cover;
     }
 
