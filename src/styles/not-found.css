@@ -5,6 +5,10 @@
     justify-content: center;
 }
 
+main.container.not-found-page {
+    padding-top: 120px; /* desktop spacing */
+}
+
 .not-found__card {
     max-width: 520px;
     margin: 0 auto;
@@ -38,6 +42,11 @@
 .not-found__smallprint {
     font-size: 0.85rem;
     color: #4b5563;
+}
+@media (max-width: 640px) {
+    main.container.not-found-page {
+        padding-top: 80px;  /* mobile spacing */
+    }
 }
 
 /* Tablet and up */
