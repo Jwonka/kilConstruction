@@ -160,6 +160,13 @@
         max-width: 100%;
     }
 
+    .hero-card img.photo.hero-photo {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 220px !important;
+        object-fit: cover !important;
+    }
+
     .hero {
         padding: 10px 12px 8px;
         max-width: 100%;
