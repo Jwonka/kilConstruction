@@ -106,6 +106,10 @@
         margin-left: auto;
         margin-right: auto;
     }
+    
+    .homepage-reviews {
+        padding: 16px 0 24px;
+    }
 
     /* make sure the hero image scales with the card */
     .hero-card picture,
@@ -205,19 +209,28 @@
         box-sizing: border-box;
     }
 
-    /* Clamp the homepage reviews shell so it can’t overflow */
-    .homepage-reviews,
-    .homepage-reviews .card--reviews-shell {
+    /* Home reviews section: align with hero/card padding */
+    .homepage-reviews {
+        padding: 8px 12px 16px;
         max-width: 100%;
         box-sizing: border-box;
         margin: 0;
-        padding: 14px 14px 16px;
     }
+
+    .homepage-reviews .card--reviews-shell {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 10px 12px 14px;
+        box-sizing: border-box;
+    }
+
     .homepage-reviews .review-card-link,
     .homepage-reviews .card--review-tile {
         flex: 0 0 100%;
         max-width: 100%;
     }
+
     .homepage-reviews .reviews-heading {
         margin-bottom: 0.35rem;
     }
