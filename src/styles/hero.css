@@ -318,16 +318,25 @@
         box-sizing: border-box;
     }
 
+    /* On mobile, stack reviews vertically instead of horizontal strip */
     .homepage-reviews .reviews-strip {
-        width: 100%;
-        max-width: 100%;
-        gap: 0.75rem;
+        display: block;          /* no flex row */
+        overflow-x: visible;     /* no horizontal scroll area */
+        scroll-snap-type: none;  /* remove snap – not needed when stacked */
         padding-inline: 0;
     }
 
     .homepage-reviews .review-card-link {
-        flex: 0 0 100%;
+        display: block;
+        width: 100%;
         max-width: 100%;
+        margin-bottom: 0.75rem;  /* spacing between cards */
+    }
+
+    .homepage-reviews .card--review-tile {
+        width: 100%;
+        max-width: 100%;
+        /* flex-basis from reviews.css is irrelevant now because we’re not flex */
     }
 
     .homepage-reviews .reviews-heading {
