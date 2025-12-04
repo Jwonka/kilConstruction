@@ -91,83 +91,159 @@
 .homepage-reviews .card--reviews-shell {
     padding: 12px 12px 16px;
 }
-/* FINAL OVERRIDES: homepage reviews must never exceed viewport */
+/* --- HOME: "What we do" cards under hero --- */
 
-.homepage-reviews,
-.homepage-reviews .card--reviews-shell,
-.homepage-reviews .reviews-strip {
-    width: 100%;
+/* Mobile-first: 1 column */
+.hero + section .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap);
+    margin: clamp(16px, 2vw, 24px) 0;
+}
+
+/* Make the cards act like small link cards */
+.hero + section .grid .card {
+    display: block;
+    height: 100%;
     max-width: 100%;
-    overflow-x: hidden;   /* strip itself can scroll, page cannot grow */
+    text-align: left;
 }
 
-/* On the homepage, force review tiles to be responsive, regardless of earlier rules */
-.homepage-reviews .review-card-link,
-.homepage-reviews .card--review-tile {
-    flex: 0 0 100% !important;
-    max-width: 100% !important;
+/* --- HOMEPAGE REVIEWS (index only) --- */
+
+.homepage-reviews {
+    padding: 24px 1rem 32px;
 }
 
-/* give the heading a nudge in from the left */
+.homepage-reviews .card--reviews-shell {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Heading & summary row */
 .homepage-reviews .reviews-heading {
+    font-size: 1.8rem;
+    margin: 0 0 0.75rem;
+    text-align: left;
+}
+
+.homepage-reviews .reviews-summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.homepage-reviews .reviews-stars .star,
+.homepage-reviews .review-stars-row .star {
+    font-size: 1.1rem;
+    opacity: 0.3;
+}
+
+.homepage-reviews .reviews-stars .star.filled,
+.homepage-reviews .review-stars-row .star.filled {
+    opacity: 1;
+}
+
+.homepage-reviews .reviews-summary-text {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Horizontal strip of review tiles */
+.homepage-reviews .reviews-strip {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 0.5rem 0 0.75rem;
+    scroll-snap-type: x mandatory;
+}
+
+/* Each link + card */
+.homepage-reviews .review-card-link {
+    flex: 0 0 85%;
+    max-width: 400px;
+    scroll-snap-align: start;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.homepage-reviews .card--review-tile {
+    height: 100%;
+}
+
+/* Individual card contents */
+.homepage-reviews .review-card-header {
     margin-bottom: 0.5rem;
-    padding-left: 4px;
 }
 
-/* Home hero – medium screens: keep card inside viewport */
-@media (min-width: 650px) and (max-width: 1100px) {
-    /* clamp the hero card to the viewport and center it */
-    .hero-card {
-        width: 100%;
-        max-width: 720px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .homepage-reviews {
-        padding-inline: 12px;
-    }
-
-    /* make sure the hero image scales with the card */
-    .hero-card picture,
-    .hero-card img {
-        width: 100%;
-        height: auto;
-        display: block;
-    }
-    .homepage-reviews .card--reviews-shell {
-        max-width: 720px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    /* tighten padding so text & first card don’t hug the left edge */
-    .homepage-reviews .inner {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-
-    /* only one card per "page" in the horizontal scroll */
-    .homepage-reviews .review-card-link,
-    .homepage-reviews .card--review-tile {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-
-    .homepage-reviews .reviews-strip {
-        padding-left: 0;
-        padding-right: 0;
-        overflow-x: auto;
-    }
+.homepage-reviews .review-name {
+    margin: 0;
+    font-size: 1rem;
 }
 
-/* Tablet / desktop: 3 cards in a single row */
+.homepage-reviews .review-meta {
+    margin: 0.1rem 0 0.3rem;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+.homepage-reviews .review-stars-row {
+    font-size: 0.9rem;
+}
+
+.homepage-reviews .review-text {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #333;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.homepage-reviews .review-photo-wrap {
+    margin-top: 0.75rem;
+}
+
+.homepage-reviews .review-photo-wrap img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* CTA row under strip */
+.homepage-reviews .reviews-cta-row {
+    margin-top: 1.25rem;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.homepage-reviews .reviews-cta-separator {
+    margin: 0 0.5rem;
+    color: #9ca3af;
+}
+
+/* --- Responsive tweaks for homepage reviews --- */
+
+/* Tablet / desktop: hero grid + reviews layout */
 @media (min-width: 720px) {
     .hero + section .grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+
+    /* show ~3 tiles in view */
+    .homepage-reviews .review-card-link {
+        flex: 0 0 30%;
+        max-width: 340px;
+    }
 }
-/* Home hero + services mobile refinements (index only) */
+
+/* Home hero + services + reviews mobile refinements (index only) */
 @media (max-width: 640px) {
     /* Make sure the page itself never gets wider than the viewport */
     html,
@@ -242,8 +318,12 @@
         box-sizing: border-box;
     }
 
-    .homepage-reviews .review-card-link,
-    .homepage-reviews .card--review-tile {
+    .homepage-reviews .reviews-strip {
+        gap: 0.75rem;
+        padding-inline: 0;
+    }
+
+    .homepage-reviews .review-card-link {
         flex: 0 0 100%;
         max-width: 100%;
     }
