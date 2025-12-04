@@ -214,3 +214,11 @@
         margin: 0;
     }
 }
+
+/* DEBUG HERO FINGERPRINT */
+@media (max-width: 500px) {
+    .hero-section h1::after {
+        content: " · debugA";
+        font-size: 0.75rem;
+    }
+}
