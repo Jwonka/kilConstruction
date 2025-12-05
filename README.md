@@ -86,32 +86,48 @@ The **Astro** frontend renders dynamic pages, rotating cards, and category route
 
 ## 📸 Screenshots 
 
-### Homepage  
-<img src="screenshots/img.png" width="700"/>
-
-### Project Gallery View  
-<img src="screenshots/img_3.png" width="700"/>
-
-### New Construction Gallery View  
-<img src="screenshots/img_3.png" width="700"/>  
-
-### Custom Furniture Gallery View  
-<img src="screenshots/img_8.png" width="700"/>
-
-### Contact Page  
-<img src="screenshots/img_2.png" width="700"/>
-
-### Admin Dashboard Interface  
-<img src="screenshots/img_4.png" width="700"/>  
-
-### Admin Upload Interface 
-<img src="screenshots/img_5.png" width="700"/> 
-
-### Admin Manage Upload Interface 
-<img src="screenshots/img_6.png" width="700"/> 
-
-### Admin Manage Review Interface 
-<img src="screenshots/img_7.png" width="700"/>
+<table>
+  <tr>
+    <td align="center">
+      <strong>Homepage</strong><br/>
+      <img src="screenshots/img.png" width="380" alt="KilCon homepage"/>
+    </td>
+    <td align="center">
+      <strong>Project Gallery View</strong><br/>
+      <img src="screenshots/img_3.png" width="380" alt="Project gallery view"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Service Gallery View</strong><br/>
+      <img src="screenshots/img_8.png" width="380" alt="Service gallery view"/>
+    </td>
+    <td align="center">
+      <strong>Contact Page</strong><br/>
+      <img src="screenshots/img_2.png" width="380" alt="Contact page"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Admin – Project List</strong><br/>
+      <img src="screenshots/img_4.png" width="380" alt="Admin project list"/>
+    </td>
+    <td align="center">
+      <strong>Admin – Upload & Actions</strong><br/>
+      <img src="screenshots/img_5.png" width="380" alt="Admin upload and actions"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Admin – Image Detail</strong><br/>
+      <img src="screenshots/img_6.png" width="380" alt="Admin image detail"/>
+    </td>
+    <td align="center">
+      <strong>Admin – Confirmation/Status</strong><br/>
+      <img src="screenshots/img_7.png" width="380" alt="Admin status view"/>
+    </td>
+  </tr>
+</table>
 
 ---
 
