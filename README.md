@@ -172,5 +172,10 @@ Source code is provided solely for portfolio/demo purposes.
 
 ## License
 This project is proprietary.  
-[![License](https://img.shields.io/badge/License-KIL%20Construction-blue)](LICENSE)
-[![Copyright](https://img.shields.io/badge/©%20KIL%20Construction-red)](LICENSE)
+[![License](https://img.shields.io/badge/License-©%20KIL%20Construction-blue)](LICENSE)
+
+
+
+
+
+
