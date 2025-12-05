@@ -1,4 +1,4 @@
-# KilCon Construction Platform
+# KIL Construction Platform
 Serverless content platform with secure media management built on **Cloudflare Workers**, **R2**, and **Astro**.
 
 <p>
@@ -13,7 +13,7 @@ Serverless content platform with secure media management built on **Cloudflare W
 
 ## Overview
 
-KilCon Construction's platform delivers a fast, CDN-optimized website paired with secure administrative tools for managing project galleries, rotating images, and structured media categories.
+KIL Construction's platform delivers a fast, CDN-optimized website paired with secure administrative tools for managing project galleries, rotating images, and structured media categories.
 
 The backend is powered entirely by **Cloudflare Workers**, interacting with **R2 Object Storage**.  
 The **Astro** frontend renders dynamic pages, rotating cards, and category routes.
