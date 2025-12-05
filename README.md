@@ -171,4 +171,6 @@ This platform is actively deployed for a private construction company.
 Source code is provided solely for portfolio/demo purposes.
 
 ## License
-This project is proprietary. See the [License](LICENSE) file for details.
+This project is proprietary.  
+[![License](https://img.shields.io/badge/License-KIL%20Construction-blue)](LICENSE)
+[![Copyright](https://img.shields.io/badge/©%20KIL%20Construction-red)](LICENSE)
