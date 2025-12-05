@@ -84,13 +84,37 @@ The **Astro** frontend renders dynamic pages, rotating cards, and category route
 
 ---
 
-## Screenshots 
+## 📸 Screenshots 
 
-```text
-📸 Coming soon…
+### Homepage  
+<img src="screenshots/img.png" width="700"/>
 
-```
+### Project Gallery View  
+<img src="screenshots/img_3.png" width="700"/>
+
+### New Construction Gallery View  
+<img src="screenshots/img_3.png" width="700"/>  
+
+### Custom Furniture Gallery View  
+<img src="screenshots/img_8.png" width="700"/>
+
+### Contact Page  
+<img src="screenshots/img_2.png" width="700"/>
+
+### Admin Dashboard Interface  
+<img src="screenshots/img_4.png" width="700"/>  
+
+### Admin Upload Interface 
+<img src="screenshots/img_5.png" width="700"/> 
+
+### Admin Manage Upload Interface 
+<img src="screenshots/img_6.png" width="700"/> 
+
+### Admin Manage Review Interface 
+<img src="screenshots/img_7.png" width="700"/>
+
 ---
+
 ## Development Setup
 Prerequisites
 - Node 18+
