@@ -100,7 +100,8 @@ The **Astro** frontend renders dynamic pages, rotating cards, and category route
 
 ---
 
-## 📸 Screenshots 
+## Screenshots
+📸 Visual overview of the platform:
 
 <table>
   <tr>
