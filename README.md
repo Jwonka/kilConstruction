@@ -165,17 +165,25 @@ Environment Variables
 - ADMIN_SECRET=
 - R2_BUCKET=
 - PUBLIC_DOMAIN=
+  
 ---
+
 ## Status
 This platform is actively deployed for a private construction company.
 Source code is provided solely for portfolio/demo purposes.
 
 ## License
-This project is proprietary.  
-[![License](https://img.shields.io/badge/License-©%20KIL%20Construction-blue)](LICENSE)
 
+> **Proprietary Software — KIL Construction**  
+> Unauthorized use, reproduction, or distribution of this code is prohibited. [![License](https://img.shields.io/badge/License-©%20KIL%20Construction-blue)](LICENSE)
 
+---
 
+<sub>
+<strong>Legal Notice:</strong> All code and assets within this repository are the confidential and proprietary
+property of KIL Construction. No part of this project may be copied, modified, published, or distributed
+without prior written consent. Access is provided solely for portfolio review and technical evaluation.
+</sub>
 
 
 
