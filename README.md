@@ -11,6 +11,22 @@ Serverless content platform with secure media management built on **Cloudflare W
 
 ---
 
+<details>
+  <summary><strong>Table of Contents</strong></summary>
+
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Screenshots](#screenshots)
+- [Development Setup](#development-setup)
+- [Status](#status)
+- [License](#license)
+
+</details>
+
+---
+
 ## Overview
 
 KIL Construction's platform delivers a fast, CDN-optimized website paired with secure administrative tools for managing project galleries, rotating images, and structured media categories.
