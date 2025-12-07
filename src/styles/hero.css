@@ -212,16 +212,20 @@
     overflow: hidden;
 }
 
+/* Keep spacing, but force a consistent 4:3 box like project cards */
 .homepage-reviews .review-photo-wrap {
     margin-top: 0.75rem;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: var(--ratio-projects); /* 4 / 3 from global.css */
 }
 
+/* Fill that box; crop if the photo is taller */
 .homepage-reviews .review-photo-wrap img {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: cover;
-    border-radius: 8px;
 }
 
 /* CTA row under strip */
