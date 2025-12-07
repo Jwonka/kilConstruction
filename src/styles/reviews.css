@@ -211,6 +211,37 @@
     font-size: 0.9rem;
 }
 
+/* Rating stars input on the reviews form */
+.rating-stars-input {
+    display: inline-flex;
+    flex-direction: row-reverse;   /* visually show 1..5 left to right */
+    gap: 0.15rem;
+}
+
+.rating-stars-input input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.rating-stars-input label {
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.3;                  /* "empty" star */
+}
+
+/* When a star is selected, fill it and all lower stars */
+.rating-stars-input input:checked ~ label {
+    opacity: 1;
+}
+
+/* Optional: hover preview on desktop */
+.rating-stars-input label:hover,
+.rating-stars-input label:hover ~ label {
+    opacity: 1;
+}
+
 .review-text {
     margin-top: 0.5rem;
     font-size: 0.9rem;

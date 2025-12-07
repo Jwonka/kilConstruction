@@ -247,19 +247,21 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                     <legend>Rating</legend>
                     <div class="rating-stars-input">
                         {Array.from({ length: 5 }).map((_, i) => {
-                            const value = i + 1;
+                            const value = 5 - i;
+                            const id = `rating-${value}`;
                             const label = `${value} star${value === 1 ? "" : "s"}`;
                             return (
-                                    <label>
+                                    <>
                                         <input
                                             type="radio"
+                                            id={id}
                                             name="rating"
                                             value={value}
                                             aria-label={label}
                                             required={value === 1}
                                         />
-                                        <span aria-hidden="true">★</span>
-                                    </label>
+                                        <label for={id} aria-label={label}>★</label>
+                                    </>
                             );
                         })}
                     </div>
