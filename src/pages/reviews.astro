@@ -131,11 +131,11 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                 </header>
 
                 {loadError && (
-                        <p class="status status--error">{loadError}</p>
+                    <p class="status status--error">{loadError}</p>
                 )}
 
                 {hasReviews && reviews.length === 0 && !loadError && (
-                        <p>No reviews match this filter yet.</p>
+                    <p>No reviews match this filter yet.</p>
                 )}
 
                 {reviews.length > 0 && (
@@ -164,22 +164,22 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                                         </p>
 
                                         {review.photoUrl && (
-                                                <div class="review-photo-wrap">
-                                                    <a href={review.photoUrl} target="_blank" rel="noopener">
-                                                        <img
-                                                            src={review.photoUrl}
-                                                            alt="Client submitted photo"
-                                                            loading="lazy"
-                                                        />
-                                                    </a>
-                                                </div>
+                                            <div class="review-photo-wrap">
+                                                <a href={review.photoUrl} target="_blank" rel="noopener">
+                                                    <img
+                                                        src={review.photoUrl}
+                                                        alt="Client submitted photo"
+                                                        loading="lazy"
+                                                    />
+                                                </a>
+                                            </div>
                                         )}
 
                                         {review.adminReply && (
-                                                <div class="review-reply">
-                                                    <strong>Reply from KIL Construction:</strong>
-                                                    <p>{review.adminReply}</p>
-                                                </div>
+                                            <div class="review-reply">
+                                                <strong>Reply from KIL Construction:</strong>
+                                                <p>{review.adminReply}</p>
+                                            </div>
                                         )}
                                     </article>
                             ))}
@@ -187,23 +187,23 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                 )}
 
                 {totalPages > 1 && (
-                        <nav class="reviews-pagination" aria-label="Reviews pages">
-                            {Array.from({ length: totalPages }).map((_, idx) => {
-                                const pageNum = idx + 1;
-                                const url = new URL("/reviews", PROD_ORIGIN);
-                                url.searchParams.set("page", String(pageNum));
-                                if (filterType !== "all") url.searchParams.set("type", filterType);
+                    <nav class="reviews-pagination" aria-label="Reviews pages">
+                        {Array.from({ length: totalPages }).map((_, idx) => {
+                            const pageNum = idx + 1;
+                            const url = new URL("/reviews", PROD_ORIGIN);
+                            url.searchParams.set("page", String(pageNum));
+                            if (filterType !== "all") url.searchParams.set("type", filterType);
 
-                                return (
-                                        <a
-                                                href={url.pathname + url.search}
-                                                class={`page-link ${pageNum === page ? "is-current" : ""}`}
-                                        >
-                                            {pageNum}
-                                        </a>
-                                );
-                            })}
-                        </nav>
+                            return (
+                                <a
+                                    href={url.pathname + url.search}
+                                    class={`page-link ${pageNum === page ? "is-current" : ""}`}
+                                >
+                                    {pageNum}
+                                </a>
+                            );
+                        })}
+                    </nav>
                 )}
             </div>
         </div>
@@ -212,16 +212,16 @@ const hasReviews = !!summary && summary.totalReviews > 0;
             <h2>Leave a review</h2>
             <p>We appreciate your feedback. Your review helps other homeowners choose KIL Construction with confidence.</p>
             {sent && (
-                    <p class="status status--success">
-                        Thank you — your review has been submitted and is pending approval.
-                    </p>
+                <p class="status status--success">
+                    Thank you — your review has been submitted and is pending approval.
+                </p>
             )}
 
             <form
-                    method="post"
-                    action="/api/reviews/submit"
-                    enctype="multipart/form-data"
-                    class="review-form"
+                method="post"
+                action="/api/reviews/submit"
+                enctype="multipart/form-data"
+                class="review-form"
             >
                 <label>
                     Your name
@@ -251,17 +251,17 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                             const id = `rating-${value}`;
                             const label = `${value} star${value === 1 ? "" : "s"}`;
                             return (
-                                    <>
-                                        <input
-                                            type="radio"
-                                            id={id}
-                                            name="rating"
-                                            value={value}
-                                            aria-label={label}
-                                            required={value === 1}
-                                        />
-                                        <label for={id} aria-label={label}>★</label>
-                                    </>
+                                <>
+                                    <input
+                                        type="radio"
+                                        id={id}
+                                        name="rating"
+                                        value={value}
+                                        aria-label={label}
+                                        required={value === 1}
+                                    />
+                                    <label for={id} aria-label={label}>★</label>
+                                </>
                             );
                         })}
                     </div>
@@ -270,17 +270,17 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                 <label>
                     Your review
                     <textarea
-                            name="text"
-                            rows={4}
-                            minlength={40}
-                            required
-                            placeholder="Tell us about your project and your experience working with KIL Construction."
+                        name="text"
+                        rows={4}
+                        minlength={40}
+                        required
+                        placeholder="Tell us about your project and your experience working with KIL Construction."
                     ></textarea>
                 </label>
 
                 <label>
                     Photo <span class="field-hint">(optional)</span>
-                    <input type="file" name="photo" accept="image/*" />
+                    <input type="file" name="photo" accept="image/*" capture="environment" />
                 </label>
 
                 <label class="checkbox">
