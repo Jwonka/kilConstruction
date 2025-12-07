@@ -118,7 +118,8 @@
 .review-meta { margin: 0.1rem 0 0.3rem; font-size: 0.8rem; color: #555; }
 .review-text { font-size: 0.9rem; line-height: 1.4; margin: 0.5rem 0; }
 
-.review-photo-wrap img {
+.review-card .review-photo-wrap img,
+.card--review-tile .review-photo-wrap img {
     display: block;
     width: 100%;
     max-height: 140px;
@@ -220,16 +221,19 @@
     overflow: hidden;
 }
 
-.review-photo-wrap {
-    margin-top: 0.75rem;
+/* Full reviews page: make photos match project/furniture card shape */
+.reviews-list .card--review-full .review-photo-wrap {
+    margin-top: 0.75rem;           /* keep your existing spacing */
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: var(--ratio-projects); /* same 4:3 ratio used by project cards */
 }
 
-.review-photo-wrap img {
+.reviews-list .card--review-full .review-photo-wrap img {
     display: block;
     width: 100%;
-    height: auto;
-    object-fit: cover;
-    border-radius: 8px;
+    height: 100%;
+    object-fit: cover; /* crop to fill the box */
 }
 
 .reviews-cta-row {
