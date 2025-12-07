@@ -280,11 +280,7 @@ const hasReviews = !!summary && summary.totalReviews > 0;
 
                 <label>
                     Photo <span class="field-hint">(optional)</span>
-                    <input type="file" name="photo" accept="image/*" style="display:none" />
-                    <div class="photo-buttons">
-                        <button type="button" onclick="useCamera()">Take a photo</button>
-                        <button type="button" onclick="chooseFromGallery()">Choose from gallery</button>
-                    </div>
+                    <input type="file" name="photo" accept="image/*" />
                 </label>
 
                 <label class="checkbox">
@@ -308,19 +304,6 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                 </div>
 
                 <button type="submit" class="btn">Submit review</button>
-                <script>
-                    function useCamera() {
-                        const input = document.getElementById('photo-input');
-                        input.setAttribute('capture', 'environment');
-                        input.click();
-                    }
-
-                    function chooseFromGallery() {
-                        const input = document.getElementById('photo-input');
-                        input.removeAttribute('capture');
-                        input.click();
-                    }
-                </script>
             </form>
             <!-- Turnstile loader -->
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
