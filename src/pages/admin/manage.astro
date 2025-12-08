@@ -54,8 +54,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
         <ul id="results" class="results-list" data-public-api={PUBLIC_GALLERY_API} data-admin-api={ADMIN_API_BASE}></ul>
     </section>
 
-    <script>
-        // @ts-nocheck
+    <script lang="ts">
         document.addEventListener("DOMContentLoaded", () => {
             const listEl = document.getElementById("results");
             const statusEl = document.getElementById("status");
@@ -92,10 +91,8 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 return;
             }
 
-            /** @type {{ slug: string; name?: string }[]} */
-            let allProjects = [];
-            /** @type {Set<string>} */
-            const expandedPrefixes = new Set();
+            let allProjects: { slug: string; name?: string }[] = [];
+            const expandedPrefixes: Set<string> = new Set();
 
             async function loadProjects() {
                 try {
@@ -105,7 +102,11 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     const res = await fetch(`${publicApiBase}?all=1`, {
                         credentials: "include",
                         });
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    if (!res.ok) {
+                        console.error(`HTTP ${res.status}`);
+                        statusEl.textContent = "Error loading projects.";
+                        return;
+                    }
 
                     const data = await res.json();
                     allProjects = (data.projects || []);
@@ -126,7 +127,12 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     if (!q) return true;
                     const name = (p.name || "").toLowerCase();
                     const slug = (p.slug || "").toLowerCase();
-                    return name.includes(q) || slug.includes(q);
+                    const prefix = (p.prefix || "").toLowerCase();
+                    return (
+                        name.includes(q) ||
+                        slug.includes(q) ||
+                        prefix.includes(q)
+                    );
                 });
 
                 if (!items.length) {
@@ -167,17 +173,25 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     title.className = "result-title";
 
                     const displayPrefix = prefix.replace(/\/$/, "");
-                    const folderLabel = displayPrefix.split("/").slice(1).join("/") || displayPrefix;
+                    const parts = displayPrefix.split("/");
+                    const root = parts[0] || "";
+                    const folderNameRaw = parts.slice(1).join("/") || root;
+                    const folderNamePretty = folderNameRaw.replace(/_/g, " ");
+                    const labelText =
+                        root && folderNamePretty && root !== folderNamePretty
+                            ? `${root} / ${folderNamePretty}`
+                            : folderNamePretty || root;
 
-                    // pretty label for user (strip underscores)
+                    // pretty label for user
                     const folderNameDisplay = document.createElement("span");
                     folderNameDisplay.className = "folder-name-display";
-                    folderNameDisplay.textContent = folderLabel.replace(/_/g, " ");
+                    folderNameDisplay.textContent = labelText;
 
+                    // input only edits the folder name portion, not the root
                     const folderNameInput = document.createElement("input");
                     folderNameInput.type = "text";
                     folderNameInput.className = "folder-rename-input";
-                    folderNameInput.value = folderNameDisplay.textContent;
+                    folderNameInput.value = folderNamePretty;
                     folderNameInput.style.display = "none";
 
                     title.appendChild(folderNameDisplay);
@@ -202,23 +216,24 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
                     li.appendChild(children);
                     listEl.appendChild(li);
+                    let currentFolderName = folderNamePretty;
+
                     function resetFolderRename() {
                         folderNameDisplay.style.display = "inline";
                         folderNameInput.style.display = "none";
-                        folderNameInput.value = folderNameDisplay.textContent;
+                        folderNameInput.value = currentFolderName;
                     }
 
                     async function commitFolderRename() {
                         const newName = folderNameInput.value.trim();
-                        const currentName = folderNameDisplay.textContent.trim();
+                        const currentName = currentFolderName;
 
                         if (!newName || newName === currentName) {
                             resetFolderRename();
                             return;
                         }
 
-                        // Build new prefix: keep the top-level category, replace the folder segment
-                        const parts = displayPrefix.split("/"); // e.g. ["Projects", "Fox_Hollow_Retriever"]
+                        const parts = displayPrefix.split("/"); // e.g. ["Projects", "Fox_Hollow"]
                         const category = parts[0] || "";
                         const newPrefix =
                             (category ? category + "/" : "") +
@@ -236,15 +251,18 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                             });
 
                             if (res.ok) {
-                                folderNameDisplay.textContent = newName;
+                                currentFolderName = newName;
+
+                                folderNameDisplay.textContent = category && newName && category !== newName
+                                    ? `${category} / ${newName}`
+                                    : newName || category;
                                 li.dataset.prefix = newPrefix;
-                                // reload full list so tree + search are accurate
+
                                 li.classList.add("just-renamed");
                                 setTimeout(() => {
                                     li.classList.remove("just-renamed");
                                 }, 1200);
 
-                                // reload list so search + prefixes are accurate
                                 expandedPrefixes.clear();
                                 await loadProjects();
                                 flashStatus("Folder renamed successfully.", "success");
@@ -286,8 +304,8 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                         `${adminApiBase}/list-images?` + new URLSearchParams({ prefix }),
                         { method: "GET",credentials: "include" }
                     );
-                    /** @type {{ objects?: any[] }} */
-                    const data = await res.json().catch(() => ({}));
+
+                    const data = (await res.json().catch(() => ({}))) as { objects?: any[] };
 
                     childrenEl.innerHTML = "";
 
@@ -323,49 +341,6 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                 if (children.dataset.loaded !== "1") {
                     // REPLACE previous fetch block with:
                     await loadFolderFiles(children, prefix);
-                }
-
-                if (children.dataset.loaded === "1") {
-                    return;
-                }
-
-                children.innerHTML =
-                    '<li class="status-row child-status">Loading files…</li>';
-
-                try {
-                    const url = `${adminApiBase}/list-images?prefix=${encodeURIComponent(prefix)}`;
-                    const res = await fetch(url, { credentials: "include" });
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-                    const data = await res.json();
-                    console.log("list-images response for", prefix, data);
-
-                    // Try several common shapes, fall back to [].
-                    let rawList =
-                        (Array.isArray(data.objects) && data.objects) ||
-                        (Array.isArray(data.items) && data.items) ||
-                        (Array.isArray(data.files) && data.files) ||
-                        [];
-
-                    // Normalise to { key, size, uploaded, name }
-                    const objects = rawList.map((obj) => {
-                        const key = obj.key || obj.name || "";
-                        const name =
-                            obj.name || (key ? key.split("/").pop() : "(unnamed)");
-                        return {
-                            key,
-                            name,
-                            size: obj.size || obj.bytes || 0,
-                            uploaded: obj.uploaded || obj.uploadedAt || obj.created || null,
-                        };
-                    });
-
-                    renderFiles(children, objects);
-                    children.dataset.loaded = "1";
-                } catch (err) {
-                    console.error(err);
-                    children.innerHTML =
-                        '<li class="status-row child-status">Error loading files.</li>';
                 }
             }
 
@@ -418,7 +393,7 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
                     const when = obj.uploaded
                         ? new Date(obj.uploaded).toLocaleString()
                         : "";
-                    const metaParts: string[] = [];
+                    const metaParts = [];
                     if (sizeKB) metaParts.push(sizeKB);
                     if (when) metaParts.push(when);
 
