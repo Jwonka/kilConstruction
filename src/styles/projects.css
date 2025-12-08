@@ -1,7 +1,6 @@
 /* --- PROJECT & GALLERY GRIDS --- */
 /* Mobile-first: 1 column, tight gap */
-.grid--projects,
-.project-photos {
+.grid--projects {
     display: grid;
     justify-content: center;
     justify-items: center;
@@ -12,8 +11,7 @@
 
 /* Tablet: 2 columns */
 @media (min-width: 640px) {
-    .grid--projects,
-    .project-photos {
+    .grid--projects {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 15px;
     }
@@ -21,24 +19,21 @@
 
 /* Desktop: 3 big columns */
 @media (min-width: 1024px) {
-    .grid--projects,
-    .project-photos {
+    .grid--projects {
         grid-template-columns: repeat(3, minmax(0, 360px));
         gap: 15px;
     }
 }
 
 /* Image behavior inside cards stays the same */
-.grid--projects .card-media .photo,
-.project-photos .card-media .photo {
+.grid--projects .card-media .photo {
     display: block;
     width: 100%;
     height: auto;
     object-fit: cover;
 }
 /* Allow cards inside galleries to expand fully */
-.grid--projects .card,
-.project-photos .card {
+.grid--projects .card {
     max-width: none;
     width: 100%;
     padding: 12px 10px 10px;

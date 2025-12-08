@@ -44,11 +44,6 @@ body {
     justify-self: center;
 }
 
-.admin-header-link--logout {
-    justify-self: end;
-}
-
-
 /* brand locked to left */
 .admin-brand {
     display: inline-flex;
@@ -146,13 +141,6 @@ body {
     margin: 0 0 20px;
     color: #4b5563;
     font-size: 0.98rem;
-}
-
-.admin-note {
-    margin-top: 1.5rem;
-    font-size: 0.8rem;
-    color: #6b7280;
-    text-align: center;
 }
 
 /* ===== GENERIC PANEL (Upload / Reviews / Manage) ===== */
@@ -359,28 +347,6 @@ body {
 }
 
 /* ===== BUTTONS ===== */
-
-.btn-pill {
-    padding: 6px 12px;
-    border-radius: 999px;
-    border: 1px solid #d1d5db;
-    font-size: 0.85rem;
-    cursor: pointer;
-    text-decoration: none;
-    color: #111827;
-    background: #f9fafb;
-}
-
-.btn-pill:hover {
-    background: #e5e7eb;
-}
-
-.btn-primary {
-    background: #111827;
-    color: #f9fafb;
-    border-color: #111827;
-}
-
 .btn-small {
     padding: 8px 14px;
     border-radius: 999px;
@@ -414,54 +380,6 @@ body {
 }
 
 /* ===== REVIEWS PAGE LIST ===== */
-
-.review-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.review-item {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: space-between;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-}
-
-.review-main {
-    min-width: 0;
-    flex: 1 1 260px;
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 8px;
-}
-
-.review-client {
-    font-weight: 600;
-    color: #111827;
-}
-
-.review-rating {
-    font-size: 0.85rem;
-    color: #f97316;
-}
-
-.review-subject {
-    font-size: 0.92rem;
-    color: #111827;
-}
-
 .review-meta {
     font-size: 0.8rem;
     color: #6b7280;
@@ -472,13 +390,6 @@ body {
     margin: 6px 0 0;
     font-size: 0.9rem;
     color: #374151;
-}
-
-.review-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    align-items: flex-end;
 }
 
 /* Base small admin buttons */
@@ -565,16 +476,6 @@ body {
     font-size: 0.95rem;
     font-weight: 500;
     color: #111827;
-}
-
-.result-meta {
-    font-size: 0.8rem;
-    color: #6b7280;
-}
-
-.result-actions {
-    display: flex;
-    gap: 8px;
 }
 
 /* folder + file hierarchy */
@@ -669,26 +570,6 @@ ul.children-list > li.child-item:last-child {
 .child-info {
     flex: 1 1 auto;
     min-width: 0;
-}
-
-/* Container for name + meta */
-.image-info {
-    flex: 1;
-    min-width: 0;
-}
-
-/* filename */
-.image-name {
-    font-size: 0.9rem;
-    color: #111827;
-    word-break: normal;
-    font-weight: 500;
-    white-space: nowrap;
-    position: relative;
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
 }
 
 .image-meta {
@@ -922,9 +803,6 @@ ul.results-list ul.children-list > li.child-item > input.select-checkbox {
 }
 /* Desktop column widths for admin reviews table */
 @media (min-width: 960px) {
-    .admin-container {
-        max-width: 1200px;
-    }
     /* Client */
     .admin-table th:nth-child(1),
     .admin-table td:nth-child(1) {
