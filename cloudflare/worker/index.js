@@ -1,7 +1,7 @@
 const ALLOWED_ORIGINS = ["https://kilcon.work", "http://localhost:4321"];
 
 export default {
-    async fetch(req, env, ctx) {
+    async fetch(req, env) {
         const url = new URL(req.url);
         const host = url.host || "";
         const isProd = host.includes("kilcon.work");
@@ -49,6 +49,7 @@ export default {
                 "Remodels",
                 "Furniture",
                 "uploads",
+                "Reviews",
             ];
 
             const results = [];
@@ -59,7 +60,8 @@ export default {
                 const segments = path.split("/");
                 const topLevelDir = segments[0];
                 const subfolder = segments[1] || "misc";
-                const filePath = segments.slice(2).join("/");
+                const rest = segments.slice(2);
+                const filePath = rest.length > 0 ? rest.join("/") : file.name;
 
                 if (!allowedDirectories.includes(topLevelDir)) {
                     return new Response(
@@ -144,10 +146,12 @@ const htmlForm = `<!DOCTYPE html>
       }
 
       for (const file of input.files) {
+        if (!(file instanceof File)) continue;
         const relativePath = file.webkitRelativePath || file.name;
         const cleanedPath = relativePath.split('/').slice(1).join('/');
-        const fullPath = \`\${category}/\${subfolder}/\${cleanedPath || file.name}\`.replace(/\/+/g, '/');
-        formData.append(fullPath, file);
+        const filename = cleanedPath || file.name;
+        const fullPath = \`${category}/${subfolder}/${filename}\`.replace(/\\/+/g, '/');
+        formData.append(fullPath, file, filename);
       }
 
       const res = await fetch('/', {

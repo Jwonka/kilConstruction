@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// src/pages/api/cloudfare-worker-contact.ts
+// src/pages/api/cloudflare-worker-contact.ts
 var cloudfare_worker_contact_default = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
