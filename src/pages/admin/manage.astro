@@ -53,9 +53,8 @@ if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
 
         <ul id="results" class="results-list" data-public-api={PUBLIC_GALLERY_API} data-admin-api={ADMIN_API_BASE}></ul>
     </section>
-    <script type="module">
+    <script>
         import initManagePage from "./manage-script";
-
         initManagePage();
     </script>
 </AdminLayout>
