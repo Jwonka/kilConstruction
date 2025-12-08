@@ -451,6 +451,25 @@ export default function initManagePage() {
                 if (!row) return;
                 await toggleFolder(prefix, row);
             }
+            // --- Folder checkbox toggles all child file checkboxes ---
+            const input = target as HTMLInputElement;
+
+            if (input && input.type === "checkbox" && input.dataset.type === "project") {
+                const folderPrefix = input.dataset.prefix;
+                const li = input.closest("li.result-item") as HTMLLIElement | null;
+                if (!li || !folderPrefix) return;
+
+                const childList = li.querySelector(".children-list") as HTMLUListElement | null;
+                if (!childList) return;
+
+                const childCheckboxes = Array.from(
+                    childList.querySelectorAll<HTMLInputElement>('input[type="checkbox"][data-type="file"]')
+                );
+
+                for (const cb of childCheckboxes) {
+                    cb.checked = input.checked;
+                }
+            }
         });
 
         // bulk delete
