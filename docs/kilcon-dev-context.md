@@ -35,8 +35,9 @@ The gallery and review APIs used by the frontend:
 - `kilcon.work/api/reviews*`
 - `kilcon.work/api/gallery-api*`
 
-are implemented in a **separate Cloudflare Worker**, in a different codebase. That Worker is not part of this repository, but this site depends on it at runtime.
-
+> NOTE: The gallery and reviews endpoints described below are implemented in an
+> external Cloudflare Worker, not in this repository. They are documented here
+> so this repo’s frontend has a clear contract with the backend.
 ---
 
 ## 2. Architecture diagram
