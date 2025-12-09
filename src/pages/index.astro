@@ -200,7 +200,7 @@ const heroRotUrls = highlights.map((h) => h.full);
                                         <div class="review-photo-wrap">
                                             <img
                                                 src={review.photoUrl}
-                                                alt="Client submitted photo"
+                                                alt={`${review.clientNamePublic}'s ${labelProjectType(review.projectType)} project${review.location ? ` in ${review.location}` : ""}`}
                                                 loading="lazy"
                                             />
                                         </div>

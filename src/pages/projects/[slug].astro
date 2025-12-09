@@ -79,24 +79,44 @@ const metaDescription =
     <section class="container page-section">
         {items.length > 0 ? (
             <div class="grid grid--projects">
-                {items.map((i) => (
-                    <figure class="card card-media">
-                        <a href={i.full || i.thumb} target="_blank" rel="noopener">
-                            <img
-                                class="photo"
-                                loading="lazy"
-                                decoding="async"
-                                referrerpolicy="no-referrer"
-                                src={i.thumb || i.full}
-                                srcset={`${(i.thumb || i.full).replace('=s0','=w600')} 600w, ${(i.thumb || i.full).replace('=s0','=w1200')} 1200w, ${(i.thumb || i.full).replace('=s0','=w2000')} 2000w`}
-                                alt={i.name.includes("IMG_") ? "" : i.name}
-                                sizes="(max-width: 560px) 90vw, (max-width: 1200px) 45vw, 28vw" />
-                        </a>
-                        {(i.description || i.name) && (
-                            <figcaption class="caption">{i.description || cropName(i.name)}</figcaption>
-                        )}
-                    </figure>
-                ))}
+                {items.map((i, index) => {
+                    // Start the base label with the project name
+                    const base = projectName;
+
+                    // Clean filename using your existing helper
+                    let cleanedName = cropName(i.name);
+                    cleanedName = cleanedName.replace(/^(IMG|DSC)[-_]*/i, "").trim();
+
+                    // Prefer the image's description for alt (not visible caption)
+                    const sceneLabel =
+                        (i.description && i.description.trim()) ||
+                        cleanedName ||
+                        `project photo ${index + 1}`;
+
+                    const alt = `${base} – ${sceneLabel}`;
+
+                    return (
+                            <figure class="card card-media">
+                                <a href={i.full || i.thumb} target="_blank" rel="noopener">
+                                    <img
+                                        class="photo"
+                                        loading="lazy"
+                                        decoding="async"
+                                        referrerpolicy="no-referrer"
+                                        src={i.thumb || i.full}
+                                        srcset={`${(i.thumb || i.full).replace('=s0','=w600')} 600w, ${(i.thumb || i.full).replace('=s0','=w1200')} 1200w, ${(i.thumb || i.full).replace('=s0','=w2000')} 2000w`}
+                                        alt={alt}
+                                        sizes="(max-width: 560px) 90vw, (max-width: 1200px) 45vw, 28vw"
+                                    />
+                                </a>
+                                {(i.description || i.name) && (
+                                        <figcaption class="caption">
+                                            {i.description || cropName(i.name)}
+                                        </figcaption>
+                                )}
+                            </figure>
+                    );
+                })}
             </div>
     ) : (
             !loadError && <p>No images uploaded yet.</p>
