@@ -31,8 +31,9 @@ Serverless content platform with secure media management built on **Cloudflare W
 
 KIL Construction's platform delivers a fast, CDN-optimized website paired with secure administrative tools for managing project galleries, rotating images, and structured media categories.
 
-The backend is powered entirely by **Cloudflare Workers**, interacting with **R2 Object Storage**.  
-The **Astro** frontend renders dynamic pages, rotating cards, and category routes.
+The backend is powered by **Cloudflare Workers** (gallery + reviews + admin, external repo)
+and a **Cloudflare Pages Function** (contact form in this repo), all interacting with
+**R2 Object Storage**.  
 
 ---
 
@@ -59,7 +60,9 @@ The **Astro** frontend renders dynamic pages, rotating cards, and category route
 
 ## Features
 
-- Serverless API built with **Cloudflare Workers**  
+- Serverless API built with **Cloudflare Workers** and a **Cloudflare Pages Function**
+- Cloudflare Worker (external repo) for gallery + reviews + admin
+- Cloudflare Pages Function (this repo) for the contact form
 - Media management backed by **R2 Object Storage**  
 - Dynamic **Astro** frontend with category/project routing  
 - Secure admin authentication  
@@ -81,16 +84,20 @@ The **Astro** frontend renders dynamic pages, rotating cards, and category route
 - Rotating image card components  
 - Integrates directly with Worker API endpoints  
 
-### Backend (Cloudflare Workers)
-- `kilcon-gallery-worker`  
-  - project/gallery/media operations  
-  - admin file management  
-  - public image listing  
-  - reviews (submit + moderation)
+### Backend (Cloudflare Workers + Pages Function)
 
-- `kilcon-contact`  
-  - contact form submission  
-  - email forwarding  
+- `kilcon-gallery-worker`  
+  - Project/gallery/media operations  
+  - Admin file management  
+  - Public image listing  
+  - Gallery and reviews APIs: Cloudflare Worker deployed on Cloudflare,
+    maintained in a separate private repository. The frontend in this repo
+    calls it at `/api/gallery-api*` and `/api/reviews*` on https://kilcon.work.
+
+- `cloudflare-worker-contact`  
+  - Contact form handler implemented as a Cloudflare Pages Function in this repo  
+    (`src/pages/api/cloudflare-worker-contact.ts`), posting to Resend  
+  - Email forwarding
 
 ### Storage (R2 Object Storage)
 - Category folders: `Projects/`, `Furniture/`, `Remodels/`, etc.  
