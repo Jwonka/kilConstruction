@@ -198,6 +198,7 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                                 <a
                                     href={url.pathname + url.search}
                                     class={`page-link ${pageNum === page ? "is-current" : ""}`}
+                                    aria-current={pageNum === page ? "page" : undefined}
                                 >
                                     {pageNum}
                                 </a>

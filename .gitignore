@@ -29,5 +29,5 @@ pnpm-debug.log*
 wrangler.toml
 wrangler.contact.toml
 
-# JetBrains SQLite cache (example from your screenshot)
+# JetBrains SQLite cache
 .wrangler/state/v3/r2/**/*.sqlite

@@ -21,28 +21,45 @@ Update it whenever we change architecture, security, or APIs.
 
 The public site is served from Cloudflare Pages at `https://kilcon.work`.
 
-The Worker is mounted on:
+This repository contains:
+
+- Astro frontend deployed on **Cloudflare Pages**.
+- A single **Cloudflare Pages Function**:
+    - `src/pages/api/cloudflare-worker-contact.ts` → `POST /api/contact`
+    - Handles contact form submissions and forwards them to Resend, with optional Turnstile verification.
+
+The gallery and review APIs used by the frontend:
 
 - `kilcon.work/api/reviews*`
 - `kilcon.work/api/gallery-api*`
 
-There may be leftover code for Cloudflare Pages Functions in `src/pages/api/*`, but **production traffic for gallery and reviews goes through the Worker only**.
+are implemented in a **separate Cloudflare Worker**, in a different codebase. That Worker is not part of this repository, but this site depends on it at runtime.
 
 ---
 
 ## 2. Architecture diagram
 
 ```text
+Browser (public)
+  |
+  |  HTML/CSS/JS + form posts
+  v
+Cloudflare Pages (this repo)
+  |
+  |  POST /api/contact
+  v
+Pages Function (cloudflare-worker-contact.ts)
+  |
+  |  Resend API + Turnstile verify
+  v
+Email delivery / spam protection
+
 Browser (public + admin)
   |
-  |  HTTPS requests
+  |  /api/gallery-api* and /api/reviews*
   v
-Cloudflare Pages (Astro site at kilcon.work)
+External Cloudflare Worker (separate repo)
   |
-  |  /api/reviews* and /api/gallery-api*
+  |  R2, Turnstile, admin_auth, etc.
   v
-Cloudflare Worker (canonical backend)
-  |
-  |  R2 read/write
-  v
-R2 bucket (GALLERY_BUCKET)
+R2 bucket + review storage
