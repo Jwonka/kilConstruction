@@ -168,7 +168,7 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                                                 <a href={review.photoUrl} target="_blank" rel="noopener">
                                                     <img
                                                         src={review.photoUrl}
-                                                        alt="Client submitted photo"
+                                                        alt={`${review.clientNamePublic}'s ${projectTypeLabel(review.projectType)} project${review.location ? ` in ${review.location}` : ""}`}
                                                         loading="lazy"
                                                     />
                                                 </a>

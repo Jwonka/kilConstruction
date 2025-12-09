@@ -109,15 +109,28 @@ export default function initAdminReviewsPage() {
 
                 if (r.photoUrl) {
                     const url = escapeHtml(r.photoUrl);
+
+                    const clientLabel = r.clientNamePublic?.trim() || "client";
+                    const typeLabel = projectTypeLabel(r.projectType);
+                    const locationLabel = (r.location || "").trim();
+
+                    const altText = locationLabel
+                        ? `Review photo from ${clientLabel} – ${typeLabel} in ${locationLabel}`
+                        : `Review photo from ${clientLabel} – ${typeLabel}`;
+
                     photoCell.innerHTML = `
-            <a href="${url}" target="_blank" rel="noopener noreferrer" class="admin-review-thumb-link">
-              <img src="${url}" alt="Review photo" class="admin-review-thumb" loading="lazy" />
-            </a>
-          `;
+                        <a href="${url}" target="_blank" rel="noopener noreferrer" class="admin-review-thumb-link">
+                          <img
+                            src="${url}"
+                            alt="${escapeHtml(altText)}"
+                            class="admin-review-thumb"
+                            loading="lazy"
+                          />
+                        </a>
+                  `;
                 } else {
                     photoCell.innerHTML = `<span class="admin-no-photo">—</span>`;
                 }
-
                 const isApproved = r.status === "approved";
                 const isHidden = r.status === "hidden";
                 const approveLabel = isApproved ? "Approved" : "Approve";
