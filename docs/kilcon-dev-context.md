@@ -9,24 +9,26 @@ Update it whenever we change architecture, security, or APIs.
 
 **Goal:** Public marketing site + project gallery + client reviews for KIL Construction.
 
-**Stack**
+**Overall system stack**
 
 - **Frontend:** Astro, static pages rendered on **Cloudflare Pages**.
-- **Backend:** A single **Cloudflare Worker** that handles **all production API endpoints**.
+- **Backend (system-wide):**
+    - A **Cloudflare Worker** (external repo) that handles `/api/gallery-api*` and `/api/reviews*`
+      for gallery, reviews, and admin operations.
+    - A **Cloudflare Pages Function** (this repo) that handles `POST /api/contact` and forwards
+      contact form submissions to Resend, with optional Turnstile verification.
 - **Storage:** Cloudflare **R2** for all photos and review JSON.
 - **Spam protection:** Cloudflare **Turnstile** (contact + reviews).
-- **Admin auth:** Cookie-based (`admin_auth`), backed by an `ADMIN_SECRET` shared between:
-    - the Worker (`requireAdmin`)
-    - the Astro admin auth helper (`adminAuth.ts`).
+- **Admin auth:** Cookie-based (`admin_auth`), backed by an `ADMIN_SECRET` in the external Worker
+  and an Astro admin auth helper (`adminAuth.ts`) used by the admin frontend.
 
 The public site is served from Cloudflare Pages at `https://kilcon.work`.
 
-This repository contains:
+**This repository contains:**
 
-- Astro frontend deployed on **Cloudflare Pages**.
-- A single **Cloudflare Pages Function**:
-    - `src/pages/api/cloudflare-worker-contact.ts` → `POST /api/contact`
-    - Handles contact form submissions and forwards them to Resend, with optional Turnstile verification.
+- The **Astro frontend** deployed on Cloudflare Pages.
+- The **Cloudflare Pages Function**:
+    - `src/pages/api/cloudflare-worker-contact.ts` → `POST /api/contact`.
 
 The gallery and review APIs used by the frontend:
 
