@@ -53,7 +53,7 @@ The **Astro** frontend renders dynamic pages, rotating cards, and category route
 </p>
 
 ### Storage
-- 📦 Cloudflare R2 Object Storage
+📦 Cloudflare R2 Object Storage
 
 ---
 
@@ -82,9 +82,15 @@ The **Astro** frontend renders dynamic pages, rotating cards, and category route
 - Integrates directly with Worker API endpoints  
 
 ### Backend (Cloudflare Workers)
-- CRUD routes for media assets  
-- Admin-guarded routes  
-- JSON responses for dashboard and frontend  
+- `kilcon-gallery-worker`  
+  - project/gallery/media operations  
+  - admin file management  
+  - public image listing  
+  - reviews (submit + moderation)
+
+- `kilcon-contact`  
+  - contact form submission  
+  - email forwarding  
 
 ### Storage (R2 Object Storage)
 - Category folders: `Projects/`, `Furniture/`, `Remodels/`, etc.  
@@ -151,8 +157,8 @@ The **Astro** frontend renders dynamic pages, rotating cards, and category route
 ## Development Setup
 Prerequisites
 - Node 18+
-- Wrangler CLI
 - Cloudflare account with R2 bucket configured
+- Wrangler CLI (optional – only needed if you want to run Workers locally)
 
 Install & Run
 npm install
@@ -162,9 +168,15 @@ Deploy
 npm run deploy
 
 Environment Variables
-- ADMIN_SECRET=
-- R2_BUCKET=
-- PUBLIC_DOMAIN=
+
+The `.env` file in this repo only contains **frontend-safe** values:
+
+- PUBLIC_GALLERY_API=
+- PUBLIC_CONTACT_ENDPOINT=
+
+All sensitive values (for example `ADMIN_SECRET`, bucket base URLs, email API keys, etc.)
+are configured directly in the Cloudflare dashboard as Worker variables/secrets and are
+**not** stored in this repository.
   
 ---
 
