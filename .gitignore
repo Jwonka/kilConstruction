@@ -27,4 +27,4 @@ pnpm-debug.log*
 # Local Cloudflare config – do not commit
 /wrangler.toml
 /wrangler.contact.toml
-/.wrangler
+.wrangler/
