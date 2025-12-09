@@ -24,7 +24,10 @@ pnpm-debug.log*
 .idea/
 /.wrangler/state/v3/r2/miniflare-R2BucketObject/f47565f2166f83f0ceb5fe585d610bfec321c9595b789c3a3cf109776a313991.sqlite
 
-# Local Cloudflare config – do not commit
-/wrangler.toml
-/wrangler.contact.toml
+# Local Cloudflare Wrangler
 .wrangler/
+wrangler.toml
+wrangler.contact.toml
+
+# JetBrains SQLite cache (example from your screenshot)
+.wrangler/state/v3/r2/**/*.sqlite
