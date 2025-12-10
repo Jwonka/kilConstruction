@@ -7,7 +7,7 @@ export interface Env {
 }
 
 export default {
-    async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
         const url = new URL(request.url);
 
         // Only handle POST /api/contact
@@ -56,15 +56,15 @@ export default {
 
             const subject = `New inquiry from ${name}`;
             const html = `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${esc(name)}</p>
-        <p><strong>Email:</strong> ${esc(email)}</p>
-        <p><strong>Phone:</strong> ${esc(phone)}</p>
-        <p><strong>Job Address:</strong> ${esc(address)}</p>
-        <p><strong>Message:</strong><br>${esc(message).replace(/\n/g, "<br>")}</p>
-        <hr>
-        <p>Sent: ${new Date().toISOString()}</p>
-      `;
+            <h2>New Contact Form Submission</h2>
+            <p><strong>Name:</strong> ${esc(name)}</p>
+            <p><strong>Email:</strong> ${esc(email)}</p>
+            <p><strong>Phone:</strong> ${esc(phone)}</p>
+            <p><strong>Job Address:</strong> ${esc(address)}</p>
+            <p><strong>Message:</strong><br>${esc(message).replace(/\n/g, "<br>")}</p>
+            <hr>
+            <p>Sent: ${new Date().toISOString()}</p>
+          `;
 
             const r = await fetch("https://api.resend.com/emails", {
                 method: "POST",
@@ -83,14 +83,45 @@ export default {
             });
 
             if (!r.ok) {
-                const text = await r.text();
-                return new Response(`Email provider error: ${text}`, { status: 502 });
+                const rawBody = await r.text().catch(() => "");
+                const correlationId =
+                    "mail_" +
+                    Date.now().toString(36) +
+                    "_" +
+                    Math.random().toString(36).slice(2, 8);
+
+                console.error("[contact] email provider error", {
+                    correlationId,
+                    status: r.status,
+                    body: rawBody,
+                });
+
+                // Generic error back to the browser; no provider details
+                return new Response(
+                    `Email could not be sent. Please try again later. Reference: ${correlationId}`,
+                    { status: 502 },
+                );
             }
 
             return redirectBack();
 
         } catch (e: any) {
-            return new Response(`Server error: ${e?.message || "unknown"}`, { status: 500 });
+            const correlationId =
+                "mail_" +
+                Date.now().toString(36) +
+                "_" +
+                Math.random().toString(36).slice(2, 8);
+
+            console.error("[contact] unexpected error", {
+                correlationId,
+                error: e?.message || String(e),
+                stack: e instanceof Error ? e.stack : undefined,
+            });
+
+            return new Response(
+                `Email could not be sent. Please try again later. Reference: ${correlationId}`,
+                { status: 500 },
+            );
         }
     }
 } satisfies ExportedHandler<Env>;
