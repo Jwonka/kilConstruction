@@ -9,7 +9,11 @@ const auth = cookies.get("admin_auth")?.value || "";
 const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_SECRET = env.ADMIN_SECRET;
 
-if (!ADMIN_SECRET || !verifyAdminToken(auth, ADMIN_SECRET)) {
+const isAdmin = ADMIN_SECRET
+    ? await verifyAdminToken(auth, ADMIN_SECRET)
+    : false;
+
+if (!isAdmin) {
     return new Response(null, {
         status: 302,
         headers: { Location: "/admin" },

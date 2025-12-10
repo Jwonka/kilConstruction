@@ -18,7 +18,11 @@ const ADMIN_API_BASE = import.meta.env.DEV
     ? PUBLIC_GALLERY_API          // dev → hit remote worker
     : "/api/gallery-api";
 
-if (!ADMIN_SECRET || !verifyAdminToken(auth, ADMIN_SECRET)) {
+const isAdmin = ADMIN_SECRET
+    ? await verifyAdminToken(auth, ADMIN_SECRET)
+    : false;
+
+if (!isAdmin) {
     return new Response(null, {
         status: 302,
         headers: { Location: "/admin" },
