@@ -156,8 +156,13 @@ button.btn.cta {
 /* services cta class styles*/
 .section-intro {max-width: 44rem;margin: 0 auto 1.25rem;text-align: center;color: var(--muted);}
 .section-intro-strong {max-width: 44rem;margin: 0 auto 0.5rem;text-align: center;font-weight: 600;}
-.apparel-intro .section-intro-strong { margin-bottom: 1.75rem; }
-.apparel-intro .section-intro {margin-bottom: 0.5rem; }
+/* Apparel index intro spacing */
+.apparel-intro { margin-bottom: 1.75rem;}
+.apparel-intro .section-intro-strong { margin-top: 1.75rem; margin-bottom: 1 rem;}
+.apparel-intro .section-intro { margin-top: 0; margin-bottom: 0rem; }
+/* Centered apparel order form */
+.apparel-form {max-width: 36rem;margin: 0 auto;}
+.apparel-form .btn.cta {display: block;margin: 1.5rem auto 0;}
 .cta-div {max-width: 44rem;margin: 1rem auto 0;text-align: center;}
 .section-cta {margin: 0.25rem 0;padding: 0;}
 .visually-hidden {

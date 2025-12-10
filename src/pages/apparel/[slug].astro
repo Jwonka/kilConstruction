@@ -155,7 +155,7 @@ const metaDescription =
 
     {/* Apparel order form */}
     <section class="container page-section">
-        <h2>Order {albumName}</h2>
+        <h2 style="text-align: center;">Order {albumName}</h2>
 
         <div class="apparel-intro">
             <p id="order-success" class="status status--success hidden" aria-live="polite">
@@ -174,7 +174,7 @@ const metaDescription =
 
         <p id="form-status" class="status" aria-live="polite"></p>
 
-        <form method="POST" action="/api/contact">
+        <form method="POST" action="/api/contact" class="apparel-form">
             <label>
                 Item
                 <input type="text" name="itemName" value={slug} readonly />
