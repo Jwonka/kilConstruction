@@ -91,7 +91,13 @@ main { flex: 1 0 auto; }
 .card.card-media img.photo { width: 100%; height: auto; aspect-ratio: var(--ratio-projects); display: block; object-fit: cover;}
 .card.card-media.rotatable a, .card.card-media a.rotatable { background: #000000; }
 .caption {margin-top: 8px;font-size: 0.95rem;color: #556;}
-.status.status--error, .status.status--empty {text-align: center;color: #c0392b; ;}
+.status {display: block;margin-top: 0.75rem;font-size: 0.95rem;}
+.status.status--error,
+.status.status--empty,
+.status.status--success {text-align: center;}
+.status.status--error,
+.status.status--empty {color: #c0392b;}
+.status.status--success {color: #506631;font-weight: 600;}
 .footer{flex: 0 0 auto;margin-top:auto;border-top:1px solid #0a0a0a20;color: #fff;padding: 28px 0 calc(28px + env(safe-area-inset-bottom, 0px));font-size:14px;background: #000000; text-align: center}
 .footer-inner {display: flex;align-items: center;justify-content: center;gap: 14px;flex-wrap: wrap;line-height:1}
 .foot-copy{ line-height: 1; }
