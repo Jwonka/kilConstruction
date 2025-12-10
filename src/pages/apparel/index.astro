@@ -106,13 +106,13 @@ function hasUrl(x: unknown): x is { url: string } {
         {cards.slice(0, 6).map((c) => {
             if (!c.src) return null;
             return (
-                    <link
-                            rel="preload"
-                            as="image"
-                            href={c.src}
-                            imagesrcset={`${c.src.replace("=s0","=w600")} 600w, ${c.src.replace("=s0","=w1200")} 1200w, ${c.src.replace("=s0","=w2000")} 2000w`}
-                            imagesizes="680px"
-                    />
+                <link
+                    rel="preload"
+                    as="image"
+                    href={c.src}
+                    imagesrcset={`${c.src.replace("=s0","=w600")} 600w, ${c.src.replace("=s0","=w1200")} 1200w, ${c.src.replace("=s0","=w2000")} 2000w`}
+                    imagesizes="680px"
+                />
             );
         })}
     </Fragment>
@@ -128,31 +128,31 @@ function hasUrl(x: unknown): x is { url: string } {
 
     <section class="container page-section">
         {loadError && (
-                <p class="status status--error">
-                    Couldn’t load apparel right now. Please try again later.
-                </p>
+            <p class="status status--error">
+                Couldn’t load apparel right now. Please try again later.
+            </p>
         )}
 
         {!loadError && cards.length === 0 && (
-                <p class="status status--empty">
-                    No apparel items uploaded yet. Check back soon.
-                </p>
+            <p class="status status--empty">
+                No apparel items uploaded yet. Check back soon.
+            </p>
         )}
 
         {!loadError && cards.length > 0 && (
-                <div class="grid grid--projects">
-                    {cards.map((c, i) => (
-                            <ProjectCard
-                                    p={c.p}
-                                    first={c.first}
-                                    src={c.src}
-                                    rotList={c.rotList}
-                                    eager={i < 4}
-                                    cover={c.src ?? (hasUrl(c.first) ? c.first.url : undefined)}
-                                    baseHref="/apparel"
-                            />
-                    ))}
-                </div>
+            <div class="grid grid--projects">
+                {cards.map((c, i) => (
+                    <ProjectCard
+                        p={c.p}
+                        first={c.first}
+                        src={c.src}
+                        rotList={c.rotList}
+                        eager={i < 4}
+                        cover={c.src ?? (hasUrl(c.first) ? c.first.url : undefined)}
+                        baseHref="/apparel"
+                    />
+                ))}
+            </div>
         )}
     </section>
 

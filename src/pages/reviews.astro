@@ -33,6 +33,7 @@ const filterType = currentUrl.searchParams.get("type") ?? "all";
 const page = Number(currentUrl.searchParams.get("page") ?? "1") || 1;
 const pageSize = 10;
 const sent = currentUrl.searchParams.get("sent") === "1";
+const err  = currentUrl.searchParams.get("err");
 
 let summary: ReviewsSummary | null = null;
 let reviews: Review[] = [];
@@ -100,12 +101,12 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                     </div>
                     <p class="reviews-summary-text">
                         {summary.totalReviews > 0 ? (
-                                <>
-                                    <strong>{summary.averageRating} out of 5 stars</strong><br />
-                                    Based on {summary.totalReviews} client reviews
-                                </>
+                            <>
+                                <strong>{summary.averageRating} out of 5 stars</strong><br />
+                                Based on {summary.totalReviews} client reviews
+                            </>
                         ) : (
-                                <>No reviews yet. Be the first to leave one.</>
+                            <>No reviews yet. Be the first to leave one.</>
                         )}
                     </p>
                 </div>
@@ -141,47 +142,47 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                 {reviews.length > 0 && (
                         <div class="reviews-list">
                             {reviews.map((review) => (
-                                    <article class="card card--review-full" id={`review-${review.id}`}>
-                                        <header class="review-card-header">
-                                            <h2 class="review-name">{review.clientNamePublic}</h2>
-                                            <p class="review-meta">
-                                                {projectTypeLabel(review.projectType)}
-                                                {review.location && <> · {review.location}</>}
-                                            </p>
-                                            <div
-                                                    class="review-stars-row"
-                                                    aria-label={`${review.rating} out of 5 stars`}
-                                            >
-                                                {Array.from({ length: 5 }).map((_, i) => (
-                                                        <span class={i < review.rating ? "star filled" : "star"}>★</span>
-                                                ))}
-                                            </div>
-                                            <p class="review-date">{formatDate(review.createdAt)}</p>
-                                        </header>
-
-                                        <p class="review-text">
-                                            {review.text}
+                                <article class="card card--review-full" id={`review-${review.id}`}>
+                                    <header class="review-card-header">
+                                        <h2 class="review-name">{review.clientNamePublic}</h2>
+                                        <p class="review-meta">
+                                            {projectTypeLabel(review.projectType)}
+                                            {review.location && <> · {review.location}</>}
                                         </p>
+                                        <div
+                                                class="review-stars-row"
+                                                aria-label={`${review.rating} out of 5 stars`}
+                                        >
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                    <span class={i < review.rating ? "star filled" : "star"}>★</span>
+                                            ))}
+                                        </div>
+                                        <p class="review-date">{formatDate(review.createdAt)}</p>
+                                    </header>
 
-                                        {review.photoUrl && (
-                                            <div class="review-photo-wrap">
-                                                <a href={review.photoUrl} target="_blank" rel="noopener">
-                                                    <img
-                                                        src={review.photoUrl}
-                                                        alt={`${review.clientNamePublic}'s ${projectTypeLabel(review.projectType)} project${review.location ? ` in ${review.location}` : ""}`}
-                                                        loading="lazy"
-                                                    />
-                                                </a>
-                                            </div>
-                                        )}
+                                    <p class="review-text">
+                                        {review.text}
+                                    </p>
 
-                                        {review.adminReply && (
-                                            <div class="review-reply">
-                                                <strong>Reply from KIL Construction:</strong>
-                                                <p>{review.adminReply}</p>
-                                            </div>
-                                        )}
-                                    </article>
+                                    {review.photoUrl && (
+                                        <div class="review-photo-wrap">
+                                            <a href={review.photoUrl} target="_blank" rel="noopener">
+                                                <img
+                                                    src={review.photoUrl}
+                                                    alt={`${review.clientNamePublic}'s ${projectTypeLabel(review.projectType)} project${review.location ? ` in ${review.location}` : ""}`}
+                                                    loading="lazy"
+                                                />
+                                            </a>
+                                        </div>
+                                    )}
+
+                                    {review.adminReply && (
+                                        <div class="review-reply">
+                                            <strong>Reply from KIL Construction:</strong>
+                                            <p>{review.adminReply}</p>
+                                        </div>
+                                    )}
+                                </article>
                             ))}
                         </div>
                 )}
@@ -216,6 +217,14 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                 <p class="status status--success">
                     Thank you — your review has been submitted and is pending approval.
                 </p>
+            )}
+
+            {err && (
+                    <p class="status status--error">
+                        {err === "captcha"
+                            ? "Please complete the CAPTCHA and try again."
+                            : "Sorry, something went wrong. Please try again."}
+                    </p>
             )}
 
             <form
@@ -310,4 +319,27 @@ const hasReviews = !!summary && summary.totalReviews > 0;
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
         </aside>
     </section>
+    <script is:inline>
+        (function () {
+            const url = new URL(window.location.href);
+            let changed = false;
+
+            if (url.searchParams.has('sent')) {
+                url.searchParams.delete('sent');
+                changed = true;
+            }
+            if (url.searchParams.has('err')) {
+                url.searchParams.delete('err');
+                changed = true;
+            }
+
+            if (changed) {
+                window.history.replaceState(
+                    null,
+                    "",
+                    url.pathname + url.search + window.location.hash
+                );
+            }
+        })();
+    </script>
 </MainLayout>

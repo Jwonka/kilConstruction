@@ -156,8 +156,11 @@ const metaDescription =
     {/* Apparel order form */}
     <section class="container page-section">
         <h2>Order {albumName}</h2>
-        <p id="order-success" class="order-success hidden">
+        <p id="order-success" class="order-success hidden" aria-live="polite">
             Thanks! We’ll be in touch about your {albumName} order.
+        </p>
+        <p id="order-error" class="order-error hidden" aria-live="polite">
+            <!-- text set by script -->
         </p>
         <p class="section-intro">
             Fill out the form below to purchase a {albumName}. We’ll follow up by email to confirm
@@ -213,11 +216,35 @@ const metaDescription =
             </div>
         </form>
     </section>
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("sent") === "1") {
-            const el = document.getElementById("order-success");
-            if (el) el.classList.remove("hidden");
-        }
+    <script is:inline>
+        (function () {
+            const url = new URL(window.location.href);
+            const params = url.searchParams;
+            const sent = params.get("sent");
+            const err  = params.get("err");
+
+            const successEl = document.getElementById("order-success");
+            const errorEl   = document.getElementById("order-error");
+
+            if (sent === "1" && successEl) {
+                successEl.classList.remove("hidden");
+            } else if (err && errorEl) {
+                errorEl.textContent =
+                    err === "captcha"
+                        ? "Please complete the CAPTCHA and try again."
+                        : "Sorry, something went wrong. Please try again.";
+                errorEl.classList.remove("hidden");
+            }
+
+            if (sent || err) {
+                url.searchParams.delete("sent");
+                url.searchParams.delete("err");
+                window.history.replaceState(
+                    null,
+                    "",
+                    url.pathname + url.search + window.location.hash
+                );
+            }
+        })();
     </script>
 </MainLayout>
