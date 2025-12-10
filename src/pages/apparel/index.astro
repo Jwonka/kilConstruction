@@ -118,14 +118,17 @@ function hasUrl(x: unknown): x is { url: string } {
     </Fragment>
 
     <h1 class="page-head container">Order KIL Construction Apparel</h1>
-    <p class="section-intro-strong">
-        Hats, hoodies, and more – support KIL Construction with branded gear.
-    </p>
-    <p class="section-intro">
-        Browse the apparel options below. Open an item to see all photos and submit an order
-        using the form on that page.
-    </p>
-
+    <div class="apparel-intro">
+        <p class="section-intro-strong">
+            Hats, hoodies, and more – support KIL Construction with branded gear.
+        </p>
+        <p class="section-intro">
+            Browse the apparel options below.
+        </p>
+        <p class="section-intro">
+            Open an item to see all photos and submit an order using the form on that page.
+        </p>
+    </div>
     <section class="container page-section">
         {loadError && (
             <p class="status status--error">

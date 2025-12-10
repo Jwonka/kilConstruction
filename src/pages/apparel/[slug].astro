@@ -156,16 +156,21 @@ const metaDescription =
     {/* Apparel order form */}
     <section class="container page-section">
         <h2>Order {albumName}</h2>
-        <p id="order-success" class="status status--success hidden" aria-live="polite">
-            Thanks! We’ll be in touch about your {albumName} order.
-        </p>
-        <p id="order-error" class="status status--error hidden" aria-live="polite">
-            <!-- text set by script -->
-        </p>
-        <p class="section-intro">
-            Fill out the form below to purchase a {albumName}. We’ll follow up by email to confirm
-            pricing and availability.
-        </p>
+
+        <div class="apparel-intro">
+            <p id="order-success" class="status status--success hidden" aria-live="polite">
+                Thanks! We’ll be in touch about your {albumName} order.
+            </p>
+            <p id="order-error" class="status status--error hidden" aria-live="polite">
+                <!-- text set by script -->
+            </p>
+            <p class="section-intro">
+                Fill out the form below to purchase a {albumName}.
+            </p>
+            <p class="section-intro">
+                We’ll follow up by email to confirm pricing and availability.
+            </p>
+        </div>
 
         <p id="form-status" class="status" aria-live="polite"></p>
 
