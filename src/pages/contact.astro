@@ -86,7 +86,7 @@ const ENDPOINT = import.meta.env.PUBLIC_CONTACT_ENDPOINT;
             function setOk(message) {
                 res.textContent = message;
                 res.classList.remove("status--error", "status--empty");
-                res.classList.add("status--ok");
+                res.classList.add("status--success");
             }
 
             function setError(message) {
