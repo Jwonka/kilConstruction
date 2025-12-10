@@ -1,10 +1,56 @@
 ---
 import AdminLayout from "../layout/AdminLayout.astro";
+import crypto from "node:crypto";
 import {
     safeEquals,
     recordLoginAttempt,
     tooManyLoginAttempts,
 } from "../utils/adminAuth";
+
+const TOKEN_TTL_SECONDS = 12 * 60 * 60; // 12 hours
+
+function base64urlEncodeBytes(bytes: Uint8Array): string {
+    return Buffer.from(bytes)
+        .toString("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/g, "");
+}
+
+function base64urlEncodeString(input: string): string {
+    return base64urlEncodeBytes(Buffer.from(input, "utf8"));
+}
+
+function generateSessionId(): string {
+    // 16 bytes = 128 bits of randomness
+    const bytes = crypto.randomBytes(16);
+    return base64urlEncodeBytes(bytes);
+}
+
+function signPayload(payloadB64: string, secret: string): string {
+    return crypto
+        .createHmac("sha256", secret)
+        .update(payloadB64, "utf8")
+        .digest("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/g, "");
+}
+
+async function createAdminToken(secret: string): Promise<string> {
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const payload = {
+        sid: generateSessionId(),
+        iat: nowSeconds,
+        exp: nowSeconds + TOKEN_TTL_SECONDS,
+    };
+
+    const payloadJson = JSON.stringify(payload);
+    const payloadB64 = base64urlEncodeString(payloadJson);
+    const signature = signPayload(payloadB64, secret);
+
+    return `${payloadB64}.${signature}`;
+}
 
 const cookies = Astro.cookies;
 let error = Astro.url.searchParams.get("error") ?? "";
@@ -50,12 +96,15 @@ if (Astro.request.method === "POST") {
     if (!valid) {
         error = "Invalid username or password";
     } else {
-        cookies.set("admin_auth", ADMIN_SECRET, {
+        // Create a signed admin token using ADMIN_SECRET
+        const token = await createAdminToken(ADMIN_SECRET);
+
+        cookies.set("admin_auth", token, {
             path: "/",
             httpOnly: true,
             secure: import.meta.env.PROD,
             sameSite: "strict",
-            maxAge: 60 * 60 * 2, // 2 hours, tweak if you want
+            maxAge: 60 * 60 * 2, // 2 hours; token itself also expires
         });
 
         return Astro.redirect("/admin/dashboard");

@@ -2,6 +2,7 @@
 import AdminLayout from "../../layout/AdminLayout.astro";
 import "../../styles/global.css";
 import "../../styles/admin.css";
+import { verifyAdminToken } from "../../utils/adminToken";
 
 const cookies = Astro.cookies;
 const auth = cookies.get("admin_auth")?.value || "";
@@ -17,7 +18,7 @@ const ADMIN_API_BASE = import.meta.env.DEV
     ? PUBLIC_GALLERY_API          // dev → hit remote worker
     : "/api/gallery-api";
 
-if (!ADMIN_SECRET || auth !== ADMIN_SECRET) {
+if (!ADMIN_SECRET || !verifyAdminToken(auth, ADMIN_SECRET)) {
     return new Response(null, {
         status: 302,
         headers: { Location: "/admin" },
