@@ -145,12 +145,21 @@ const heroRotUrls = highlights.map((h) => h.full);
 				<p>Custom cabinetry, built-ins, tables, and trim.</p>
 			</a>
 		</section>
-		<p style="text-align: center;">We provide estimates and stand behind our work. Don’t see the service you need?
-            <br>
-            <a href="/contact/" class="inline-link">Contact us</a>
-            {" or "}
-            <a href="/reviews" class="inline-link">browse reviews.</a>
-        </p>
+        <div class="services-info-row">
+            <p class="svc svc-left">
+                We provide estimates and stand behind our work.
+            </p>
+
+            <p class="svc svc-center">
+                Have a custom project in mind?
+                <a href="/contact/" class="inline-link">Contact us.</a>
+            </p>
+
+            <p class="svc svc-right">
+                Had a project done by us?
+                <a href="/reviews#leave-review" class="inline-link">leave a review.</a>
+            </p>
+        </div>
 	</section>
     {reviewsSummary && reviewsSummary.totalReviews > 0 && (
         <section class="homepage-reviews">
@@ -212,8 +221,6 @@ const heroRotUrls = highlights.map((h) => h.full);
 
                 <div class="reviews-cta-row">
                     <a href="/reviews" class="inline-link">Read all reviews</a>
-                    <span class="reviews-cta-separator">|</span>
-                    <a href="/reviews#leave-review" class="inline-link">Leave a review</a>
                 </div>
             </div>
         </section>

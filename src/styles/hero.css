@@ -110,6 +110,24 @@
     text-align: left;
 }
 
+.services-info-row {
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: var(--gap);
+    margin: 8px auto 0;
+}
+
+.services-info-row .svc {
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+}
+
+.svc-left   { text-align: left; }
+.svc-center { text-align: center; }
+.svc-right  { text-align: right; }
+
 /* --- HOMEPAGE REVIEWS (index only) --- */
 
 .homepage-reviews {
@@ -259,6 +277,20 @@
     .homepage-reviews .review-card-link {
         flex: 0 0 32%;     /* perfect 3-across layout */
         max-width: 32%;
+    }
+}
+
+@media (max-width: 1135px) {
+    .services-info-row {
+        grid-template-columns: 1fr;
+        row-gap: 6px;
+        text-align: center;
+    }
+
+    .svc-left,
+    .svc-center,
+    .svc-right {
+        text-align: center !important;
     }
 }
 
