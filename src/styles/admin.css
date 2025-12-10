@@ -83,6 +83,16 @@ body {
     transform: translateY(-1px);
 }
 
+/* Keep Logout vertically centered, but give it a subtle hover effect */
+.admin-footer-logout,
+.admin-footer-logout:hover {
+    transform: translateY(-50%);
+}
+
+.admin-footer-logout:hover {
+    transform: translateY(-50%) scale(1.03); /* small scale instead of vertical jump */
+}
+
 /* Logo + brand text sizing */
 .admin-logo-img {
     width: 40px;
