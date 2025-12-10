@@ -1,20 +1,59 @@
-export function requireAdmin(request: Request): Response | null {
-    const secret = import.meta.env.ADMIN_SECRET;
-    if (!secret) {
-        // Fail CLOSED if env is misconfigured
-        console.error("ADMIN_SECRET is not set");
-        return new Response("Admin auth misconfigured", { status: 500 });
-    }
+// Simple in-memory admin session store.
+// NOTE: This is per-worker-instance and will reset on deploy
+// It keeps session IDs server-side and opaque to clients.
+const ADMIN_SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
 
+const ADMIN_SESSIONS = new Map<string, number>(); // sessionId -> createdAt
+
+function generateSessionId(): string {
+    // Use crypto if available (Cloudflare Workers have crypto)
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    // Convert to hex
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Create a new admin session and return the opaque session ID.
+ * This will be set as the value of the `admin_auth` cookie by the login handler.
+ */
+export function createAdminSession(): string {
+    const id = generateSessionId();
+    ADMIN_SESSIONS.set(id, Date.now());
+    return id;
+}
+
+/**
+ * Validate an incoming request's admin session.
+ * Returns true if the `admin_auth` cookie maps to a known, non-expired session.
+ */
+export function hasValidAdminSession(request: Request): boolean {
     const cookie = request.headers.get("Cookie") || "";
     const match = /admin_auth=([^;]+)/.exec(cookie);
-    const token = match ? decodeURIComponent(match[1]) : "";
+    const sessionId = match ? decodeURIComponent(match[1]) : "";
 
-    if (!token || token !== secret) {
+    if (!sessionId) return false;
+
+    const createdAt = ADMIN_SESSIONS.get(sessionId);
+    if (!createdAt) return false;
+
+    // Expire old sessions
+    if (Date.now() - createdAt > ADMIN_SESSION_TTL_MS) {
+        ADMIN_SESSIONS.delete(sessionId);
+        return false;
+    }
+
+    return true;
+}
+
+export function requireAdmin(request: Request): Response | null {
+    // If there is no valid admin session, block access.
+    if (!hasValidAdminSession(request)) {
         return new Response("Unauthorized", { status: 401 });
     }
 
-    return null; // OK
+    // Auth OK; allow the caller to proceed.
+    return null;
 }
 
 export function safeEquals(a: string, b: string): boolean {
