@@ -5,12 +5,6 @@ import "../styles/global.css";
 import "../styles/contact.css";
 
 const base = import.meta.env.BASE_URL;
-/** CONTACT FORM via Web3Forms (free tier)
- * 1) Sign up at https://web3forms.com and get an access_key.
- * 2) Set the "from_name" and "subject" to something recognizable in the owner's inbox.
- */
-
-const ACCESS_KEY = "YOUR_ACCESS_KEY";
 const SITEKEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 const ENDPOINT = import.meta.env.PUBLIC_CONTACT_ENDPOINT;
 ---
@@ -40,11 +34,8 @@ const ENDPOINT = import.meta.env.PUBLIC_CONTACT_ENDPOINT;
                 Already worked with us before?{" "}
                 <a href="/reviews#leave-review" class="inline-link">Leave a review.</a>
             </p>
-            <div id="result" class="result" aria-live="polite"></div>
+            <div id="result" class="status status--empty" aria-live="polite"></div>
             <form class="contact-form" method="POST" action={import.meta.env.PUBLIC_CONTACT_ENDPOINT}>
-                <input type="hidden" name="access_key" value={ACCESS_KEY} />
-                <input type="hidden" name="from_name" value="kilcon.work website" />
-                <input type="hidden" name="subject" value="New Quote Request from kilcon.work" />
 
                 <label for="name">Name</label>
                 <input id="name" name="name" required placeholder="John Doe" />
@@ -85,23 +76,42 @@ const ENDPOINT = import.meta.env.PUBLIC_CONTACT_ENDPOINT;
     </div>
     <script is:inline>
         (function () {
-            const res = document.getElementById('result');
+            const res = document.getElementById("result");
             if (!res) return;
+
             const url = new URL(window.location.href);
-            const sent = url.searchParams.get('sent');
-            const err  = url.searchParams.get('err');
-            if (url.searchParams.get('sent') === '1') {
-                res.textContent = "Thanks! We’ll be in touch shortly.";
-                res.classList.add('ok');
-                url.searchParams.delete('sent');
-                void window.history.replaceState(null, "", url.pathname + url.search);
+            const sent = url.searchParams.get("sent");
+            const err  = url.searchParams.get("err");
+
+            function setOk(message) {
+                res.textContent = message;
+                res.classList.remove("status--error", "status--empty");
+                res.classList.add("status--ok");
+            }
+
+            function setError(message) {
+                res.textContent = message;
+                res.classList.remove("status--ok", "status--empty");
+                res.classList.add("status--error");
+            }
+
+            if (sent === "1") {
+                setOk("Thanks! We’ll be in touch shortly.");
+                url.searchParams.delete("sent");
+                window.history.replaceState({}, "", url.pathname + url.search);
             } else if (err) {
-                res.textContent = err === 'captcha'
-                    ? "Please complete the CAPTCHA and try again."
-                    : "Sorry, something went wrong. Please try again.";
-                res.classList.add('error');
-                url.searchParams.delete('err');
-                history.replaceState({}, "", url.pathname + url.search);
+                if (err === "captcha") {
+                    setError("Please complete the CAPTCHA and try again.");
+                } else if (err === "phone") {
+                    setError("Please enter a valid phone number or leave it blank.");
+                } else if (err === "input") {
+                    setError("Please check your details and try again.");
+                } else {
+                    setError("Sorry, something went wrong. Please try again.");
+                }
+
+                url.searchParams.delete("err");
+                window.history.replaceState({}, "", url.pathname + url.search);
             }
         })();
     </script>
