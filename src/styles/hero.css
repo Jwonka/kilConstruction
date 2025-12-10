@@ -92,6 +92,7 @@
 .homepage-reviews .card--reviews-shell {
     padding: 12px 12px 16px;
 }
+
 /* --- HOME: "What we do" cards under hero --- */
 
 /* Mobile-first: 1 column */
@@ -280,7 +281,7 @@
     }
 }
 
-@media (max-width: 1135px) {
+@media (max-width: 720px) {
     .services-info-row {
         grid-template-columns: 1fr;
         row-gap: 6px;
