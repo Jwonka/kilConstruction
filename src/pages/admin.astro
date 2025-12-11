@@ -20,7 +20,7 @@ const ADMIN_SECRET = env.ADMIN_SECRET;
 // Fail CLOSED if env is misconfigured
 if (!ADMIN_USER || !ADMIN_PASS || !ADMIN_SECRET) {
     console.error("[admin] Missing ADMIN_* in runtime env");
-    return new Response("Admin auth misconfigured", { status: 500 });
+    return new Response("Something went wrong. Please try again later.", { status: 500 });
 }
 
 // Basic per-IP rate limiting using helpers
