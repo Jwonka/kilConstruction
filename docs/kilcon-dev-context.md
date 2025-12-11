@@ -15,7 +15,7 @@ Update it whenever we change architecture, security, or APIs.
 - **Backend (system-wide):**
     - A **Cloudflare Worker** (external repo) that handles `/api/gallery-api*` and `/api/reviews*`
       for gallery, reviews, and admin operations.
-    - A **Cloudflare Pages Function** (this repo) that handles `POST /api/contact` and forwards
+    - A **Cloudflare Worker** (external repo) that handles `POST /api/contact` and forwards
       contact form submissions to Resend, with optional Turnstile verification.
 - **Storage:** Cloudflare **R2** for all photos and review JSON.
 - **Spam protection:** Cloudflare **Turnstile** (contact + reviews).
@@ -27,8 +27,6 @@ The public site is served from Cloudflare Pages at `https://kilcon.work`.
 **This repository contains:**
 
 - The **Astro frontend** deployed on Cloudflare Pages.
-- The **Cloudflare Pages Function**:
-    - `src/pages/api/cloudflare-worker-contact.ts` → `POST /api/contact`.
 
 The gallery and review APIs used by the frontend:
 
@@ -51,7 +49,7 @@ Cloudflare Pages (this repo)
   |
   |  POST /api/contact
   v
-Pages Function (cloudflare-worker-contact.ts)
+
   |
   |  Resend API + Turnstile verify
   v

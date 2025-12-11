@@ -95,8 +95,7 @@ and a **Cloudflare Pages Function** (contact form in this repo), all interacting
     calls it at `/api/gallery-api*` and `/api/reviews*` on https://kilcon.work.
 
 - `cloudflare-worker-contact`  
-  - Contact form handler implemented as a Cloudflare Pages Function in this repo  
-    (`src/pages/api/cloudflare-worker-contact.ts`), posting to Resend  
+  - Contact form handler implemented as a Cloudflare Pages Function in this repo
   - Email forwarding
 
 ### Storage (R2 Object Storage)
