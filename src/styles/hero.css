@@ -1,6 +1,6 @@
 .hero {
     padding: 16px 0 12px;
-    max-width: 1200px;
+    max-width: 1300px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -9,7 +9,7 @@
     text-align: center;
 }
 .hero-card {
-    max-width: 1100px;
+    max-width: 1300px;
     width: 100%;
     margin-inline: auto;
     position: relative;
@@ -70,30 +70,14 @@
 @media (max-width: 768px) {  .hero {padding: 32px 0 20px;}  .hero-copy h1 {font-size: clamp(1.8rem, 5vw, 2.1rem);}  }
 @media (max-width: 720px) {  .hero-card img.photo.hero-photo {height: min(52vw, 220px);}  }
 @media (max-width: 700px) {  .hero { padding: 40px 0 24px; } .hero h1 { margin: 0 0 6px;}  }
-/* --- HOME: "What we do" cards under hero --- */
-
-/* Mobile-first: 1 column */
-.hero + section .grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--gap);
-    margin: clamp(16px, 2vw, 24px) 0;
-}
-
-/* Make the cards act like small link cards */
-.hero + section .grid .card {
-    display: block;
-    height: 100%;
-    max-width: 100%;
-    text-align: left;
-}
-
-/* homepage reviews shell – keep everything you have plus this tweak */
-.homepage-reviews .card--reviews-shell {
-    padding: 12px 12px 16px;
-}
 
 /* --- HOME: "What we do" cards under hero --- */
+
+/* Desktop/tablet width for the "What we do" section under the hero */
+.hero + section {
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
 /* Mobile-first: 1 column */
 .hero + section .grid {
@@ -132,20 +116,19 @@
 /* --- HOMEPAGE REVIEWS (index only) --- */
 
 .homepage-reviews {
-    padding: 24px 1rem 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 0 32px;
 }
 
-/* NEW: everything inside homepage reviews must wrap, never widen the page */
+/* everything inside homepage reviews must wrap, never widen the page */
 .homepage-reviews,
 .homepage-reviews * {
     overflow-wrap: anywhere;
     word-break: break-word;
 }
 
-.homepage-reviews .card--reviews-shell {
-    max-width: 1100px;
-    margin: 0 auto;
-}
+.homepage-reviews .card--reviews-shell { width: 100%; margin: 0 auto; padding: 12px 12px 16px; }
 
 /* Heading & summary row */
 .homepage-reviews .reviews-heading {
@@ -272,16 +255,18 @@
     }
 
     .homepage-reviews .reviews-strip {
-        gap: 1.25rem; /* slightly larger visual spacing */
+        gap: 1.25rem;
+        padding: 0.5rem 0 0.75rem;
     }
 
+    /* Exactly three tiles per view on desktop */
     .homepage-reviews .review-card-link {
-        flex: 0 0 32%;     /* perfect 3-across layout */
-        max-width: 32%;
+        flex: 0 0 calc((100% - 2.5rem) / 3);  /* 2 gaps × 1.25rem */
+        max-width: calc((100% - 2.5rem) / 3);
     }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1070px) {
     .services-info-row {
         grid-template-columns: 1fr;
         row-gap: 6px;
@@ -328,6 +313,7 @@
     .hero + section {
         padding: 4px 12px 8px;
         max-width: 100%;
+        margin: 0 auto;
         box-sizing: border-box;
     }
 
