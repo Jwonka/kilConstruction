@@ -31,9 +31,16 @@ Serverless content platform with secure media management built on **Cloudflare W
 
 KIL Construction's platform delivers a fast, CDN-optimized website paired with secure administrative tools for managing project galleries, rotating images, and structured media categories.
 
-The backend is powered by **Cloudflare Workers** (gallery + reviews + admin, external repo)
-and a **Cloudflare Pages Function** (contact form in this repo), all interacting with
-**R2 Object Storage**.  
+The frontend (Astro) communicates with **two Cloudflare Workers**:
+
+1. **Gallery + Reviews Worker** (external repo)  
+   – Handles gallery listing, reviews, admin authentication, and all R2 operations.
+
+2. **Contact Worker (`kilcon-contact`)**  
+   – Handles **POST `/api/contact`**, email forwarding, and Turnstile validation.  
+   – Lives entirely in Cloudflare, not in this repository.
+
+This repo contains **only the Astro frontend** and no backend secrets or Worker code.
 
 ---
 
@@ -60,16 +67,15 @@ and a **Cloudflare Pages Function** (contact form in this repo), all interacting
 
 ## Features
 
-- Serverless API built with **Cloudflare Workers** and a **Cloudflare Pages Function**
-- Cloudflare Worker (external repo) for gallery + reviews + admin
-- Cloudflare Pages Function (this repo) for the contact form
-- Media management backed by **R2 Object Storage**  
-- Dynamic **Astro** frontend with category/project routing  
-- Secure admin authentication  
-- Upload, rename, delete, and list operations  
-- Automatic slug generation + numeric ordering  
-- Rotating project cards for category previews  
-- Zero-downtime deployments + instant CDN caching  
+- Serverless backend powered by **Cloudflare Workers**
+- **Gallery + Reviews Worker** (external repo) for admin operations, R2, and public listing
+- **Contact Worker** (`/api/contact`) for email forwarding + Turnstile verification
+- Dynamic **Astro** frontend with category/project routing
+- Secure cookie-based admin authentication
+- Upload, rename, delete, and organize media in R2
+- Featured review sorting + homepage review rotation
+- Rotating project cards for modern visual previews
+- Zero-downtime deployments + global CDN caching
 
 ---
 
@@ -79,24 +85,33 @@ and a **Cloudflare Pages Function** (contact form in this repo), all interacting
 <summary><strong>Click to expand architecture details</strong></summary>
 
 ### Frontend (Astro)
+
 - Static + dynamic hybrid rendering  
 - Responsive gallery layouts  
 - Rotating image card components  
 - Integrates directly with Worker API endpoints  
 
-### Backend (Cloudflare Workers + Pages Function)
+### Backend (Cloudflare Workers)
 
-- `kilcon-gallery-worker`  
-  - Project/gallery/media operations  
-  - Admin file management  
-  - Public image listing  
-  - Gallery and reviews APIs: Cloudflare Worker deployed on Cloudflare,
-    maintained in a separate private repository. The frontend in this repo
-    calls it at `/api/gallery-api*` and `/api/reviews*` on https://kilcon.work.
+- **Gallery + Reviews Worker (`kilcon-gallery-worker`)**  (external repository) 
+  - Handles all media/gallery operations  
+  - Review submission + featured review ordering  
+  - Admin authentication (cookie-based)  
+  - R2 object reading/writing  
+  - Frontend calls it via:  
+    - `/api/gallery-api*`  
+    - `/api/reviews*`
 
-- `cloudflare-worker-contact`  
-  - Contact form handler implemented as a Cloudflare Pages Function in this repo
-  - Email forwarding
+- **Contact Worker (`kilcon-contact`)**  
+  - Handles **POST `/api/contact`**  
+  - Sends emails using Resend  
+  - Validates Turnstile tokens  
+  - Required environment variables:  
+    - `RESEND_API_KEY`  
+    - `FROM_EMAIL`  
+    - `TO_EMAIL`  
+    - `TURNSTILE_SECRET`  
+  - Deployed in Cloudflare, not stored in this repo
 
 ### Storage (R2 Object Storage)
 - Category folders: `Projects/`, `Furniture/`, `Remodels/`, etc.  
@@ -175,14 +190,13 @@ npm run deploy
 
 Environment Variables
 
-The `.env` file in this repo only contains **frontend-safe** values:
+This repository contains **only frontend-safe** environment variables:
 
 - PUBLIC_GALLERY_API=
 - PUBLIC_CONTACT_ENDPOINT=
 
-All sensitive values (for example `ADMIN_SECRET`, bucket base URLs, email API keys, etc.)
-are configured directly in the Cloudflare dashboard as Worker variables/secrets and are
-**not** stored in this repository.
+All sensitive values (ADMIN_SECRET, R2 paths, email API keys, Turnstile secret, etc.)  
+are configured directly inside Cloudflare Worker settings and are **not stored in this repo**.
   
 ---
 
