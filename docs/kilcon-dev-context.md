@@ -13,10 +13,12 @@ Update it whenever we change architecture, security, or APIs.
 
 - **Frontend:** Astro, static pages rendered on **Cloudflare Pages**.
 - **Backend (system-wide):**
-    - A **Cloudflare Worker** (external repo) that handles `/api/gallery-api*` and `/api/reviews*`
-      for gallery, reviews, and admin operations.
-    - A **Cloudflare Worker** (external repo) that handles `POST /api/contact` and forwards
-      contact form submissions to Resend, with optional Turnstile verification.
+    - A **Cloudflare Worker** (`kilcon-gallery-worker`, defined and deployed directly in Cloudflare)  
+      that handles `/api/gallery-api*` and `/api/reviews*` for gallery, reviews, and admin operations.
+    - A **Cloudflare Worker** (`kilcon-contact`, also defined and deployed directly in Cloudflare)  
+      that handles `POST /api/contact`, forwards form submissions to Resend, and always performs  
+      Turnstile verification in production. This worker also does not live in this repository.
+
 - **Storage:** Cloudflare **R2** for all photos and review JSON.
 - **Spam protection:** Cloudflare **Turnstile** (contact + reviews).
 - **Admin auth:** Cookie-based (`admin_auth`), backed by an `ADMIN_SECRET` in the external Worker
@@ -43,24 +45,24 @@ The gallery and review APIs used by the frontend:
 ```text
 Browser (public)
   |
-  |  HTML/CSS/JS + form posts
+  |  HTML/CSS/JS + POST /api/contact
   v
 Cloudflare Pages (this repo)
   |
-  |  POST /api/contact
+  |  forwards request to /api/contact (Cloudflare Worker)
   v
-
+Contact Worker (kilcon-contact)
   |
   |  Resend API + Turnstile verify
   v
-Email delivery / spam protection
+Email delivery
 
 Browser (public + admin)
   |
   |  /api/gallery-api* and /api/reviews*
   v
-External Cloudflare Worker (separate repo)
+Gallery + Reviews Worker (kilcon-gallery-worker)
   |
-  |  R2, Turnstile, admin_auth, etc.
+  |  R2 operations, Turnstile, admin_auth
   v
 R2 bucket + review storage
