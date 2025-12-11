@@ -31,7 +31,7 @@ Serverless content platform with secure media management built on **Cloudflare W
 
 KIL Construction's platform delivers a fast, CDN-optimized website paired with secure administrative tools for managing project galleries, rotating images, and structured media categories.
 
-The frontend (Astro) communicates with **two Cloudflare Workers** (not in this repository):
+The frontend (Astro) communicates with **two Cloudflare Workers** (Not in this repository):
 
 1. **Gallery + Reviews Worker**  
    – Handles gallery listing, reviews, admin authentication, and all R2 operations.
