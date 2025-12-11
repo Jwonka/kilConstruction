@@ -237,10 +237,6 @@
     font-size: 0.95rem;
 }
 
-.homepage-reviews .reviews-cta-separator {
-    margin: 0 0.5rem;
-    color: #9ca3af;
-}
 .homepage-reviews .review-text {
     overflow-wrap: anywhere;
     word-wrap: break-word;
