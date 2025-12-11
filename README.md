@@ -134,41 +134,41 @@ This repo contains **only the Astro frontend** and no backend secrets or Worker 
   <tr>
     <td align="center">
       <strong>Homepage</strong><br/>
-      <img src="docs/screenshots/img.png" width="380" alt="KilCon homepage"/>
+      <img src="docs/screenshots/homepage.png" width="380" alt="KilCon homepage"/>
     </td>
     <td align="center">
       <strong>Project Gallery View</strong><br/>
-      <img src="docs/screenshots/img_3.png" width="380" alt="Project gallery view"/>
+      <img src="docs/screenshots/projectsGallery.png" width="380" alt="Project gallery view"/>
     </td>
   </tr>
   <tr>
     <td align="center">
       <strong>Service Gallery View</strong><br/>
-      <img src="docs/screenshots/img_8.png" width="380" alt="Service gallery view"/>
+      <img src="docs/screenshots/newConstructionGallery.png" width="380" alt="Service gallery view"/>
     </td>
     <td align="center">
       <strong>Contact Page</strong><br/>
-      <img src="docs/screenshots/img_2.png" width="380" alt="Contact page"/>
+      <img src="docs/screenshots/contactPage.png" width="380" alt="Contact page"/>
     </td>
   </tr>
   <tr>
     <td align="center">
       <strong>Admin – Dashboard</strong><br/>
-      <img src="docs/screenshots/img_4.png" width="380" alt="Admin project list"/>
+      <img src="docs/screenshots/adminDashboard.png" width="380" alt="Admin project list"/>
     </td>
     <td align="center">
       <strong>Admin – Upload Images</strong><br/>
-      <img src="docs/screenshots/img_5.png" width="380" alt="Admin upload and actions"/>
+      <img src="docs/screenshots/uploadPage.png" width="380" alt="Admin upload and actions"/>
     </td>
   </tr>
   <tr>
     <td align="center">
       <strong>Admin – Manage Images in Projects/Services</strong><br/>
-      <img src="docs/screenshots/img_6.png" width="380" alt="Admin image detail"/>
+      <img src="docs/screenshots/manageImages.png" width="380" alt="Admin image detail"/>
     </td>
     <td align="center">
       <strong>Admin – Approve/Deny/Feature Reviews</strong><br/>
-      <img src="docs/screenshots/img_7.png" width="380" alt="Admin status view"/>
+      <img src="docs/screenshots/manageReviews.png" width="380" alt="Admin status view"/>
     </td>
   </tr>
 </table>
