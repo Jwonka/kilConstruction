@@ -66,3 +66,28 @@ Gallery + Reviews Worker (kilcon-gallery-worker)
   |  R2 operations, Turnstile, admin_auth
   v
 R2 bucket + review storage
+```
+### 3. Admin credentials & session rotation
+
+Admin authentication for the gallery/admin UI is backed by two key values in the runtime environment:
+
+- `ADMIN_SECRET`
+- `SESSION_VERSION`
+
+#### ADMIN_SECRET
+
+- Used as the HMAC key for signing `admin_auth` tokens.
+- Never stored in this repository; configured only in Cloudflare.
+- **Rotation policy:**
+  - Rotate at least quarterly, and any time roles change or compromise is suspected.
+  - When rotating `ADMIN_SECRET`, also bump `SESSION_VERSION` so all existing admin sessions are invalidated.
+
+#### SESSION_VERSION
+
+- Included as `ver` inside the token payload and enforced both:
+  - In the Astro admin pages (login gate).
+  - In the external gallery worker via `requireAdmin`.
+- **Usage:**
+  - Bump this value (e.g., `"1"` → `"2"`) whenever you want to force logout of all admin sessions without changing cookie names or other app logic.
+  - Typical triggers: admin offboarding, major permission changes, or `ADMIN_SECRET` rotation.
+

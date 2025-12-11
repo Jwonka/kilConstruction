@@ -122,6 +122,8 @@ This repo contains **only the Astro frontend** and no backend secrets or Worker 
 - Secret-based admin authentication  
 - Cookie session validation  
 - Domain-level request verification  
+- Admin access is controlled via short-lived signed cookies
+- All secrets and session controls are configured only in Cloudflare.
 
 </details>
 
