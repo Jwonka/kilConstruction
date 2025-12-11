@@ -20,14 +20,16 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-# jetbrains setting folder
+# IDE settings
 .idea/
-/.wrangler/state/v3/r2/miniflare-R2BucketObject/f47565f2166f83f0ceb5fe585d610bfec321c9595b789c3a3cf109776a313991.sqlite
+.vscode/
 
-# Local Cloudflare Wrangler
+# Local Cloudflare Wrangler (state, caches, etc.)
 .wrangler/
+
+# Wrangler and local SQLite caches
+.wrangler/**/*.sqlite
+
+# Wrangler configs (kept local only)
 wrangler.toml
 wrangler.contact.toml
-
-# JetBrains SQLite cache
-.wrangler/state/v3/r2/**/*.sqlite
