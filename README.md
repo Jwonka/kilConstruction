@@ -153,21 +153,21 @@ This repo contains **only the Astro frontend** and no backend secrets or Worker 
   </tr>
   <tr>
     <td align="center">
-      <strong>Admin – Project List</strong><br/>
+      <strong>Admin – Dashboard</strong><br/>
       <img src="docs/screenshots/img_4.png" width="380" alt="Admin project list"/>
     </td>
     <td align="center">
-      <strong>Admin – Upload & Actions</strong><br/>
+      <strong>Admin – Upload Images</strong><br/>
       <img src="docs/screenshots/img_5.png" width="380" alt="Admin upload and actions"/>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <strong>Admin – Image Detail</strong><br/>
+      <strong>Admin – Manage Images in Projects/Services</strong><br/>
       <img src="docs/screenshots/img_6.png" width="380" alt="Admin image detail"/>
     </td>
     <td align="center">
-      <strong>Admin – Confirmation/Status</strong><br/>
+      <strong>Admin – Approve/Deny/Feature Reviews</strong><br/>
       <img src="docs/screenshots/img_7.png" width="380" alt="Admin status view"/>
     </td>
   </tr>
