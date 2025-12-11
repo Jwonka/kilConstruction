@@ -8,9 +8,15 @@ const cookies = Astro.cookies;
 const auth = cookies.get("admin_auth")?.value || "";
 const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_SECRET = env.ADMIN_SECRET;
+const SESSION_VERSION  = env.SESSION_VERSION ?? "1";
 
-const isAdmin = ADMIN_SECRET
-    ? await verifyAdminToken(auth, ADMIN_SECRET)
+if (!ADMIN_SECRET || !SESSION_VERSION) {
+    console.error("[admin] Missing ADMIN_SECRET or SESSION_VERSION in runtime env");
+    return new Response("Something went wrong. Please try again later.", { status: 500 });
+}
+
+const isAdmin = auth && ADMIN_SECRET && SESSION_VERSION
+    ? await verifyAdminToken(auth, ADMIN_SECRET, SESSION_VERSION)
     : false;
 
 if (!isAdmin) {

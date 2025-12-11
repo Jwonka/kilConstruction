@@ -2,7 +2,7 @@
 // It uses Web Crypto (crypto.subtle) for HMAC and a small base64url helper
 // that works in both environments.
 
-const TOKEN_TTL_SECONDS = 12 * 60 * 60; // 12 hours
+const TOKEN_TTL_SECONDS = 6 * 60 * 60; // 6 hours
 
 declare const Buffer: any; // for Node; Cloudflare will use the btoa/atob path
 
@@ -75,14 +75,18 @@ function generateSessionId(): string {
     return base64urlEncode(bytes);
 }
 
-// Create a signed admin token using ADMIN_SECRET.
+// Create a signed admin token using ADMIN_SECRET and a session version.
 // Token format: "<base64url(payload json)>.<base64url(HMAC-SHA256)>"
-export async function createAdminToken(secret: string): Promise<string> {
+export async function createAdminToken(
+    secret: string,
+    sessionVersion: string,
+): Promise<string> {
     const nowSeconds = Math.floor(Date.now() / 1000);
     const payload = {
         sid: generateSessionId(),
         iat: nowSeconds,
         exp: nowSeconds + TOKEN_TTL_SECONDS,
+        ver: sessionVersion,
     };
 
     const payloadJson = JSON.stringify(payload);
@@ -92,10 +96,11 @@ export async function createAdminToken(secret: string): Promise<string> {
     return `${payloadB64}.${signature}`;
 }
 
-// Verify an admin token created by createAdminToken(ADMIN_SECRET).
+// Verify an admin token created by createAdminToken(ADMIN_SECRET, SESSION_VERSION).
 export async function verifyAdminToken(
     token: string | null | undefined,
     secret: string | null | undefined,
+    sessionVersion: string,
 ): Promise<boolean> {
     if (!token || !secret) return false;
 
@@ -119,11 +124,11 @@ export async function verifyAdminToken(
     }
     if (diff !== 0) return false;
 
-    // Decode payload and check exp / iat
+    // Decode payload and check exp / iat / ver
     try {
         const payloadBytes = base64urlDecodeToBytes(payloadB64);
         const json = new TextDecoder().decode(payloadBytes);
-        const payload = JSON.parse(json) as { exp?: number; iat?: number };
+        const payload = JSON.parse(json) as { exp?: number; iat?: number; ver?: string };
 
         if (!payload || typeof payload !== "object") return false;
 
@@ -137,8 +142,13 @@ export async function verifyAdminToken(
             return false; // issued too far in the future
         }
 
+        if (typeof payload.ver !== "string" || payload.ver !== sessionVersion) {
+            return false; // revoked / mismatched session version
+        }
+
         return true;
     } catch {
         return false;
     }
 }
+

@@ -10,6 +10,12 @@ const auth = cookies.get("admin_auth")?.value || "";
 // Cloudflare runtime env
 const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_SECRET = env.ADMIN_SECRET;
+const SESSION_VERSION  = env.SESSION_VERSION ?? "1";
+
+if (!ADMIN_SECRET || !SESSION_VERSION) {
+    console.error("[admin] Missing ADMIN_SECRET or SESSION_VERSION in runtime env");
+    return new Response("Something went wrong. Please try again later.", { status: 500 });
+}
 
 // build-time public API URL for the worker
 const PUBLIC_GALLERY_API = import.meta.env.PUBLIC_GALLERY_API || "https://kilcon.work/api/gallery-api";
@@ -18,8 +24,8 @@ const ADMIN_API_BASE = import.meta.env.DEV
     ? PUBLIC_GALLERY_API          // dev → hit remote worker
     : "/api/gallery-api";
 
-const isAdmin = ADMIN_SECRET
-    ? await verifyAdminToken(auth, ADMIN_SECRET)
+const isAdmin = auth && ADMIN_SECRET && SESSION_VERSION
+    ? await verifyAdminToken(auth, ADMIN_SECRET, SESSION_VERSION)
     : false;
 
 if (!isAdmin) {

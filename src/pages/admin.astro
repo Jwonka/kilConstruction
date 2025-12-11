@@ -16,10 +16,11 @@ const env = (Astro.locals as any).runtime?.env ?? {};
 const ADMIN_USER   = env.ADMIN_USER;
 const ADMIN_PASS   = env.ADMIN_PASS;
 const ADMIN_SECRET = env.ADMIN_SECRET;
+const SESSION_VERSION = env.SESSION_VERSION ?? "1";
 
 // Fail CLOSED if env is misconfigured
-if (!ADMIN_USER || !ADMIN_PASS || !ADMIN_SECRET) {
-    console.error("[admin] Missing ADMIN_* in runtime env");
+if (!ADMIN_USER || !ADMIN_PASS || !ADMIN_SECRET || !SESSION_VERSION) {
+    console.error("[admin] Missing ADMIN_* or SESSION_VERSION in runtime env");
     return new Response("Something went wrong. Please try again later.", { status: 500 });
 }
 
@@ -52,7 +53,7 @@ if (Astro.request.method === "POST") {
         error = "Invalid username or password";
     } else {
         // Create a signed admin token using ADMIN_SECRET
-        const token = await createAdminToken(ADMIN_SECRET);
+        const token = await createAdminToken(ADMIN_SECRET, SESSION_VERSION);
 
         cookies.set("admin_auth", token, {
             path: "/",
