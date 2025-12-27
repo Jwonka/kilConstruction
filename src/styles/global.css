@@ -135,9 +135,7 @@ button.btn.cta {
 }
 .page-section {margin-bottom: clamp(10px, 1.5vw, 20px);padding-block-end: clamp(8px, 1vw, 16px);}
 .no-sticky header { position: static !important; top: auto; }
-.hidden {
-    display: none;
-}
+.hidden { display: none; }
 /* Inline link that lifts upward on hover (no background) */
 .inline-link {
     font-weight: 600;
