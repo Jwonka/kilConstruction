@@ -99,13 +99,19 @@ main { flex: 1 0 auto; }
 .status.status--empty {color: #c0392b;}
 .status.status--success {color: #506631;font-weight: 600;}
 .footer{flex: 0 0 auto;margin-top:auto;border-top:1px solid #0a0a0a20;color: #fff;padding: 28px 0 calc(28px + env(safe-area-inset-bottom, 0px));font-size:14px;background: #000000; text-align: center}
-.footer-inner {display: flex;align-items: center;justify-content: center;gap: 14px;flex-wrap: wrap;line-height:1}
+.footer-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; line-height:1}
+.footer-legal{ display: flex; justify-content: center; gap: 14px; opacity: 0.9; }
+.footer-legal a:hover,
+.footer-legal a:focus-visible{ opacity: 1; }
+.footer-top{ display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.footer-top a + a,
+.footer-legal a + a{ margin-left: 0; }
 .foot-copy{ line-height: 1; }
-.footer .fb {color: #9ec5ff;display: inline-flex;align-items: center; line-height:1; transition: transform 0.2s ease;}
+.footer-actions{ display:inline-flex; align-items:center; gap: 14px; white-space: nowrap; }
+.footer .fb {color: #9ec5ff;display: inline-flex;align-items: center; line-height:1; transform: translateY(1px); transition: transform 0.2s ease;}
 .footer .fb:hover {transform: scale(1.12);}
 .footer .fb svg {display:block;width: 2.1em;height: 2.1em;fill: currentColor;}
 .footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; font-size: 0.85rem; }
-.footer a + a { margin-left: 0.75rem; }
 .footer-admin { margin-left: auto; text-align: right; }
 .footer-admin a { font-size: 0.75rem; opacity: 0.45; text-decoration: none; transition: opacity 0.2s ease, text-decoration 0.2s ease; }
 .footer-admin a:hover, .footer-admin a:focus-visible {opacity: 0.9; text-decoration: none; }

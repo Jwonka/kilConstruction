@@ -39,21 +39,27 @@ const absoluteImage = image.startsWith('http')
 <footer class="footer">
     <div class="container">
         <div class="footer-inner">
-            <span class="foot-copy">
-                © {new Date().getFullYear()} KIL Construction · Licensed & Insured · Serving Mondovi, WI and The Surrounding Area
-            </span>
-            <a class="fb" href="https://www.facebook.com/profile.php?id=61559555097375" target="_blank" rel="noopener noreferrer" aria-label="KIL Construction on Facebook">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill-opacity="currentColor" aria-hidden="true">
-                    <path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-2.9h2v-2.2c0-2 1.2-3.2 3-3.2.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2v2h2.3l-.4 2.9h-1.9v7A10 10 0 0 0 22 12z"/>
-                </svg>
-            </a>
-            <div class="footer-apparel">
-                <a href="/apparel/">Order KIL apparel</a>
+            <div class="footer-top">
+                <span class="foot-copy">
+                    © {new Date().getFullYear()} KIL Construction · Licensed & Insured · Serving Mondovi, WI and The Surrounding Area
+                </span>
+                <div class="footer-actions">
+                    <a class="fb" href="https://www.facebook.com/profile.php?id=61559555097375" target="_blank" rel="noopener noreferrer" aria-label="KIL Construction on Facebook">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill-opacity="currentColor" aria-hidden="true">
+                            <path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-2.9h2v-2.2c0-2 1.2-3.2 3-3.2.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2v2h2.3l-.4 2.9h-1.9v7A10 10 0 0 0 22 12z"/>
+                        </svg>
+                    </a>
+
+                    <div class="footer-apparel">
+                        <a href="/apparel/">Order KIL apparel</a>
+                    </div>
+                </div>
             </div>
-            <span>
+
+            <nav class="footer-legal" aria-label="Legal">
                 <a href="/privacy">Privacy Policy</a>
                 <a href="/terms">Terms of Use</a>
-            </span>
+            </nav>
         </div>
         <div class="footer-admin">
             <a href="/admin">Admin</a>
