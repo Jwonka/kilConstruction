@@ -1,3 +1,4 @@
 Contact: mailto:kil.con.contact@gmail.com
 Expires: 2026-12-31
 Policy: https://kilcon.work/privacy
+Preferred-Languages: en
