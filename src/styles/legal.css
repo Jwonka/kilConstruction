@@ -1,0 +1,53 @@
+.legal {
+    max-width: 760px;
+    margin: 3rem auto 4rem;
+    line-height: 1.65;
+    font-size: 0.95rem;
+    color: var(--text, #222);
+}
+
+.legal h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.legal .muted {
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+}
+
+.legal h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.legal h3 {
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.legal p {
+    margin: 0.75rem 0 1rem;
+}
+
+.legal ul {
+    margin: 0.5rem 0 1.25rem 1.25rem;
+}
+
+.legal li {
+    margin: 0.4rem 0;
+}
+
+.legal a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.legal a:hover {
+    text-decoration-thickness: 2px;
+}
