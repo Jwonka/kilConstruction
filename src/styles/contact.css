@@ -34,9 +34,10 @@
 }
 .bizcard .image-card{
     display:block;
-    width: calc(100% + 4px);
+    width: calc(100% + 6px);
+    max-width: none;
     height:auto;
-    margin: -2px;
+    margin: -3px;
     border:0;
     border-radius: inherit;
     image-rendering: auto;
