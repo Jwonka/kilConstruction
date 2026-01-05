@@ -48,11 +48,39 @@ type ListResponse = {
 let cards: Card[] = [];
 let loadError: string | null = null;
 
+async function fetchJsonWithRetry(
+    url: URL,
+    tries: number = 2
+): Promise<Response> {
+    let lastResponse: Response | null = null;
+
+    for (let i = 0; i < tries; i++) {
+        const res = await fetch(url, {
+            cache: "no-store",
+            headers: {
+                Accept: "application/json",
+            },
+        });
+
+        lastResponse = res;
+
+        const ct = res.headers.get("content-type") || "";
+        if (res.ok && ct.includes("application/json")) {
+            return res;
+        }
+
+        // small backoff before retry
+        await new Promise((r) => setTimeout(r, 150 * (i + 1)));
+    }
+
+    return lastResponse!;
+}
+
 try {
     const u = new URL(API);
     u.searchParams.set("list", "furniture");
 
-    let res = await fetch(u, { cache: "no-store" });
+    let res = await fetchJsonWithRetry(u, 2);
 
     // Fallback if the worker hasn’t been updated yet
     if (!res.ok || res.status === 404) {
@@ -110,25 +138,34 @@ function hasUrl(x: unknown): x is { url: string } {
 
 <MainLayout
         title={`${service.name} | KIL Construction`}
-        description={service.seoDescription}
-        ogDescription={service.blurb}
-        twitterDescription={service.blurb}
+        description={service.seoDescription || service.description || service.blurb || "KIL Construction custom furniture in Mondovi, WI."}
+        ogDescription={service.ogDescription || service.blurb}
+        twitterDescription={service.ogDescription || service.blurb}
 >
     <Fragment slot="head">
         <link rel="preconnect" href="https://kilcon.work" crossorigin />
 
-        {cards.slice(0, 6).map((c) => {
-            if (!c.src) return null;
-            return (
-                <link
-                    rel="preload"
-                    as="image"
-                    href={c.src}
-                    imagesrcset={`${c.src.replace("=s0","=w600")} 600w, ${c.src.replace("=s0","=w1200")} 1200w, ${c.src.replace("=s0","=w2000")} 2000w`}
-                    imagesizes="680px"
-                />
-            );
-        })}
+        {(() => {
+            const withWidth = (u: string, w: number): string =>
+                u.replace(
+                    /\/cdn-cgi\/image\/width=\d+/,
+                    `/cdn-cgi/image/width=${w}`
+                );
+
+            return cards.slice(0, 6).map((c) => {
+                if (!c.src) return null;
+
+                return (
+                    <link
+                        rel="preload"
+                        as="image"
+                        href={withWidth(c.src, 600)}
+                        imagesrcset={`${withWidth(c.src, 600)} 600w, ${withWidth(c.src, 1200)} 1200w, ${withWidth(c.src, 2000)} 2000w`}
+                        imagesizes="680px"
+                    />
+                );
+            });
+        })()}
     </Fragment>
 
     <h1 class="page-head container">{service.name}</h1>
