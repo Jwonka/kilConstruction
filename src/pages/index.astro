@@ -92,7 +92,7 @@ const heroRotUrls = highlights.map((h) => h.full);
 
 const localBusinessJsonLd = {
     "@context": "https://schema.org",
-    "@type": "GeneralContractor",
+    "@type": ["GeneralContractor", "HomeAndConstructionBusiness"],
     "@id": "https://kilcon.work/#business",
     "name": "KIL Construction",
     "url": "https://kilcon.work/",
@@ -112,6 +112,24 @@ const localBusinessJsonLd = {
         {
             "@type": "City",
             "name": "Mondovi",
+            "address": {
+                "@type": "PostalAddress",
+                "addressRegion": "WI",
+                "addressCountry": "US"
+            }
+        },
+        {
+            "@type": "AdministrativeArea",
+            "name": "Western Wisconsin"
+        }
+    ],
+    "contactPoint": [
+        {
+            "@type": "ContactPoint",
+            "telephone": "+1-715-279-1241",
+            "contactType": "customer service",
+            "areaServed": "US",
+            "availableLanguage": "English"
         }
     ],
     "sameAs": [
