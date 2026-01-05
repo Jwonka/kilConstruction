@@ -88,28 +88,7 @@ function truncate(text: string, max = 220): string {
 }
 
 const heroCover = highlights[0]?.full;
-
-// IMPORTANT: The homepage hero initially renders highlights[0] as <img src>.
-// If that same image appears early in data-rot-srcs, the shared hero rotator
-// can rotate "back" to it after the first swap. We intentionally exclude the
-// current cover from early rotation candidates (and append it last) to avoid
-// the snap-back effect, without changing global rotator behavior.
-const norm = (u?: string) => {
-    if (!u) return "";
-    const noFrag = u.split("#")[0];
-    const noQuery = noFrag.split("?")[0];
-    return noQuery.replace(/=(?:s\d+|w\d+)(?:-h\d+)?(?:-p)?(?:-no)?$/, "");
-};
-
-const heroRotUrlsAll = (highlights ?? [])
-    .map((h) => h.full)
-    .filter((u): u is string => u.length > 0);
-
-// IMPORTANT: Hero renders heroCover as the initial <img src>. We exclude it
-// from data-rot-srcs so the first rotation can’t be a no-op/repeat.
-const heroRotUrls = heroCover
-    ? heroRotUrlsAll.filter((u) => norm(u) !== norm(heroCover))
-    : heroRotUrlsAll;
+const heroRotUrls = highlights.map((h) => h.full);
 
 const localBusinessJsonLd = {
     "@context": "https://schema.org",

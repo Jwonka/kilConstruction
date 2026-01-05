@@ -102,6 +102,8 @@ export default function initUploadPage() {
 
         function rebuildSubfolderSelect(): void {
             const category = (categoryEl.value || "").trim();
+            const isHighlights = category === "Highlights";
+
             subfolderSelectEl.innerHTML = "";
 
             // always have base options
@@ -130,6 +132,10 @@ export default function initUploadPage() {
         // reload list when category changes
         categoryEl.addEventListener("change", () => {
             rebuildSubfolderSelect();
+            const isHighlights = categoryEl.value.trim() === "Highlights";
+            subfolderSelectEl.disabled = isHighlights;
+            subfolderCustomEl.style.display = "none";
+            subfolderCustomEl.value = "";
         });
 
         subfolderSelectEl.addEventListener("change", () => {
@@ -162,39 +168,43 @@ export default function initUploadPage() {
 
             let subfolder = "";
 
-            // 1) existing folder from dropdown
-            if (subfolderSelectEl.value && subfolderSelectEl.value !== "__NEW__") {
-                subfolder = subfolderSelectEl.value.trim();
-            }
+            const isHighlights = category === "Highlights";
 
-            // 2) "Create new" path → use custom text
-            if (!subfolder && subfolderSelectEl.value === "__NEW__") {
-                subfolder = subfolderCustomEl.value.trim();
-            }
-
-            // 3) Fallbacks
-            if (!subfolder) {
-                if (category === "Projects") {
-                    const first = files[0];
-                    const base = (first.webkitRelativePath || first.name || "project").split(
-                        "/"
-                    )[0];
-                    subfolder = base || "project";
-                } else {
-                    subfolder = "misc";
+            if (!isHighlights) {
+                // 1) existing folder from dropdown
+                if (subfolderSelectEl.value && subfolderSelectEl.value !== "__NEW__") {
+                    subfolder = subfolderSelectEl.value.trim();
                 }
-            }
 
-            subfolder = subfolder.replace(/\/+$/, "");
+                // 2) "Create new" path → use custom text
+                if (!subfolder && subfolderSelectEl.value === "__NEW__") {
+                    subfolder = subfolderCustomEl.value.trim();
+                }
+
+                // 3) Fallbacks
+                if (!subfolder) {
+                    if (category === "Projects") {
+                        const first = files[0];
+                        const base = (first.webkitRelativePath || first.name || "project").split(
+                            "/"
+                        )[0];
+                        subfolder = base || "project";
+                    } else {
+                        subfolder = "misc";
+                    }
+                }
+
+                subfolder = subfolder.replace(/\/+$/, "");
+            }
 
             const formData = new FormData();
 
             for (const file of Array.from(files)) {
                 const cleanedName = file.name || "image";
-                const fullPath = `${category}/${subfolder}/${cleanedName}`.replace(
-                    /\/+/g,
-                    "/"
-                );
+                const fullPath = isHighlights
+                    ? `${category}/${cleanedName}`
+                    : `${category}/${subfolder}/${cleanedName}`.replace(/\/+/g, "/");
+
                 formData.append(fullPath, file);
             }
 

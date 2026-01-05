@@ -206,7 +206,6 @@
         const swapTo = async (next) => {
             const ok = await preload(next);
             if (!ok) return;
-            
             try {
                 const tmp = new Image();
                 tmp.src = next;
@@ -229,7 +228,6 @@
             requestAnimationFrame(() => {
                 img.style.opacity = '1';
             });
-            return true;
         };
 
         let lastSwitch = 0;
@@ -238,7 +236,7 @@
             if (busy) return;
             const now = performance.now();
             if (now - lastSwitch < HERO_INTERVAL_MS * 0.9) return;
-
+            lastSwitch = now;
             busy = true;
             try {
                 const currentNow = norm(img.currentSrc || img.src || '');
@@ -246,26 +244,11 @@
                 const poolNow = all.filter((u) => norm(u) !== currentNow);
                 if (!poolNow.length) return;
 
-                // Try up to poolNow.length candidates so a single failed preload
-                // doesn't produce a visible "A → A" no-op rotation.
-                let swapped = false;
+                if (idx >= poolNow.length) idx = 0;
+                const next = poolNow[idx];
+                idx = (idx + 1) % poolNow.length;
 
-                for (let attempts = 0; attempts < poolNow.length; attempts++) {
-                    if (idx >= poolNow.length) idx = 0;
-
-                    const next = poolNow[idx];
-                    idx = (idx + 1) % poolNow.length;
-
-                    // swapTo returns true only if a swap actually happened
-                    if (await swapTo(next)) {
-                        swapped = true;
-                        break;
-                    }
-                }
-
-                if (swapped) {
-                    lastSwitch = performance.now();
-                }
+                await swapTo(next);
             } finally {
                 busy = false;
             }
