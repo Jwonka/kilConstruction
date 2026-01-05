@@ -111,30 +111,30 @@ function hasUrl(x: unknown): x is { url: string } {
     <h1 class="page-head container">Projects</h1>
     <section class="container page-section">
         {loadError && (
-                <p class="status status--error">
-                    Couldn’t load projects right now. Please try again later.
-                </p>
+            <p class="status status--error">
+                Couldn’t load projects right now. Please try again later.
+            </p>
         )}
 
         {!loadError && cards.length === 0 && (
-                <p class="status status--empty">
-                    No projects yet. Check back soon.
-                </p>
+            <p class="status status--empty">
+                No projects yet. Check back soon.
+            </p>
         )}
 
         {!loadError && cards.length > 0 && (
-                <div class="grid grid--projects">
-                    {cards.map((c, i) => (
-                            <ProjectCard
-                                    p={c.p}
-                                    first={c.first}
-                                    src={c.src}
-                                    rotList={c.rotList}
-                                    eager={i < 6}
-                                    cover={c.src ?? (hasUrl(c.first) ? c.first.url : undefined)}
-                            />
-                    ))}
-                </div>
+            <div class="grid grid--projects">
+                {cards.map((c, i) => (
+                    <ProjectCard
+                        p={c.p}
+                        first={c.first}
+                        src={c.src}
+                        rotList={c.rotList}
+                        eager={i < 6}
+                        cover={c.src ?? (hasUrl(c.first) ? c.first.url : undefined)}
+                    />
+                ))}
+            </div>
         )}
     </section>
     <script src="/js/rotator.js?v=13" defer></script>
