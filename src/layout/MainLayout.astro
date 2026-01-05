@@ -9,7 +9,12 @@ const {
     image = logo.src,
     url, // optional override
     noSticky = false,
+    ogDescription,
+    twitterDescription,
 } = Astro.props;
+
+const ogDesc = typeof ogDescription === "string" && ogDescription.length ? ogDescription : description;
+const twDesc = typeof twitterDescription === "string" && twitterDescription.length ? twitterDescription : ogDesc;
 
 // Canonical URL: always strip query/hash by using pathname.
 // Astro.site (configured in astro.config.mjs) for absolute URLs.
@@ -33,12 +38,12 @@ const absoluteImage = image.startsWith("http")
     <meta name="description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={ogDesc} />
     <meta property="og:image" content={absoluteImage} />
     <meta property="og:url" content={pageUrl} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={twDesc} />
     <meta name="twitter:image" content={absoluteImage} />
     <meta name="referrer" content="strict-origin">
     <link rel="canonical" href={pageUrl} />
