@@ -109,25 +109,31 @@ function hasUrl(x: unknown): x is { url: string } {
 
 <MainLayout
         title={`${service.name} | KIL Construction`}
-        description={service.seoDescription}
-        ogDescription={service.blurb}
-        twitterDescription={service.blurb}
+        description={service.seoDescription || service.description || service.blurb || "KIL Construction services in Mondovi, WI."}
+        ogDescription={service.ogDescription || service.blurb}
+        twitterDescription={service.ogDescription || service.blurb}
 >
     <Fragment slot="head">
         <link rel="preconnect" href="https://kilcon.work" crossorigin />
 
-        {cards.slice(0, 6).map((c) => {
-            if (!c.src) return null;
-            return (
-                <link
-                    rel="preload"
-                    as="image"
-                    href={c.src}
-                    imagesrcset={`${c.src.replace("=s0","=w600")} 600w, ${c.src.replace("=s0","=w1200")} 1200w, ${c.src.replace("=s0","=w2000")} 2000w`}
-                    imagesizes="680px"
-                />
-            );
-        })}
+        {(() => {
+            const withWidth = (u, w) =>
+                u.replace(/\/cdn-cgi\/image\/width=\d+/, `/cdn-cgi/image/width=${w}`);
+
+            return cards.slice(0, 6).map((c) => {
+                if (!c.src) return null;
+
+                return (
+                    <link
+                        rel="preload"
+                        as="image"
+                        href={withWidth(c.src, 600)}
+                        imagesrcset={`${withWidth(c.src, 600)} 600w, ${withWidth(c.src, 1200)} 1200w, ${withWidth(c.src, 2000)} 2000w`}
+                        imagesizes="680px"
+                    />
+                );
+            });
+        })()}
     </Fragment>
 
     <h1 class="page-head container">{service.name}</h1>
