@@ -43,6 +43,8 @@ const absoluteImage = image.startsWith("http")
     <meta name="referrer" content="strict-origin">
     <link rel="canonical" href={pageUrl} />
     <link rel="icon" href={logo.src} />
+
+    <slot name="head" />
 </head>
 <body class={`site ${noSticky ? 'no-sticky' : ''}`}>
 <header class="header"><div class="container"><Nav /></div></header>
