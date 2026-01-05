@@ -14,12 +14,18 @@ const {
     title = "Admin",
     description = "KIL Construction admin dashboard.",
     image = logo.src,
-    url = Astro.url?.toString() ?? "https://kilcon.work/admin"
+    url, // optional override
 } = Astro.props;
+
+const canonicalUrl = Astro.site
+    ? new URL(Astro.url.pathname, Astro.site).toString()
+    : (Astro.url ? Astro.url.origin + Astro.url.pathname : "https://kilcon.work/admin");
+
+const pageUrl = typeof url === "string" && url.length > 0 ? url : canonicalUrl;
 
 const absoluteImage = image.startsWith("http")
     ? image
-    : new URL(image, url).toString();
+    : new URL(image, pageUrl).toString();
 ---
 
 <!DOCTYPE html>
@@ -39,7 +45,7 @@ const absoluteImage = image.startsWith("http")
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={absoluteImage} />
-    <meta property="og:url" content={url} />
+    <meta property="og:url" content={pageUrl} />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -48,7 +54,7 @@ const absoluteImage = image.startsWith("http")
     <meta name="twitter:image" content={absoluteImage} />
 
     <!-- Canonical -->
-    <link rel="canonical" href={url} />
+    <link rel="canonical" href={pageUrl} />
 
     <!-- Favicon to match rest of site -->
     <link rel="icon" href={logo.src} />
