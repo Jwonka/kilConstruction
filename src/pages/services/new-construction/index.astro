@@ -109,7 +109,9 @@ function hasUrl(x: unknown): x is { url: string } {
 
 <MainLayout
         title={`${service.name} | KIL Construction`}
-        description={service.seoDescription || service.description}
+        description={service.seoDescription}
+        ogDescription={service.blurb}
+        twitterDescription={service.blurb}
 >
     <Fragment slot="head">
         <link rel="preconnect" href="https://kilcon.work" crossorigin />
