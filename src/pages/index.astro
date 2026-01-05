@@ -89,9 +89,77 @@ function truncate(text: string, max = 220): string {
 
 const heroCover = highlights[0]?.full;
 const heroRotUrls = highlights.map((h) => h.full);
+
+const localBusinessJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "GeneralContractor",
+    "@id": "https://kilcon.work/#business",
+    "name": "KIL Construction",
+    "url": "https://kilcon.work/",
+    "image": "https://kilcon.work/og/og-image_1200x630.jpg",
+    "logo": "https://kilcon.work/brand/logo.png",
+    "telephone": "+1-715-279-1241",
+    "email": "kil.con.contact@gmail.com",
+    "priceRange": "$$",
+    "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Mondovi",
+        "addressRegion": "WI",
+        "postalCode": "54755",
+        "addressCountry": "US"
+    },
+    "areaServed": [
+        {
+            "@type": "City",
+            "name": "Mondovi",
+        }
+    ],
+    "sameAs": [
+        "https://www.facebook.com/profile.php?id=61559555097375"
+    ],
+    "subjectOf": {
+        "@type": "ImageObject",
+        "contentUrl": "https://kilcon.work/brand/bizcard-front-new.jpg",
+        "name": "KIL Construction business card"
+    },
+    "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Construction Services",
+        "itemListElement": [
+            {
+                "@type": "Offer",
+                "itemOffered": {
+                    "@type": "Service",
+                    "name": "New Construction",
+                    "url": "https://kilcon.work/services/new-construction"
+                }
+            },
+            {
+                "@type": "Offer",
+                "itemOffered": {
+                    "@type": "Service",
+                    "name": "Remodels",
+                    "url": "https://kilcon.work/services/remodels"
+                }
+            },
+            {
+                "@type": "Offer",
+                "itemOffered": {
+                    "@type": "Service",
+                    "name": "Custom Furniture & Cabinetry",
+                    "url": "https://kilcon.work/services/furniture"
+                }
+            }
+        ]
+    }
+};
 ---
 <MainLayout title="KIL Construction | Custom Carpentry & Cabinets" description="Custom cabinetry,new construction, and remodeling projects in Mondovi and the surrounding area.">
-	<section class="hero">
+    <Fragment slot="head">
+        <script type="application/ld+json" set:html={JSON.stringify(localBusinessJsonLd)} />
+    </Fragment>
+
+    <section class="hero">
         <div class="hero-copy">
             <h1>On-target workmanship. On-time results.</h1>
             <p>Hand-crafted cabinetry, new construction, and remodeling projects.</p>
