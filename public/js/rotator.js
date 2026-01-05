@@ -206,6 +206,7 @@
         const swapTo = async (next) => {
             const ok = await preload(next);
             if (!ok) return;
+            
             try {
                 const tmp = new Image();
                 tmp.src = next;
@@ -228,6 +229,7 @@
             requestAnimationFrame(() => {
                 img.style.opacity = '1';
             });
+            return true;
         };
 
         let lastSwitch = 0;
@@ -236,7 +238,7 @@
             if (busy) return;
             const now = performance.now();
             if (now - lastSwitch < HERO_INTERVAL_MS * 0.9) return;
-            lastSwitch = now;
+
             busy = true;
             try {
                 const currentNow = norm(img.currentSrc || img.src || '');
@@ -244,24 +246,25 @@
                 const poolNow = all.filter((u) => norm(u) !== currentNow);
                 if (!poolNow.length) return;
 
-                if (idx >= poolNow.length) idx = 0;
+                // Try up to poolNow.length candidates so a single failed preload
+                // doesn't produce a visible "A → A" no-op rotation.
                 let swapped = false;
+
                 for (let attempts = 0; attempts < poolNow.length; attempts++) {
+                    if (idx >= poolNow.length) idx = 0;
+
                     const next = poolNow[idx];
                     idx = (idx + 1) % poolNow.length;
 
-                    const ok = await preload(next);
-                    if (!ok) continue;
-
-                    await swapTo(next);
-                    swapped = true;
-                    break;
+                    // swapTo returns true only if a swap actually happened
+                    if (await swapTo(next)) {
+                        swapped = true;
+                        break;
+                    }
                 }
 
-                // If nothing swapped, do NOT advance visual state
-                if (!swapped) {
-                    // allow retry on next tick without showing the same image again
-                    return;
+                if (swapped) {
+                    lastSwitch = performance.now();
                 }
             } finally {
                 busy = false;
