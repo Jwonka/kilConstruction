@@ -110,7 +110,7 @@ function hasUrl(x: unknown): x is { url: string } {
 
 <MainLayout
         title={`${service.name} | KIL Construction`}
-        description={service.description}
+        description={service.seoDescription || service.description}
 >
     <Fragment slot="head">
         <link rel="preconnect" href="https://kilcon.work" crossorigin />
@@ -165,7 +165,7 @@ function hasUrl(x: unknown): x is { url: string } {
     <div class="cta-div">
         <p class="section-cta container">Ready to talk about your project?</p>
         <p class="section-cta container">
-            <a href="/contact/" class="inline-link">Contact us</a> and we’ll schedule a time to look at your space and provide an estimate.
+            <a href="/contact" class="inline-link">Contact us</a> and we’ll schedule a time to look at your space and provide an estimate.
         </p>
     </div>
     <script src="/js/rotator.js?v=13" defer></script>
