@@ -5,9 +5,9 @@ import "../styles/global.css";
 const base = import.meta.env.BASE_URL;
 
 const serviceSubs = [
-    { href: `${base}services/new-construction/`, label: "New Construction" },
-    { href: `${base}services/remodels/`,        label: "Remodels" },
-    { href: `${base}services/furniture/`,       label: "Furniture" },
+    { href: `${base}services/new-construction`, label: "New Construction" },
+    { href: `${base}services/remodels`,        label: "Remodels" },
+    { href: `${base}services/furniture`,       label: "Furniture" },
 ];
 ---
 
@@ -27,8 +27,8 @@ const serviceSubs = [
                 ))}
             </ul>
         </details>
-        <a class="nav-link" href={`${base}projects/`}>Projects</a>
-        <a class="nav-link" href={`${base}contact/`}>Contact</a>
+        <a class="nav-link" href={`${base}projects`}>Projects</a>
+        <a class="nav-link" href={`${base}contact`}>Contact</a>
     </div>
 
     <!-- Right: CTA (hugged to right edge) -->
@@ -49,8 +49,8 @@ const serviceSubs = [
                     ))}
                 </ul>
             </details>
-            <a class="item" href={`${base}projects/`}>Projects</a>
-            <a class="item" href={`${base}contact/`}>Contact</a>
+            <a class="item" href={`${base}projects`}>Projects</a>
+            <a class="item" href={`${base}contact`}>Contact</a>
             <a class="item" href="tel:+1-715-279-1241">Call Now</a>
         </div>
     </details>
