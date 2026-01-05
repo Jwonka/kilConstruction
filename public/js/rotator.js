@@ -245,10 +245,24 @@
                 if (!poolNow.length) return;
 
                 if (idx >= poolNow.length) idx = 0;
-                const next = poolNow[idx];
-                idx = (idx + 1) % poolNow.length;
+                let swapped = false;
+                for (let attempts = 0; attempts < poolNow.length; attempts++) {
+                    const next = poolNow[idx];
+                    idx = (idx + 1) % poolNow.length;
 
-                await swapTo(next);
+                    const ok = await preload(next);
+                    if (!ok) continue;
+
+                    await swapTo(next);
+                    swapped = true;
+                    break;
+                }
+
+                // If nothing swapped, do NOT advance visual state
+                if (!swapped) {
+                    // allow retry on next tick without showing the same image again
+                    return;
+                }
             } finally {
                 busy = false;
             }
