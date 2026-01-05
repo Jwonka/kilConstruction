@@ -105,11 +105,10 @@ const heroRotUrlsAll = (highlights ?? [])
     .map((h) => h.full)
     .filter((u): u is string => u.length > 0);
 
-// Ensure the current cover is NOT an early “next” candidate.
+// IMPORTANT: Hero renders heroCover as the initial <img src>. We exclude it
+// from data-rot-srcs so the first rotation can’t be a no-op/repeat.
 const heroRotUrls = heroCover
-    ? heroRotUrlsAll
-        .filter((u) => norm(u) !== norm(heroCover))
-        .concat(heroCover)
+    ? heroRotUrlsAll.filter((u) => norm(u) !== norm(heroCover))
     : heroRotUrlsAll;
 
 const localBusinessJsonLd = {
