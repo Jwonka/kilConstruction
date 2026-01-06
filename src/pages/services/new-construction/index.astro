@@ -143,7 +143,6 @@ function hasUrl(x: unknown): x is { url: string } {
         twitterDescription={service.ogDescription || service.blurb}
 >
     <Fragment slot="head">
-        <link rel="preconnect" href="https://kilcon.work" crossorigin />
 
         {(() => {
             const withWidth = (u: string, w: number): string =>
