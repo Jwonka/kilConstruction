@@ -1,11 +1,10 @@
 const ALLOWED_ROOTS = [
     "Highlights",
     "Projects",
-    "Services",
     "New Construction",
     "Remodels",
     "Furniture",
-    "uploads",
+    "Apparel",
 ] as const;
 
 export type AllowedRoot = (typeof ALLOWED_ROOTS)[number];
