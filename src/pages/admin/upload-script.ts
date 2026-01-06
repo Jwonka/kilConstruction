@@ -13,6 +13,35 @@ export default function initUploadPage() {
         const subfolderSelectEl = document.getElementById("subfolder-select") as HTMLSelectElement;
         const subfolderCustomEl = document.getElementById("subfolder-custom") as HTMLInputElement;
 
+        function sanitizeSubfolderInput(raw: string): string | null {
+            let s = (raw || "").trim();
+            if (!s) return null;
+
+            // normalize slashes
+            s = s.replace(/\\/g, "/");
+
+            // block traversal + absolute + control chars
+            if (s.includes("..")) return null;
+            if (s.startsWith("/")) return null;
+            if (/[\u0000-\u001F\u007F]/.test(s)) return null;
+
+            // collapse repeated slashes and trim trailing
+            s = s.replace(/\/+/g, "/").replace(/\/+$/, "");
+
+            // prevent empty segments from sneaking in
+            const parts = s.split("/").filter(Boolean);
+            if (!parts.length) return null;
+
+            // Optional: keep names reasonably safe for R2 keys/UI
+            // (allows letters, numbers, space, underscore, dash)
+            // If you want to be permissive, remove this block.
+            for (const p of parts) {
+                if (!/^[a-zA-Z0-9 _-]+$/.test(p)) return null;
+            }
+
+            return parts.join("/");
+        }
+
         // Runtime safety: if markup is missing, bail out quietly
         if (
             !formEl ||
@@ -160,9 +189,24 @@ export default function initUploadPage() {
                 return;
             }
 
+            const ALLOWED_CATEGORIES = new Set([
+                "Projects",
+                "New Construction",
+                "Remodels",
+                "Furniture",
+                "Apparel",
+                "Highlights",
+            ]);
+
             const category = categoryEl.value.trim();
             if (!category) {
                 flashStatus("Please choose a category.", "error", 2600);
+                return;
+            }
+
+
+            if (!ALLOWED_CATEGORIES.has(category)) {
+                flashStatus("Invalid category.", "error", 3000);
                 return;
             }
 
@@ -194,7 +238,13 @@ export default function initUploadPage() {
                     }
                 }
 
-                subfolder = subfolder.replace(/\/+$/, "");
+                const sanitized = sanitizeSubfolderInput(subfolder);
+                if (!sanitized) {
+                    flashStatus("Invalid folder name.", "error", 3000);
+                    submitBtn.disabled = false;
+                    return;
+                }
+                subfolder = sanitized;
             }
 
             const formData = new FormData();
