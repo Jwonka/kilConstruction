@@ -46,6 +46,21 @@ export default function initManagePage() {
         };
 
         let allProjects: ProjectFolder[] = [];
+        const ALLOWED_ROOTS = new Set([
+            "Projects",
+            "New Construction",
+            "Remodels",
+            "Furniture",
+            "Highlights",
+        ]);
+
+        allProjects = allProjects.filter((p) => {
+            const rawPrefix = (p && (p.prefix as string)) || "";
+            const displayPrefix = rawPrefix.replace(/\/$/, "");
+            const root = displayPrefix.split("/").filter(Boolean)[0] || "";
+            return ALLOWED_ROOTS.has(root);
+        });
+
         const expandedPrefixes: Set<string> = new Set();
 
         async function loadProjects() {
