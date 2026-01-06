@@ -1,5 +1,5 @@
 (() => {
-    const API = "https://kilcon.work/api/gallery";
+    const API = "https://kilcon.work/api/gallery-api";
     const cards = [...document.querySelectorAll(".card.card-media")];
     if (!("IntersectionObserver" in window) || !cards.length) return;
 
