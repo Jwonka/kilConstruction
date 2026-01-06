@@ -39,30 +39,28 @@ type ListResponse = {
 let cards: Card[] = [];
 let loadError: string | null = null;
 
-async function fetchJsonWithRetry(
-    url: URL,
-    tries: number = 3
-): Promise<Response> {
+async function fetchJsonWithRetry(url: URL, tries = 3): Promise<Response | null> {
     let last: Response | null = null;
 
     for (let i = 0; i < tries; i++) {
-        const res = await fetch(url, {
-            cache: "no-store",
-            headers: {
-                Accept: "application/json",
-            },
-        });
+        try {
+            const res = await fetch(url, {
+                cache: "no-store",
+                headers: { Accept: "application/json" },
+            });
 
-        last = res;
+            last = res;
 
-        const ct = res.headers.get("content-type") || "";
-        if (res.ok && ct.includes("application/json")) return res;
+            const ct = res.headers.get("content-type") || "";
+            if (res.ok && ct.includes("application/json")) return res;
+        } catch {
+            // swallow and retry
+        }
 
-        // small backoff before retry
         await new Promise<void>((r) => setTimeout(r, 150 * (i + 1)));
     }
 
-    return last as Response;
+    return last;
 }
 
 function isJson(res: Response) {
@@ -75,12 +73,15 @@ try {
 
     let res = await fetchJsonWithRetry(u, 3);
 
-    if (!res.ok || res.status === 404 || !isJson(res)) {
-        const fallback = new URL("/api/gallery-api?list=apparel", "https://kilcon.work");
+    if (!res || !res.ok || res.status === 404 || !isJson(res)) {
+        const fallback = new URL("/api/gallery-api", "https://kilcon.work");
+        fallback.searchParams.set('list', 'apparel');
         res = await fetchJsonWithRetry(fallback, 3);
     }
 
-    if (res.ok &&  isJson(res)) {
+    if (!res || !res.ok || !isJson(res)) {
+        loadError = "Failed to load apparel albums.";
+    } else {
         const json = (await res.json()) as ListResponse;
         const albums = json.apparel ?? [];
 
@@ -116,8 +117,6 @@ try {
                 rotList,
             };
         });
-    } else {
-        loadError = "Failed to load apparel albums.";
     }
 } catch {
     loadError = "Failed to load apparel albums.";
@@ -199,6 +198,6 @@ function hasUrl(x: unknown): x is { url: string } {
         )}
     </section>
 
-    <script src="/js/rotator.js?v=13" defer></script>
-    <script src="/js/grid-enhancer.js?v=6" defer></script>
+    <script src="/js/rotator.js?v=14" defer></script>
+    <script src="/js/grid-enhancer.js?v=7" defer></script>
 </MainLayout>

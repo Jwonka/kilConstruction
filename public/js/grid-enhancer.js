@@ -1,5 +1,5 @@
 (() => {
-    const API = "https://kilcon.work/api/gallery-api";
+    const API = new URL("/api/gallery-api", window.location.origin).toString();
     const cards = [...document.querySelectorAll(".card.card-media")];
     if (!("IntersectionObserver" in window) || !cards.length) return;
 
@@ -11,6 +11,14 @@
             const fn = q.shift();
             inFlight++; fn().finally(() => { inFlight--; pump(); });
         }
+    };
+
+    const hasRealImg = (img) => {
+        const attr = (img.getAttribute("src") || "").trim();
+        if (!attr || attr === "#" || attr === "about:blank") return false;
+        // If src attribute is set, that’s good enough for our purposes.
+        // (try to avoid “empty black squares”, not guarantee the image has loaded.)
+        return true;
     };
 
     const withTimeout = (p, ms = 8000) =>
@@ -52,6 +60,8 @@
                     const category = parts[1]; // "furniture" | "new-construction" | "remodels"
                     const slug = parts[2];
                     projectParam = `${category}/${slug}`;
+                } else if (parts[0] === "apparel" && parts[1]) {
+                    projectParam = `apparel/${parts[1]}`;
                 }
 
                 const img = card.querySelector("img.photo");
@@ -62,12 +72,16 @@
                         fetch(`${API}?project=${encodeURIComponent(projectParam)}`, { cache: "no-store" })
                     );
                     if (!r.ok) return;
+
+                    const ct = r.headers.get("content-type") || "";
+                    if (!ct.includes("application/json")) return;
+
                     const j = await r.json();
+
                     const urlsRaw = (j?.items ?? [])
                         .map(i => i?.thumb || i?.full)
                         .filter(Boolean)
                         .slice(0, 8);
-                    if (!urlsRaw.length) return;
 
                     // de-dup by file id (or normalized URL) so we only keep unique photos
                     const seen = new Set();
@@ -78,16 +92,23 @@
                         seen.add(k);
                         urls.push(u);
                     }
-                    const cover = img.dataset.cover;
+
+                    const cover = (img.dataset.cover || "").trim();
+
                     if (!urls.length) {
-                        if (cover && !img.src) {
-                            img.src = cover;
+                        if (!hasRealImg(img) && cover) {
+                            img.setAttribute("src", cover);
                             img.setAttribute("fetchpriority", "high");
                         }
                         return;
                     }
 
-                    if (!img.src) { img.src = urls[0]; }
+                    // If the card is still empty/placeholder, fill it.
+                    // Prefer cover (server-chosen primary), else first returned URL.
+                    if (!hasRealImg(img)) {
+                        img.setAttribute("src", cover || urls[0]);
+                    }
+
                     img.setAttribute("fetchpriority", "high");
 
                     if (urls.length > 1) {

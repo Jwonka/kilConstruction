@@ -38,16 +38,58 @@ let homepageReviews: Review[] = [];
 let highlights: Highlight[] = [];
 let heroError: string | null = null;
 
+async function fetchJsonWithRetry(url: URL, tries = 3): Promise<Response | null> {
+    let last: Response | null = null;
+
+    for (let i = 0; i < tries; i++) {
+        try {
+            const res = await fetch(url, {
+                cache: "no-store",
+                headers: { Accept: "application/json" },
+            });
+
+            last = res;
+
+            const ct = res.headers.get("content-type") || "";
+            if (res.ok && ct.includes("application/json")) return res;
+        } catch {
+            // swallow and retry
+        }
+
+        await new Promise<void>((r) => setTimeout(r, 150 * (i + 1)));
+    }
+
+    return last;
+}
+
+function isJson(res: Response): boolean {
+    return (res.headers.get("content-type") || "").includes("application/json");
+}
+
 try {
     const u = new URL(API);
     u.searchParams.set("list", "highlights");
 
-    const res = await fetch(u, { cache: "no-store" });
-    if (res.ok && res.headers.get("content-type")?.includes("application/json")) {
-        const data = (await res.json()) as { items?: Highlight[] };
-        highlights = data.items ?? [];
-    } else {
+    let res = await fetchJsonWithRetry(u, 3);
+
+    if (!res || !res.ok || res.status === 404 || !isJson(res)) {
+        const fallback = new URL("/api/gallery-api", "https://kilcon.work");
+        fallback.searchParams.set("list", "highlights");
+        res = await fetchJsonWithRetry(fallback, 3);
+    }
+
+    if (!res || !res.ok || !isJson(res)) {
         heroError = "Failed to load highlights.";
+    } else {
+        const data = await res.json();
+        const items = Array.isArray((data as any)?.items) ? (data as any).items : [];
+        highlights = items
+            .map((i: any) => ({
+                name: String(i?.name ?? ""),
+                full: String(i?.full ?? ""),
+                thumb: String(i?.thumb ?? ""),
+            }))
+            .filter((h: Highlight) => !!h.full);
     }
 } catch {
     heroError = "Failed to load highlights.";
@@ -316,6 +358,6 @@ const localBusinessJsonLd = {
             </div>
         </section>
     )}
-    <script src="/js/rotator.js?v=13" defer></script>
-    <script src="/js/grid-enhancer.js?v=6" defer></script>
+    <script src="/js/rotator.js?v=14" defer></script>
+    <script src="/js/grid-enhancer.js?v=7" defer></script>
 </MainLayout>
