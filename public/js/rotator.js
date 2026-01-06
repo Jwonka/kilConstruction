@@ -47,53 +47,6 @@
         return out;
     };
 
-    const ensureHeroOverlay = (img) => {
-        // hero image usually sits inside a hero wrapper or anchor; pick the nearest parent that holds it
-        const parent = img.parentElement;
-        if (!parent) return null;
-
-        // ensure parent can position absolute children
-        parent.style.position = parent.style.position || 'relative';
-
-        let overlay = parent.querySelector('img.hero-xfade');
-        if (!overlay) {
-            overlay = img.cloneNode(false);
-            overlay.classList.add('hero-xfade');
-            overlay.style.position = 'absolute';
-            overlay.style.inset = '0';
-            overlay.style.width = '100%';
-            overlay.style.height = '100%';
-            overlay.style.objectFit = 'cover';
-            overlay.style.opacity = '0';
-            overlay.style.pointerEvents = 'none';
-            overlay.style.transition = `opacity ${HERO_FADE_MS}ms ease-in-out`;
-            overlay.decoding = 'async';
-            overlay.loading = 'eager';
-            parent.appendChild(overlay);
-        }
-
-        return overlay;
-    };
-
-    const ensureOverlay = (img) => {
-        const anchor = img.closest('.card.card-media a');
-        if (!anchor) return null;
-
-        let overlay = anchor.querySelector('img.photo.xfade');
-        if (!overlay) {
-            overlay = img.cloneNode(false);
-            overlay.classList.add('xfade');
-            overlay.removeAttribute('data-rot');
-            overlay.removeAttribute('data-rot-srcs');
-            overlay.style.transition = `opacity ${GALLERY_FADE_MS}ms ease-in-out`;
-            overlay.style.opacity = '0';
-            overlay.decoding = 'async';
-            overlay.loading = 'eager';
-            anchor.appendChild(overlay);
-        }
-        return overlay;
-    };
-
     const preload = (url) =>
         new Promise((resolve) => {
             const i = new Image();
@@ -155,24 +108,26 @@
             await tmp.decode();
         } catch {}
 
-        const overlay = ensureOverlay(img);
-        if (!overlay) return;
+        const link = img.closest('a');
 
-        // Put next image on overlay (already preloaded+decoded)
-        overlay.srcset = '';
-        overlay.src = next;
-
-        // Crossfade overlay in
-        requestAnimationFrame(() => {
-            overlay.style.opacity = '1';
+        // fade out towards black (MIN_OPACITY background shows through)
+        await new Promise((resolve) => {
+            img.style.opacity = String(MIN_OPACITY);
+            setTimeout(resolve, GALLERY_FADE_MS);
         });
 
-        // After fade completes, commit the swap to the real img and hide overlay
-        await new Promise((r) => setTimeout(r, GALLERY_FADE_MS));
-
+        // swap the image while “hidden”
         img.srcset = '';
         img.src = next;
-        overlay.style.opacity = '0';
+
+        if (link && link.classList.contains('rotatable')) {
+            link.href = next;
+        }
+
+        // fade back in
+        requestAnimationFrame(() => {
+            img.style.opacity = '1';
+        });
     };
 
     const runGalleryLoop = async () => {
@@ -251,36 +206,28 @@
         const swapTo = async (next) => {
             const ok = await preload(next);
             if (!ok) return;
-
             try {
                 const tmp = new Image();
                 tmp.src = next;
                 await tmp.decode();
             } catch {}
 
-            const overlay = ensureHeroOverlay(img);
-            if (!overlay) return;
+            // 1) fade OUT to reveal black background
+            await fadeTo(MIN_OPACITY);
 
-            // Put next image on overlay
-            overlay.srcset = '';
-            overlay.src = next;
-
-            // Fade overlay in (no black flash)
-            requestAnimationFrame(() => {
-                overlay.style.opacity = '1';
-            });
-
-            // After fade completes, commit swap to base img + hide overlay
-            await new Promise((r) => setTimeout(r, HERO_FADE_MS));
-
+            // 2) swap while invisible
             img.srcset = '';
             img.src = next;
 
+            // Only rewrite href for "highlights" image cards, NOT album cards
             if (link && link.classList.contains('rotatable')) {
                 link.href = next;
             }
 
-            overlay.style.opacity = '0';
+            // 3) fade IN new image
+            requestAnimationFrame(() => {
+                img.style.opacity = '1';
+            });
         };
 
         let lastSwitch = 0;
