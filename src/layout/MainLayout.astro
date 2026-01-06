@@ -13,8 +13,15 @@ const {
     twitterDescription,
 } = Astro.props;
 
-const ogDesc = typeof ogDescription === "string" && ogDescription.length ? ogDescription : description;
-const twDesc = typeof twitterDescription === "string" && twitterDescription.length ? twitterDescription : ogDesc;
+const ogDesc =
+    typeof ogDescription === "string" && ogDescription.trim().length
+        ? ogDescription
+        : description;
+
+const twDesc =
+    typeof twitterDescription === "string" && twitterDescription.trim().length
+        ? twitterDescription
+        : ogDesc;
 
 // Canonical URL: always strip query/hash by using pathname.
 // Astro.site (configured in astro.config.mjs) for absolute URLs.
@@ -49,6 +56,8 @@ const absoluteImage = image.startsWith("http")
     <link rel="canonical" href={pageUrl} />
     <link rel="icon" href={logo.src} />
 
+    <link rel="preconnect" href="https://images.kilcon.work" crossorigin />
+    <link rel="dns-prefetch" href="https://images.kilcon.work" />
     <slot name="head" />
 </head>
 <body class={`site ${noSticky ? 'no-sticky' : ''}`}>
