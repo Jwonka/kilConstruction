@@ -67,9 +67,9 @@ export const GET: APIRoute = async ({ site }) => {
     // Dynamic slugs (best-effort; empty if API doesn't support)
     const projectSlugs = await fetchSlugs(origin, "projects");
     const apparelSlugs = await fetchSlugs(origin, "apparel");
-    const ncSlugs = await fetchSlugs(origin, "services-new-construction");
-    const remodelSlugs = await fetchSlugs(origin, "services-remodels");
-    const furnitureSlugs = await fetchSlugs(origin, "services-furniture");
+    const ncSlugs = await fetchSlugs(origin, "new-construction");
+    const remodelSlugs = await fetchSlugs(origin, "remodels");
+    const furnitureSlugs = await fetchSlugs(origin, "furniture");
 
     const urls = [
         ...staticPaths,
