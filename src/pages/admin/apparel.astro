@@ -1,0 +1,65 @@
+---
+import AdminLayout from "../../layout/AdminLayout.astro";
+import "../../styles/global.css";
+import "../../styles/admin.css";
+import { verifyAdminToken } from "../../utils/adminToken";
+
+const cookies = Astro.cookies;
+const auth = cookies.get("admin_auth")?.value || "";
+
+// Cloudflare runtime env
+const env = (Astro.locals as any).runtime?.env ?? {};
+const ADMIN_SECRET = env.ADMIN_SECRET;
+const SESSION_VERSION = env.SESSION_VERSION ?? "1";
+
+if (!ADMIN_SECRET || !SESSION_VERSION) {
+    console.error("[admin] Missing ADMIN_SECRET or SESSION_VERSION in runtime env");
+    return new Response("Something went wrong. Please try again later.", { status: 500 });
+}
+
+const isAdmin =
+    auth && ADMIN_SECRET && SESSION_VERSION
+        ? await verifyAdminToken(auth, ADMIN_SECRET, SESSION_VERSION)
+        : false;
+
+if (!isAdmin) {
+    return new Response(null, { status: 302, headers: { Location: "/admin" } });
+}
+
+const db = (Astro.locals as any).runtime?.env?.DB;
+if (!db) return new Response("Missing DB binding", { status: 500 });
+
+const { results: items } = await db
+    .prepare(`SELECT slug, title, active FROM apparel_items ORDER BY title`)
+    .all();
+---
+
+<AdminLayout
+        title="Manage Apparel"
+        description="Admin apparel inventory management for sizes, pricing, and stock."
+>
+    <h1 class="admin-title">Apparel</h1>
+    <p class="admin-subtitle">
+        Edit sizes offered, per-size pricing, stock counts, and Stripe Price IDs.
+    </p>
+
+    <section class="panel">
+        <ul class="results-list">
+            {items?.map((it: any) => (
+                    <li class="result-item">
+                        <div class="item-header">
+                            <div class="item-text">
+                                <a class="inline-link" href={`/admin/apparel/${encodeURIComponent(it.slug)}`}>
+                                    <div class="result-title">{it.title}</div>
+                                    <div class="image-meta">slug: {it.slug}</div>
+                                </a>
+                            </div>
+                            <div class="image-meta">{it.active === 1 ? "Active" : "Inactive"}</div>
+                        </div>
+                    </li>
+            ))}
+        </ul>
+    </section>
+</AdminLayout>
+
+

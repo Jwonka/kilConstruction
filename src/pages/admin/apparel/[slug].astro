@@ -1,0 +1,175 @@
+---
+import AdminLayout from "../../../layout/AdminLayout.astro";
+import "../../../styles/global.css";
+import "../../../styles/admin.css";
+import { verifyAdminToken } from "../../../utils/adminToken";
+
+const cookies = Astro.cookies;
+const auth = cookies.get("admin_auth")?.value || "";
+
+// Cloudflare runtime env
+const env = (Astro.locals as any).runtime?.env ?? {};
+const ADMIN_SECRET = env.ADMIN_SECRET;
+const SESSION_VERSION = env.SESSION_VERSION ?? "1";
+
+if (!ADMIN_SECRET || !SESSION_VERSION) {
+    console.error("[admin] Missing ADMIN_SECRET or SESSION_VERSION in runtime env");
+    return new Response("Something went wrong. Please try again later.", { status: 500 });
+}
+
+const isAdmin =
+    auth && ADMIN_SECRET && SESSION_VERSION
+        ? await verifyAdminToken(auth, ADMIN_SECRET, SESSION_VERSION)
+        : false;
+
+if (!isAdmin) {
+    return new Response(null, { status: 302, headers: { Location: "/admin" } });
+}
+
+const db = (Astro.locals as any).runtime?.env?.DB;
+if (!db) return new Response("Missing DB binding", { status: 500 });
+
+const slug = String(Astro.params.slug || "").trim();
+
+const item = await db
+    .prepare(`SELECT id, slug, title, active FROM apparel_items WHERE slug = ?`)
+    .bind(slug)
+    .first();
+
+if (!item) return new Response("Not found", { status: 404 });
+
+const { results: variants } = await db
+    .prepare(
+        `SELECT size, active, price_cents as priceCents, stock, stripe_price_id as stripePriceId
+     FROM apparel_variants
+     WHERE item_id = ?
+     ORDER BY CASE size
+       WHEN 'S' THEN 1 WHEN 'M' THEN 2 WHEN 'L' THEN 3 WHEN 'XL' THEN 4
+       WHEN 'XXL' THEN 5 WHEN 'XXXL' THEN 6 WHEN 'XXXXL' THEN 7
+       ELSE 99 END`
+    )
+    .bind(item.id)
+    .all();
+
+const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
+---
+
+<AdminLayout
+        title={`Edit Apparel — ${item.title}`}
+        description={`Admin editor for apparel sizes, pricing, stock, and Stripe Price IDs for ${item.title}.`}
+>
+    <h1 class="admin-title">{item.title}</h1>
+    <p class="admin-subtitle">slug: {item.slug}</p>
+
+    <section class="panel">
+        <p class="hint" style="margin-top:0;">
+            Rule: If a size is enabled, it must have Price &gt; $0 and a Stripe Price ID or Save will fail.
+        </p>
+
+        <form id="variantForm" class="admin-form-flex">
+            <input type="hidden" name="slug" value={item.slug} />
+
+            <div class="table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Size</th>
+                        <th>Enabled</th>
+                        <th>Price ($)</th>
+                        <th>Stock</th>
+                        <th>Stripe Price ID</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {variants?.map((v: any) => (
+                            <tr data-size={v.size}>
+                                <td style="font-weight:700;">{v.size}</td>
+                                <td><input type="checkbox" class="active" checked={v.active === 1} /></td>
+                                <td>
+                                    <input
+                                            type="number"
+                                            class="price admin-input"
+                                            step="0.01"
+                                            min="0"
+                                            value={centsToDollars(v.priceCents)}
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                            type="number"
+                                            class="stock admin-input"
+                                            step="1"
+                                            min="0"
+                                            value={String(v.stock ?? 0)}
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                            type="text"
+                                            class="stripe admin-input"
+                                            value={v.stripePriceId ?? ""}
+                                            placeholder="price_..."
+                                    />
+                                </td>
+                            </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="actions-row">
+                <button type="submit" class="btn-small" id="saveBtn">Save</button>
+                <span id="status" class="status-text"></span>
+            </div>
+        </form>
+    </section>
+
+    <script type="module">
+        const form = document.getElementById("variantForm");
+        const statusEl = document.getElementById("status");
+        const saveBtn = document.getElementById("saveBtn");
+
+        const dollarsToCents = (v) => {
+            const n = Number(v);
+            if (!Number.isFinite(n)) return NaN;
+            return Math.round(n * 100);
+        };
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            statusEl.textContent = "";
+            saveBtn.disabled = true;
+
+            const slug = form.querySelector('input[name="slug"]').value;
+            const rows = [...form.querySelectorAll("tbody tr")];
+
+            const variants = rows.map((tr) => {
+                const size = tr.getAttribute("data-size");
+                const active = tr.querySelector(".active").checked;
+                const priceCents = dollarsToCents(tr.querySelector(".price").value);
+                const stock = Number(tr.querySelector(".stock").value);
+                const stripePriceId = tr.querySelector(".stripe").value.trim();
+                return { size, active, priceCents, stock, stripePriceId };
+            });
+
+            try {
+                const r = await fetch("/api/admin/apparel/variants.save", {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ slug, variants }),
+                });
+
+                const data = await r.json().catch(() => ({}));
+                if (!r.ok) {
+                    statusEl.textContent = `Save failed: ${data?.error || r.status}`;
+                    return;
+                }
+                statusEl.textContent = "Saved.";
+            } catch {
+                statusEl.textContent = "Save failed: network error";
+            } finally {
+                saveBtn.disabled = false;
+            }
+        });
+    </script>
+</AdminLayout>
