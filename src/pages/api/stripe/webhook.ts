@@ -148,7 +148,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
             customerEmail,
             customerName,
             customerPhone,
-            shippingJson,
             amountTotal,
             currency
         ).run();
