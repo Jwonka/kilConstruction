@@ -95,6 +95,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return text("bad json", 400);
     }
 
+    const eventId = event?.id;
+    if (!eventId) return text("missing event id", 400);
+
+    // Idempotency: if we've seen this event, do nothing
+    try {
+        await db.prepare(`INSERT INTO stripe_events (id) VALUES (?)`).bind(eventId).run();
+    } catch (e: any) {
+        // D1/SQLite will throw on UNIQUE/PRIMARY KEY conflict
+        return text("duplicate", 200);
+    }
+
     // Handle only what we need
     if (event?.type !== "checkout.session.completed") {
         return text("ignored", 200);
@@ -103,6 +114,52 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const session = event?.data?.object;
     const sessionId = session?.id;
     if (!sessionId) return text("missing session id", 400);
+
+    const paymentStatus = session?.payment_status;
+    const mode = session?.mode;
+    if (mode !== "payment" || paymentStatus !== "paid") {
+        return text("not_paid", 200);
+    }
+
+    const sess = await stripeGetJson(
+        `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`,
+        STRIPE_SECRET_KEY
+    );
+    if (!sess.ok) return text("failed to fetch session", 502);
+
+    const s = sess.data;
+
+    const customerEmail = s?.customer_details?.email ?? null;
+    const customerName  = s?.customer_details?.name ?? null;
+    const customerPhone = s?.customer_details?.phone ?? null;
+    const paymentIntent = s?.payment_intent ?? null;
+    const amountTotal   = Number.isInteger(s?.amount_total) ? s.amount_total : null;
+    const currency      = s?.currency ?? null;
+
+    let orderId: number | null = null;
+    try {
+        const r = await db.prepare(`
+    INSERT INTO apparel_orders
+      (stripe_session_id, stripe_payment_intent_id, customer_email, customer_name, customer_phone, total_amount_cents, currency)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+            sessionId,
+            paymentIntent,
+            customerEmail,
+            customerName,
+            customerPhone,
+            shippingJson,
+            amountTotal,
+            currency
+        ).run();
+
+        // D1 returns meta.last_row_id in most cases
+        orderId = (r as any)?.meta?.last_row_id ?? null;
+    } catch (e: any) {
+        // If the session already exists (UNIQUE), we should not double-decrement stock.
+        // Return 200 and stop.
+        return text("order_exists", 200);
+    }
 
     // Fetch line items so we can decrement stock based on Stripe Price IDs
     const li = await stripeGetJson(
@@ -123,6 +180,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     if (purchases.length === 0) return text("no purchasable items", 200);
+
+    if (orderId) {
+        const itemStmts = purchases.map((p) =>
+            db.prepare(`
+      INSERT INTO apparel_order_items (order_id, stripe_price_id, quantity)
+      VALUES (?, ?, ?)
+    `).bind(orderId, p.priceId, p.quantity)
+        );
+        try {
+            await db.batch(itemStmts);
+        } catch {
+            // Non-fatal; order still exists.
+        }
+    }
 
     // Decrement stock safely for each purchased variant
     // NOTE: We do an atomic UPDATE with stock >= qty guard.
