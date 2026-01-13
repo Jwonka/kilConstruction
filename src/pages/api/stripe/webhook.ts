@@ -141,7 +141,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         const r = await db.prepare(`
     INSERT INTO apparel_orders
       (stripe_session_id, stripe_payment_intent_id, customer_email, customer_name, customer_phone, total_amount_cents, currency)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `).bind(
             sessionId,
             paymentIntent,
