@@ -43,7 +43,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const env = (locals as any).runtime?.env ?? {};
     const db = env.DB;
     const STRIPE_SECRET_KEY: string | undefined = env.STRIPE_SECRET_KEY;
-    const PUBLIC_SITE_ORIGIN: string = env.PUBLIC_SITE_ORIGIN || "https://kilcon.work";
+    // Default to current request origin for local/dev; allow override in prod via env.
+    const reqOrigin = new URL(request.url).origin;
+    const PUBLIC_SITE_ORIGIN: string = env.PUBLIC_SITE_ORIGIN || reqOrigin;
 
     if (!db) return json({ error: "missing_db_binding" }, 500);
     if (!STRIPE_SECRET_KEY) return json({ error: "missing_stripe_secret" }, 500);
@@ -67,26 +69,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const row = await db
         .prepare(
             `
-      SELECT
-        i.slug,
-        i.title,
-        v.size,
-        v.active,
-        v.stock,
-        v.price_cents as priceCents,
-        v.stripe_price_id as stripePriceId
-      FROM apparel_items i
-      JOIN apparel_variants v ON v.item_id = i.id
-      WHERE i.slug = ? AND v.size = ?
-      `
+            SELECT
+                i.slug,
+                i.title,
+                i.active as itemActive,
+                v.size,
+                v.active,
+                v.stock,
+                v.price_cents as priceCents,
+                v.stripe_price_id as stripePriceId
+            FROM apparel_items i
+                     JOIN apparel_variants v ON v.item_id = i.id
+            WHERE i.slug = ? AND v.size = ?
+    `
         )
         .bind(slug, size)
         .first();
 
     if (!row) return json({ error: "not_found" }, 404);
+    if (row.itemActive !== 1) return json({ error: "item_inactive" }, 409);
     if (row.active !== 1) return json({ error: "variant_inactive" }, 409);
     if (!row.stripePriceId) return json({ error: "missing_stripe_price_id" }, 409);
-    if (row.stock < quantity) return json({ error: "out_of_stock" }, 409);
+    const stock = Number(row.stock ?? 0);
+    if (stock < quantity) return json({ error: "out_of_stock" }, 409);
 
     // Create Stripe Checkout Session
     // - shipping_address_collection: let Stripe collect shipping address reliably
@@ -124,7 +129,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
 
     if (!created.ok) {
-        return json({ error: "stripe_error", detail: created.data }, 502);
+        console.error("[stripe checkout] create session failed", {
+            status: created.status,
+            data: created.data,
+            slug,
+            size,
+            quantity,
+        });
+        return json({ error: "stripe_error" }, 502);
     }
 
     // Return session URL so frontend can redirect
