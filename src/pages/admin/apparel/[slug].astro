@@ -59,7 +59,6 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
         description={`Admin editor for apparel sizes, pricing, stock, and Stripe Price IDs for ${item.title}.`}
 >
     <h1 class="admin-title">{item.title}</h1>
-    <p class="admin-subtitle">slug: {item.slug}</p>
 
     <section class="panel">
         <p class="hint" style="margin-top:0;">
@@ -180,8 +179,9 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
     </script>
     <style>
         .apparel-admin.table-wrap {
-            overflow: auto;
+            overflow-x: auto;
             padding: 0 10px 10px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .apparel-admin .admin-table {
@@ -218,9 +218,37 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
         .apparel-admin input.stock.admin-input { width: 84px; }
         .apparel-admin input.stripe.admin-input { width: 100%; min-width: 200px; }
 
+        /* This prevents the table from collapsing into stacked blocks */
+        .apparel-admin .admin-table,
+        .apparel-admin .admin-table thead,
+        .apparel-admin .admin-table tbody,
+        .apparel-admin .admin-table tr,
+        .apparel-admin .admin-table th,
+        .apparel-admin .admin-table td {
+            display: table-row-group;
+        }
+
+        .apparel-admin .admin-table { display: table; }
+        .apparel-admin .admin-table thead { display: table-header-group; }
+        .apparel-admin .admin-table tbody { display: table-row-group; }
+        .apparel-admin .admin-table tr { display: table-row; }
+        .apparel-admin .admin-table th,
+        .apparel-admin .admin-table td { display: table-cell; }
+
         .apparel-admin .admin-input {
             box-sizing: border-box;
         }
+
+        .apparel-admin input[type="checkbox"].active {
+            appearance: auto;
+            -webkit-appearance: auto;
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            vertical-align: middle;
+            accent-color: #6b46c1;
+        }
+
         /* -------- Mobile: turn each row into a compact card -------- */
         @media (max-width: 640px) {
             .apparel-admin.table-wrap {
@@ -229,6 +257,7 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             }
 
             .apparel-admin .admin-table {
+                min-width: 720px;
                 border-spacing: 0 12px;
                 table-layout: auto;
             }
@@ -243,6 +272,11 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             .apparel-admin .admin-table td {
                 display: block;
                 width: 100%;
+            }
+
+            .apparel-admin .admin-table th,
+            .apparel-admin .admin-table td {
+                padding: 8px 8px;
             }
 
             .apparel-admin .admin-table tr {
@@ -279,17 +313,10 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             }
             .apparel-admin .admin-table td[data-label="Size"]::before { display: none; }
 
-            /* Mobile input widths: do NOT stretch comically */
-            .apparel-admin input.price.admin-input,
-            .apparel-admin input.stock.admin-input {
-                width: 120px;
-                max-width: 100%;
-            }
-
-            .apparel-admin input.stripe.admin-input {
-                width: 100%;
-                min-width: 0;
-            }
+            /* Mobile input widths */
+            .apparel-admin input.price.admin-input { width: 90px; min-width: 90px; }
+            .apparel-admin input.stock.admin-input { width: 70px; min-width: 70px; }
+            .apparel-admin input.stripe.admin-input { min-width: 260px; }
         }
     </style>
 </AdminLayout>
