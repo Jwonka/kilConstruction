@@ -87,28 +87,29 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
                                 <td><input type="checkbox" class="active" checked={v.active === 1} /></td>
                                 <td>
                                     <input
-                                            type="number"
-                                            class="price admin-input"
-                                            step="0.01"
-                                            min="0"
-                                            value={centsToDollars(v.priceCents)}
+                                        type="text"
+                                        inputmode="decimal"
+                                        class="price admin-input"
+                                        value={centsToDollars(v.priceCents)}
+                                        placeholder="0.00"
+                                        autocomplete="off"
                                     />
                                 </td>
                                 <td>
                                     <input
-                                            type="number"
-                                            class="stock admin-input"
-                                            step="1"
-                                            min="0"
-                                            value={String(v.stock ?? 0)}
+                                        type="number"
+                                        class="stock admin-input"
+                                        step="1"
+                                        min="0"
+                                        value={String(v.stock ?? 0)}
                                     />
                                 </td>
                                 <td>
                                     <input
-                                            type="text"
-                                            class="stripe admin-input"
-                                            value={v.stripePriceId ?? ""}
-                                            placeholder="price_..."
+                                        type="text"
+                                        class="stripe admin-input"
+                                        value={v.stripePriceId ?? ""}
+                                        placeholder="price_..."
                                     />
                                 </td>
                             </tr>
@@ -130,7 +131,10 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
         const saveBtn = document.getElementById("saveBtn");
 
         const dollarsToCents = (v) => {
-            const n = Number(v);
+            const s = String(v ?? "").trim().replace(/,/g, "");
+            // allow: 0, 10, 10.5, 10.50
+            if (!/^\d+(\.\d{0,2})?$/.test(s)) return NaN;
+            const n = Number(s);
             if (!Number.isFinite(n)) return NaN;
             return Math.round(n * 100);
         };
@@ -173,10 +177,51 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
         });
     </script>
     <style>
-        /* Only affects this page */
-        .apparel-admin .admin-table td,
-        .apparel-admin .admin-table th {
+        .apparel-admin .table-wrap {
+            overflow: auto;
+            padding: 6px; /* prevents inputs from kissing the edge */
+        }
+
+        .apparel-admin .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px; /* row breathing room */
+        }
+
+        .apparel-admin .admin-table th,
+        .apparel-admin .admin-table td {
+            padding: 12px 14px;
             vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        /* Make the inputs usable */
+        .apparel-admin .admin-input {
+            vertical-align: middle;
+            width: 100%;
+            min-width: 110px;
+            box-sizing: border-box;
+        }
+
+        /* Give each column sane widths */
+        .apparel-admin .admin-table th:nth-child(1),
+        .apparel-admin .admin-table td:nth-child(1) { width: 90px; }
+
+        .apparel-admin .admin-table th:nth-child(2),
+        .apparel-admin .admin-table td:nth-child(2) { width: 110px; }
+
+        .apparel-admin .admin-table th:nth-child(3),
+        .apparel-admin .admin-table td:nth-child(3) { width: 160px; } /* Price */
+
+        .apparel-admin .admin-table th:nth-child(4),
+        .apparel-admin .admin-table td:nth-child(4) { width: 140px; } /* Stock */
+
+        .apparel-admin .admin-table th:nth-child(5),
+        .apparel-admin .admin-table td:nth-child(5) { min-width: 320px; } /* Stripe Price ID */
+
+        /* Stripe id field should be comfortably wide */
+        .apparel-admin input.stripe.admin-input {
+            min-width: 300px;
         }
 
         /* Make number inputs show native spinners again */
@@ -192,20 +237,7 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             opacity: 1;
             margin: 0;
         }
-
-        /* Price + stock columns: give them enough room so the spinner isn't clipped */
-        .apparel-admin .admin-table td:nth-child(3),
-        .apparel-admin .admin-table td:nth-child(4) {
-            width: 140px;
-            min-width: 140px;
-        }
-
-        /* Keep Stripe Price ID usable */
-        .apparel-admin .admin-table td:nth-child(5) {
-            min-width: 260px;
-        }
-
-        /* If any parent is clipping controls, remove it here only */
+        
         .apparel-admin .table-wrap {
             overflow: auto;
         }
