@@ -324,6 +324,17 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             }
         }
 
+        @media (max-width: 600px){
+            .apparel-admin .admin-table td:nth-child(5){
+                justify-self: stretch;  
+            }
+
+            .apparel-admin .admin-table td:nth-child(5) input.stripe.admin-input{
+                width: 100% !important;
+                max-width: none !important;
+                min-width: 0 !important;
+            }
+        }
         /* =========================
            Phone (<= 420): single column stack
            ========================= */
