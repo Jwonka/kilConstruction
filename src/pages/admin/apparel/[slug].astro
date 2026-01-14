@@ -69,7 +69,7 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
         <form id="variantForm" class="admin-form-flex">
             <input type="hidden" name="slug" value={item.slug} />
 
-            <div class="table-wrap">
+            <div class="apparel-admin table-wrap">
                 <table class="admin-table">
                     <thead>
                     <tr>
@@ -172,4 +172,42 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             }
         });
     </script>
+    <style>
+        /* Only affects this page */
+        .apparel-admin .admin-table td,
+        .apparel-admin .admin-table th {
+            vertical-align: middle;
+        }
+
+        /* Make number inputs show native spinners again */
+        .apparel-admin input[type="number"] {
+            appearance: auto;
+            -moz-appearance: auto;
+            -webkit-appearance: auto;
+        }
+
+        .apparel-admin input[type="number"]::-webkit-outer-spin-button,
+        .apparel-admin input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: auto;
+            opacity: 1;
+            margin: 0;
+        }
+
+        /* Price + stock columns: give them enough room so the spinner isn't clipped */
+        .apparel-admin .admin-table td:nth-child(3),
+        .apparel-admin .admin-table td:nth-child(4) {
+            width: 140px;
+            min-width: 140px;
+        }
+
+        /* Keep Stripe Price ID usable */
+        .apparel-admin .admin-table td:nth-child(5) {
+            min-width: 260px;
+        }
+
+        /* If any parent is clipping controls, remove it here only */
+        .apparel-admin .table-wrap {
+            overflow: auto;
+        }
+    </style>
 </AdminLayout>

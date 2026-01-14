@@ -46,17 +46,17 @@ const { results: items } = await db
     <section class="panel">
         <ul class="results-list">
             {items?.map((it: any) => (
-                    <li class="result-item">
-                        <div class="item-header">
-                            <div class="item-text">
-                                <a class="inline-link" href={`/admin/apparel/${encodeURIComponent(it.slug)}`}>
-                                    <div class="result-title">{it.title}</div>
-                                    <div class="image-meta">slug: {it.slug}</div>
-                                </a>
-                            </div>
-                            <div class="image-meta">{it.active === 1 ? "Active" : "Inactive"}</div>
+                <li class="result-item">
+                    <div class="item-header">
+                        <div class="item-text">
+                            <a class="inline-link" href={`/admin/apparel/${encodeURIComponent(it.slug)}`}>
+                                <div class="result-title">{it.title}</div>
+                                <div class="image-meta">slug: {it.slug}</div>
+                            </a>
                         </div>
-                    </li>
+                        <div class="image-meta">{it.active === 1 ? "Active" : "Inactive"}</div>
+                    </div>
+                </li>
             ))}
         </ul>
     </section>
