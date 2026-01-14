@@ -43,7 +43,7 @@ const { results: items } = await db
         Edit sizes offered, per-size pricing, stock counts, and Stripe Price IDs.
     </p>
 
-    <section class="panel">
+    <section class="panel apparel-list">
         <ul class="results-list">
             {items?.map((it: any) => (
                 <li class="result-item">
@@ -60,6 +60,34 @@ const { results: items } = await db
             ))}
         </ul>
     </section>
+    <style>
+        .apparel-list .results-list { margin: 0; padding: 0; }
+
+        .apparel-list .result-item {
+            padding: 0; 
+        }
+
+        .apparel-list .item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 12px;
+        }
+
+        .apparel-list .item-text a.inline-link {
+            display: block;
+            padding: 6px 0;
+        }
+
+        /* Mobile: stack "Active/Inactive" under title instead of pushing layout */
+        @media (max-width: 640px) {
+            .apparel-list .item-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </AdminLayout>
 
 
