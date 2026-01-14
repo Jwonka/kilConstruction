@@ -179,15 +179,15 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
     </script>
     <style>
         .apparel-admin.table-wrap{
-            overflow-x:auto;
+            overflow-x: auto;
             padding: 0 10px 10px;
             -webkit-overflow-scrolling: touch;
         }
 
         .apparel-admin .admin-table{
-            width:100%;
-            border-collapse:separate;
-            border-spacing:0 10px;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
             table-layout: fixed;
         }
 
@@ -196,217 +196,71 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             padding: 8px 10px;
             vertical-align: middle;
             white-space: nowrap;
-            text-align:left;
+            text-align: left;
+            border: 0;
+            background: transparent;
         }
 
+        /* Column sizing (desktop/tablet) */
         .apparel-admin .admin-table th:nth-child(1),
-        .apparel-admin .admin-table td:nth-child(1){ width:64px; }   /* Size */
+        .apparel-admin .admin-table td:nth-child(1){ width: 64px; }   /* Size */
 
         .apparel-admin .admin-table th:nth-child(2),
-        .apparel-admin .admin-table td:nth-child(2){ width:86px; }   /* Enabled */
+        .apparel-admin .admin-table td:nth-child(2){ width: 86px; }   /* Enabled */
 
         .apparel-admin .admin-table th:nth-child(3),
-        .apparel-admin .admin-table td:nth-child(3){ width:110px; }  /* Price */
+        .apparel-admin .admin-table td:nth-child(3){ width: 110px; }  /* Price */
 
         .apparel-admin .admin-table th:nth-child(4),
-        .apparel-admin .admin-table td:nth-child(4){ width:100px; }  /* Stock */
+        .apparel-admin .admin-table td:nth-child(4){ width: 100px; }  /* Stock */
 
         .apparel-admin .admin-table th:nth-child(5),
-        .apparel-admin .admin-table td:nth-child(5){ width:auto; }   /* Stripe */
+        .apparel-admin .admin-table td:nth-child(5){ width: auto; }   /* Stripe */
 
-        .apparel-admin .admin-input{ box-sizing:border-box; }
+        .apparel-admin .admin-input{ box-sizing: border-box; }
 
-        .apparel-admin input.price.admin-input{ width:92px; }
-        .apparel-admin input.stock.admin-input{ width:84px; }
-        .apparel-admin input.stripe.admin-input{ width:100%; min-width: 220px; }
+        .apparel-admin input.price.admin-input{ width: 92px; }
+        .apparel-admin input.stock.admin-input{ width: 84px; }
+        .apparel-admin input.stripe.admin-input{ width: 100%; min-width: 220px; }
 
-        /* Checkbox visibility: force a real, visible control */
         .apparel-admin input[type="checkbox"].active{
-            width:18px;
-            height:18px;
-            margin:0;
-            accent-color:#6b46c1;
+            appearance: auto;
+            -webkit-appearance: auto;
+            width: 18px;
+            height: 18px;
+            margin: 0;
         }
 
-        /* ---------- Mobile/card layout ---------- */
         @media (max-width: 780px){
             .apparel-admin.table-wrap{
-                overflow: visible;
                 padding: 0 6px 10px;
             }
 
             .apparel-admin .admin-table{
-                table-layout: auto;
-                border-spacing: 0 12px;
+                min-width: 640px;
+                border-spacing: 0 8px;
             }
 
-            .apparel-admin .admin-table thead{
-                display:none;
-            }
-
-            .apparel-admin .admin-table,
-            .apparel-admin .admin-table tbody,
-            .apparel-admin .admin-table tr{
-                display:block;
-                width:100%;
-            }
-
-            /* Turn each row into a card */
-            .apparel-admin .admin-table tr{
-                background:#fff;
-                border-radius:14px;
-                padding: 10px 12px 12px;
-                box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-            }
-
-            /* Each cell becomes a 2-col grid: label + control */
+            .apparel-admin .admin-table th,
             .apparel-admin .admin-table td{
-                display:grid;
-                grid-template-columns: 110px 1fr;
-                gap: 10px;
-                align-items:center;
-                width:100%;
-                padding: 8px 0;
-                white-space: normal;
+                padding: 8px 8px;
             }
+            
+            .apparel-admin .admin-table th:nth-child(1),
+            .apparel-admin .admin-table td:nth-child(1){ width: 54px; }
 
-            .apparel-admin .admin-table td::before{
-                content: attr(data-label);
-                font-size:12px;
-                opacity:.75;
-                letter-spacing:.02em;
-            }
+            .apparel-admin .admin-table th:nth-child(2),
+            .apparel-admin .admin-table td:nth-child(2){ width: 78px; }
 
-            /* Make Size look like the card header row */
-            .apparel-admin .admin-table td.size-cell{
-                grid-template-columns: 1fr;
-                padding-top: 0;
-                padding-bottom: 6px;
-                font-size: 14px;
-            }
-            .apparel-admin .admin-table td.size-cell::before{
-                display:none;
-            }
+            .apparel-admin .admin-table th:nth-child(3),
+            .apparel-admin .admin-table td:nth-child(3){ width: 96px; }
 
-            /* Inputs: keep them reasonable on small screens */
-            .apparel-admin input.price.admin-input{ width:110px; max-width: 100%; }
-            .apparel-admin input.stock.admin-input{ width:90px;  max-width: 100%; }
-            .apparel-admin input.stripe.admin-input{ width:100%; min-width: 0; }
+            .apparel-admin .admin-table th:nth-child(4),
+            .apparel-admin .admin-table td:nth-child(4){ width: 86px; }
 
-            /* Checkbox should not shrink */
-            .apparel-admin input[type="checkbox"].active{
-                width:20px;
-                height:20px;
-            }
-        }
-
-        @media (max-width: 780px) {
-            .apparel-admin.table-wrap {
-                overflow: visible;
-                padding: 0 6px 10px;
-            }
-
-            .apparel-admin .admin-table thead {
-                display: none;
-            }
-
-            .apparel-admin .admin-table,
-            .apparel-admin .admin-table tbody {
-                display: block;
-                width: 100%;
-            }
-
-            .apparel-admin .admin-table tr {
-                display: grid;
-                grid-template-columns: 1fr auto;
-                grid-template-areas:
-                  "size enabled"
-                  "price price"
-                  "stock stock"
-                  "stripe stripe";
-                gap: 10px 12px;
-
-                background: #fff;
-                border-radius: 14px;
-                padding: 12px;
-                box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-            }
-
-            .apparel-admin .admin-table td {
-                display: block;
-                width: 100%;
-                padding: 0;
-                white-space: normal;
-            }
-
-            .apparel-admin .admin-table td:nth-child(1) { grid-area: size; }
-            .apparel-admin .admin-table td:nth-child(2) { grid-area: enabled; justify-self: end; align-self: center; }
-            .apparel-admin .admin-table td:nth-child(3) { grid-area: price; }
-            .apparel-admin .admin-table td:nth-child(4) { grid-area: stock; }
-            .apparel-admin .admin-table td:nth-child(5) { grid-area: stripe; }
-
-            .apparel-admin .admin-table td:nth-child(1) {
-                font-size: 16px;
-                font-weight: 800;
-                line-height: 1.1;
-            }
-
-            .apparel-admin .admin-table td:nth-child(2) {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .apparel-admin .admin-table td:nth-child(2)::before {
-                content: "Enabled";
-                font-size: 12px;
-                opacity: 0.75;
-                letter-spacing: 0.02em;
-                text-transform: uppercase;
-            }
-
-            .apparel-admin .admin-table td:nth-child(3),
-            .apparel-admin .admin-table td:nth-child(4),
-            .apparel-admin .admin-table td:nth-child(5) {
-                display: grid;
-                gap: 6px;
-            }
-
-            .apparel-admin .admin-table td:nth-child(3)::before {
-                content: "Price ($)";
-                font-size: 12px;
-                opacity: 0.75;
-                letter-spacing: 0.02em;
-                text-transform: uppercase;
-            }
-
-            .apparel-admin .admin-table td:nth-child(4)::before {
-                content: "Stock";
-                font-size: 12px;
-                opacity: 0.75;
-                letter-spacing: 0.02em;
-                text-transform: uppercase;
-            }
-
-            .apparel-admin .admin-table td:nth-child(5)::before {
-                content: "Stripe Price ID";
-                font-size: 12px;
-                opacity: 0.75;
-                letter-spacing: 0.02em;
-                text-transform: uppercase;
-            }
-
-            .apparel-admin .admin-input {
-                width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
-            }
-
-            .apparel-admin input[type="checkbox"].active {
-                width: 22px;
-                height: 22px;
-                margin: 0;
-                accent-color: #6b46c1;
-            }
+            .apparel-admin input.price.admin-input{ width: 86px; }
+            .apparel-admin input.stock.admin-input{ width: 76px; }
+            .apparel-admin input.stripe.admin-input{ min-width: 220px; }
         }
     </style>
 </AdminLayout>
