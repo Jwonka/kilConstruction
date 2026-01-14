@@ -179,8 +179,8 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
     </script>
     <style>
         /* =========================
-           Desktop/tablet (>= 900): REAL TABLE
-           ========================= */
+       Desktop/tablet (>= 900): REAL TABLE
+       ========================= */
         .apparel-admin.table-wrap{
             overflow: visible;
             padding: 0 10px 10px;
@@ -236,7 +236,7 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
            Mid widths (600–899): STOP FIGHTING TABLE COLUMNS
            Turn each TR into a compact grid "row card" but keep it in the table markup.
            ========================= */
-        @media (min-width: 600px) and (max-width: 899px){
+        @media (max-width: 899px){
             .apparel-admin .admin-table thead{ display: none; }
 
             .apparel-admin .admin-table,
@@ -289,21 +289,13 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             }
             .apparel-admin .admin-table td:nth-child(3){ grid-area: price; }
             .apparel-admin .admin-table td:nth-child(4){ grid-area: stock; }
-            .apparel-admin .admin-table td:nth-child(5){
-                grid-template-columns: 1fr 1fr;
-                align-items: start;
-            }
-
-            .apparel-admin .admin-table td:nth-child(5)::before{
-                grid-column: 1 / -1;
-            }
+            .apparel-admin .admin-table td:nth-child(5){ grid-area: stripe; justify-self: start; }
 
             .apparel-admin .admin-table td:nth-child(5) input.stripe.admin-input{
-                grid-column: 1 / 2;
-                width: 100% !important;
-                max-width: none !important;
-                min-width: 0 !important;
-                justify-self: stretch;
+                display: block;
+                width: 100%;
+                max-width: calc((100% - 12px) / 2);
+                min-width: 0;
             }
 
             /* labels */
@@ -329,53 +321,39 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             /* inputs fill cells */
             .apparel-admin .admin-input{ width: 100%; min-width: 0; }
             .apparel-admin input.price.admin-input{ width: 100%; }
-            .apparel-admin input.stock.admin-input{ width: 100%; }
-            .apparel-admin input.stripe.admin-input{ width: 100%; min-width: 0; }
+            @@ -326,32 +333,35 @@
 
-            .apparel-admin .admin-table tr::before,
-            .apparel-admin .admin-table tr::after{
-                content: none !important;
-                display: none !important;
-            }
-        }
-
-        @media (max-width: 599px){
+            @media (max-width: 600px){
             .apparel-admin .admin-table td:nth-child(5){
-                display: grid;
-                grid-template-columns: 1fr;
-            }
-
-            .apparel-admin .admin-table td:nth-child(5)::before{
-                grid-column: 1 / -1;
+                justify-self: stretch;
             }
 
             .apparel-admin .admin-table td:nth-child(5) input.stripe.admin-input{
-                grid-column: 1 / -1;
                 width: 100% !important;
                 max-width: none !important;
+                min-width: 0 !important;
             }
         }
-        /* =========================
-           Phone (<= 420): single column stack
-           ========================= */
-        @media (max-width: 420px){
-            .apparel-admin .admin-table tr{
-                grid-template-columns: 1fr;
-                grid-template-areas:
+            /* =========================
+               Phone (<= 420): single column stack
+               ========================= */
+            @media (max-width: 420px){
+                .apparel-admin .admin-table tr{
+                    grid-template-columns: 1fr;
+                    grid-template-areas:
                   "size"
                   "enabled"
                   "price"
                   "stock"
                   "stripe";
-            }
+                }
 
-            .apparel-admin .admin-table td:nth-child(2){
-                justify-self: start;
-            }
-            .apparel-admin .admin-table td:nth-child(5) input.stripe.admin-input{
-                max-width: none;
-                width: 100%;
-            }
-        }
+                .apparel-admin .admin-table td:nth-child(2){
+                    justify-self: start;
+                }
+                .apparel-admin .admin-table td:nth-child(5) input.stripe.admin-input{
+                    max-width: none;
+                }
+
     </style>
 </AdminLayout>
