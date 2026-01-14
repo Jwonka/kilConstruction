@@ -289,13 +289,21 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             }
             .apparel-admin .admin-table td:nth-child(3){ grid-area: price; }
             .apparel-admin .admin-table td:nth-child(4){ grid-area: stock; }
-            .apparel-admin .admin-table td:nth-child(5){ grid-area: stripe; justify-self: stretch; }
+            .apparel-admin .admin-table td:nth-child(5){
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+
+            .apparel-admin .admin-table td:nth-child(5)::before{
+                grid-column: 1 / -1;
+            }
 
             .apparel-admin .admin-table td:nth-child(5) input.stripe.admin-input{
-                display: block;
-                width: 100%;
-                max-width: calc((100% - 12px) / 2);
-                min-width: 0;
+                grid-column: 1 / 2;
+                width: 100% !important;
+                max-width: none !important;
+                min-width: 0 !important;
+                justify-self: stretch;
             }
 
             /* labels */
