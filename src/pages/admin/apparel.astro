@@ -51,7 +51,6 @@ const { results: items } = await db
                         <div class="item-text">
                             <a class="inline-link" href={`/admin/apparel/${encodeURIComponent(it.slug)}`}>
                                 <div class="result-title">{it.title}</div>
-                                <div class="image-meta">slug: {it.slug}</div>
                             </a>
                         </div>
                         <div class="image-meta">{it.active === 1 ? "Active" : "Inactive"}</div>
@@ -64,7 +63,7 @@ const { results: items } = await db
         .apparel-list .results-list { margin: 0; padding: 0; }
 
         .apparel-list .result-item {
-            padding: 0; 
+            padding: 0;
         }
 
         .apparel-list .item-header {
