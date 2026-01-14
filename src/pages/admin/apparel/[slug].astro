@@ -179,8 +179,8 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
     </script>
     <style>
         /* =========================
-     Desktop/tablet: REAL TABLE
-     ========================= */
+           Desktop/tablet (>= 900): REAL TABLE
+           ========================= */
         .apparel-admin.table-wrap{
             overflow: visible;
             padding: 0 10px 10px;
@@ -201,34 +201,29 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             white-space: nowrap;
         }
 
-        /* Desktop column widths */
         .apparel-admin .admin-table th:nth-child(1),
-        .apparel-admin .admin-table td:nth-child(1){ width: 64px; }    /* Size */
+        .apparel-admin .admin-table td:nth-child(1){ width: 64px; }   /* Size */
         .apparel-admin .admin-table th:nth-child(2),
-        .apparel-admin .admin-table td:nth-child(2){ width: 86px; }    /* Enabled */
+        .apparel-admin .admin-table td:nth-child(2){ width: 86px; }   /* Enabled */
         .apparel-admin .admin-table th:nth-child(3),
-        .apparel-admin .admin-table td:nth-child(3){ width: 110px; }   /* Price */
+        .apparel-admin .admin-table td:nth-child(3){ width: 110px; }  /* Price */
         .apparel-admin .admin-table th:nth-child(4),
-        .apparel-admin .admin-table td:nth-child(4){ width: 100px; }   /* Stock */
-        /* Stripe gets remaining space */
+        .apparel-admin .admin-table td:nth-child(4){ width: 100px; }  /* Stock */
         .apparel-admin .admin-table th:nth-child(5),
-        .apparel-admin .admin-table td:nth-child(5){ width: auto; }
+        .apparel-admin .admin-table td:nth-child(5){ width: auto; }   /* Stripe */
 
-        /* Inputs */
         .apparel-admin .admin-input{
             box-sizing: border-box;
             min-width: 0;
             max-width: 100%;
         }
+
         .apparel-admin input.price.admin-input{ width: 92px; }
         .apparel-admin input.stock.admin-input{ width: 84px; }
 
-        .apparel-admin input.stripe.admin-input{
-            width: 100%;
-            min-width: 0;
-        }
+        /* Key: Stripe must be allowed to shrink, no min-width */
+        .apparel-admin input.stripe.admin-input{ width: 100%; min-width: 0; }
 
-        /* Checkbox */
         .apparel-admin input[type="checkbox"].active{
             appearance: auto;
             -webkit-appearance: auto;
@@ -238,14 +233,17 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
         }
 
         /* =========================
-           Mobile: CARD GRID (phones)
+           Mid widths (600–899): STOP FIGHTING TABLE COLUMNS
+           Turn each TR into a compact grid "row card" but keep it in the table markup.
            ========================= */
-        @media (max-width: 600px){
-            .apparel-admin.table-wrap{ padding: 0 6px 10px; }
-
-            .apparel-admin .admin-table{ display: block; border-spacing: 0; }
+        @media (max-width: 899px){
             .apparel-admin .admin-table thead{ display: none; }
-            .apparel-admin .admin-table tbody{ display: block; }
+
+            .apparel-admin .admin-table,
+            .apparel-admin .admin-table tbody{
+                display: block;
+                width: 100%;
+            }
 
             .apparel-admin .admin-table tr{
                 display: grid;
@@ -256,10 +254,10 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
                   "stripe stripe";
                 gap: 10px 12px;
 
-                margin: 0 0 12px;
                 padding: 12px;
                 border-radius: 14px;
                 background: #fff;
+                margin: 0 0 12px;
 
                 border: 0 !important;
                 box-shadow: none !important;
@@ -268,8 +266,8 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
 
             .apparel-admin .admin-table td{
                 display: block;
-                padding: 0;
                 width: auto !important;
+                padding: 0;
                 white-space: normal;
 
                 border: 0 !important;
@@ -277,7 +275,6 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
                 background: transparent !important;
             }
 
-            /* place cells */
             .apparel-admin .admin-table td:nth-child(1){
                 grid-area: size;
                 font-weight: 800;
@@ -309,37 +306,40 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
                 display: grid;
                 gap: 6px;
             }
-            .apparel-admin .admin-table td:nth-child(3)::before{
-                content: "Price ($)";
-                font-size: 12px;
-                opacity: .75;
-                text-transform: uppercase;
-                letter-spacing: .02em;
-            }
-            .apparel-admin .admin-table td:nth-child(4)::before{
-                content: "Stock";
-                font-size: 12px;
-                opacity: .75;
-                text-transform: uppercase;
-                letter-spacing: .02em;
-            }
-            .apparel-admin .admin-table td:nth-child(5)::before{
-                content: "Stripe Price ID";
-                font-size: 12px;
-                opacity: .75;
-                text-transform: uppercase;
-                letter-spacing: .02em;
-            }
 
-            /* inputs fill */
+            .apparel-admin .admin-table td:nth-child(3)::before{ content: "Price ($)"; font-size: 12px; opacity: .75; text-transform: uppercase; letter-spacing: .02em; }
+            .apparel-admin .admin-table td:nth-child(4)::before{ content: "Stock";     font-size: 12px; opacity: .75; text-transform: uppercase; letter-spacing: .02em; }
+            .apparel-admin .admin-table td:nth-child(5)::before{ content: "Stripe Price ID"; font-size: 12px; opacity: .75; text-transform: uppercase; letter-spacing: .02em; }
+
+            /* inputs fill cells */
             .apparel-admin .admin-input{ width: 100%; min-width: 0; }
             .apparel-admin input.price.admin-input{ width: 100%; }
             .apparel-admin input.stock.admin-input{ width: 100%; }
             .apparel-admin input.stripe.admin-input{ width: 100%; min-width: 0; }
 
-            .apparel-admin input[type="checkbox"].active{
-                width: 22px;
-                height: 22px;
+            .apparel-admin .admin-table tr::before,
+            .apparel-admin .admin-table tr::after{
+                content: none !important;
+                display: none !important;
+            }
+        }
+
+        /* =========================
+           Phone (<= 420): single column stack
+           ========================= */
+        @media (max-width: 420px){
+            .apparel-admin .admin-table tr{
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                  "size"
+                  "enabled"
+                  "price"
+                  "stock"
+                  "stripe";
+            }
+
+            .apparel-admin .admin-table td:nth-child(2){
+                justify-self: start;
             }
         }
     </style>
