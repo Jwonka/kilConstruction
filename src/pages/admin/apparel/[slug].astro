@@ -236,7 +236,7 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
            Mid widths (600–899): STOP FIGHTING TABLE COLUMNS
            Turn each TR into a compact grid "row card" but keep it in the table markup.
            ========================= */
-        @media (max-width: 899px){
+        @media (min-width: 600px) and (max-width: 899px){
             .apparel-admin .admin-table thead{ display: none; }
 
             .apparel-admin .admin-table,
@@ -339,15 +339,20 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             }
         }
 
-        @media (max-width: 600px){
+        @media (max-width: 599px){
             .apparel-admin .admin-table td:nth-child(5){
-                justify-self: stretch;
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .apparel-admin .admin-table td:nth-child(5)::before{
+                grid-column: 1 / -1;
             }
 
             .apparel-admin .admin-table td:nth-child(5) input.stripe.admin-input{
+                grid-column: 1 / -1;
                 width: 100% !important;
                 max-width: none !important;
-                min-width: 0 !important;
             }
         }
         /* =========================
