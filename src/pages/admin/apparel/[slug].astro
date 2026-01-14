@@ -289,7 +289,14 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             }
             .apparel-admin .admin-table td:nth-child(3){ grid-area: price; }
             .apparel-admin .admin-table td:nth-child(4){ grid-area: stock; }
-            .apparel-admin .admin-table td:nth-child(5){ grid-area: stripe; }
+            .apparel-admin .admin-table td:nth-child(5){ grid-area: stripe; justify-self: start; }
+
+            .apparel-admin .admin-table td:nth-child(5) input.stripe.admin-input{
+                display: block;
+                width: 100%;
+                max-width: calc((100% - 12px) / 2);
+                min-width: 0;
+            }
 
             /* labels */
             .apparel-admin .admin-table td:nth-child(2)::before{
@@ -326,7 +333,7 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
 
         @media (max-width: 600px){
             .apparel-admin .admin-table td:nth-child(5){
-                justify-self: stretch;  
+                justify-self: stretch;
             }
 
             .apparel-admin .admin-table td:nth-child(5) input.stripe.admin-input{
@@ -351,6 +358,9 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
 
             .apparel-admin .admin-table td:nth-child(2){
                 justify-self: start;
+            }
+            .apparel-admin .admin-table td:nth-child(5) input.stripe.admin-input{
+                max-width: none;
             }
         }
     </style>
