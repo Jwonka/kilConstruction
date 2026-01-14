@@ -300,10 +300,112 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
             }
         }
 
-        /* Extra-small phones: tighten label column so it doesn't force wrapping */
-        @media (max-width: 420px){
-            .apparel-admin .admin-table td{
-                grid-template-columns: 92px 1fr;
+        @media (max-width: 780px) {
+            .apparel-admin.table-wrap {
+                overflow: visible;
+                padding: 0 6px 10px;
+            }
+
+            .apparel-admin .admin-table thead {
+                display: none;
+            }
+
+            .apparel-admin .admin-table,
+            .apparel-admin .admin-table tbody {
+                display: block;
+                width: 100%;
+            }
+
+            .apparel-admin .admin-table tr {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                grid-template-areas:
+                  "size enabled"
+                  "price price"
+                  "stock stock"
+                  "stripe stripe";
+                gap: 10px 12px;
+
+                background: #fff;
+                border-radius: 14px;
+                padding: 12px;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            }
+
+            .apparel-admin .admin-table td {
+                display: block;
+                width: 100%;
+                padding: 0;
+                white-space: normal;
+            }
+
+            .apparel-admin .admin-table td:nth-child(1) { grid-area: size; }
+            .apparel-admin .admin-table td:nth-child(2) { grid-area: enabled; justify-self: end; align-self: center; }
+            .apparel-admin .admin-table td:nth-child(3) { grid-area: price; }
+            .apparel-admin .admin-table td:nth-child(4) { grid-area: stock; }
+            .apparel-admin .admin-table td:nth-child(5) { grid-area: stripe; }
+
+            .apparel-admin .admin-table td:nth-child(1) {
+                font-size: 16px;
+                font-weight: 800;
+                line-height: 1.1;
+            }
+
+            .apparel-admin .admin-table td:nth-child(2) {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .apparel-admin .admin-table td:nth-child(2)::before {
+                content: "Enabled";
+                font-size: 12px;
+                opacity: 0.75;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+            }
+
+            .apparel-admin .admin-table td:nth-child(3),
+            .apparel-admin .admin-table td:nth-child(4),
+            .apparel-admin .admin-table td:nth-child(5) {
+                display: grid;
+                gap: 6px;
+            }
+
+            .apparel-admin .admin-table td:nth-child(3)::before {
+                content: "Price ($)";
+                font-size: 12px;
+                opacity: 0.75;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+            }
+
+            .apparel-admin .admin-table td:nth-child(4)::before {
+                content: "Stock";
+                font-size: 12px;
+                opacity: 0.75;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+            }
+
+            .apparel-admin .admin-table td:nth-child(5)::before {
+                content: "Stripe Price ID";
+                font-size: 12px;
+                opacity: 0.75;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+            }
+
+            .apparel-admin .admin-input {
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+            }
+
+            .apparel-admin input[type="checkbox"].active {
+                width: 22px;
+                height: 22px;
+                margin: 0;
+                accent-color: #6b46c1;
             }
         }
     </style>
