@@ -84,8 +84,10 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
                     {variants?.map((v: any) => (
                             <tr data-size={v.size}>
                                 <td style="font-weight:700;">{v.size}</td>
-                                <td><input type="checkbox" class="active" checked={v.active === 1} /></td>
-                                <td>
+                                <td data-label="Enabled">
+                                    <input type="checkbox" class="active" checked={v.active === 1} />
+                                </td>
+                                <td data-label="Price ($)">
                                     <input
                                         type="text"
                                         inputmode="decimal"
@@ -95,7 +97,7 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
                                         autocomplete="off"
                                     />
                                 </td>
-                                <td>
+                                <td data-label="Stock">
                                     <input
                                         type="number"
                                         class="stock admin-input"
@@ -104,7 +106,7 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
                                         value={String(v.stock ?? 0)}
                                     />
                                 </td>
-                                <td>
+                                <td data-label="Stripe Price ID">
                                     <input
                                         type="text"
                                         class="stripe admin-input"
@@ -179,7 +181,7 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
     <style>
         .apparel-admin.table-wrap {
             overflow: auto;
-            padding: 0 6px 6px;
+            padding: 0 10px 10px;
         }
 
         .apparel-admin .admin-table {
@@ -191,33 +193,103 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
 
         .apparel-admin .admin-table th,
         .apparel-admin .admin-table td {
-            padding: 10px 10px;
+            padding: 8px 10px;
             vertical-align: middle;
             white-space: nowrap;
             text-align: left;
         }
 
         .apparel-admin .admin-table th:nth-child(1),
-        .apparel-admin .admin-table td:nth-child(1) { width: 70px; }   /* Size */
+        .apparel-admin .admin-table td:nth-child(1) { width: 64px; }   /* Size */
 
         .apparel-admin .admin-table th:nth-child(2),
-        .apparel-admin .admin-table td:nth-child(2) { width: 90px; }   /* Enabled */
+        .apparel-admin .admin-table td:nth-child(2) { width: 86px; }   /* Enabled */
 
         .apparel-admin .admin-table th:nth-child(3),
-        .apparel-admin .admin-table td:nth-child(3) { width: 120px; }  /* Price */
+        .apparel-admin .admin-table td:nth-child(3) { width: 110px; }  /* Price */
 
         .apparel-admin .admin-table th:nth-child(4),
-        .apparel-admin .admin-table td:nth-child(4) { width: 110px; }  /* Stock */
+        .apparel-admin .admin-table td:nth-child(4) { width: 100px; }  /* Stock */
 
         .apparel-admin .admin-table th:nth-child(5),
         .apparel-admin .admin-table td:nth-child(5) { width: auto; }
 
-        .apparel-admin input.price.admin-input { width: 100px; min-width: 100px; }
-        .apparel-admin input.stock.admin-input { width: 90px;  min-width: 90px;  }
-        .apparel-admin input.stripe.admin-input { width: 100%; min-width: 280px; }
+        .apparel-admin input.price.admin-input { width: 92px; }
+        .apparel-admin input.stock.admin-input { width: 84px; }
+        .apparel-admin input.stripe.admin-input { width: 100%; min-width: 200px; }
 
         .apparel-admin .admin-input {
             box-sizing: border-box;
+        }
+        /* -------- Mobile: turn each row into a compact card -------- */
+        @media (max-width: 640px) {
+            .apparel-admin.table-wrap {
+                overflow: visible; /* avoid sideways scroll on phones */
+                padding: 0 6px 10px;
+            }
+
+            .apparel-admin .admin-table {
+                border-spacing: 0 12px;
+                table-layout: auto;
+            }
+
+            .apparel-admin .admin-table thead {
+                display: none; /* labels come from data-label */
+            }
+
+            .apparel-admin .admin-table,
+            .apparel-admin .admin-table tbody,
+            .apparel-admin .admin-table tr,
+            .apparel-admin .admin-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .apparel-admin .admin-table tr {
+                background: #fff;
+                border-radius: 14px;
+                padding: 10px 10px 12px;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            }
+
+            .apparel-admin .admin-table td {
+                padding: 8px 0;
+                white-space: normal;
+            }
+
+            /* Two-column grid for compact layout */
+            .apparel-admin .admin-table td {
+                display: grid;
+                grid-template-columns: 120px 1fr;
+                gap: 10px;
+                align-items: center;
+            }
+
+            .apparel-admin .admin-table td::before {
+                content: attr(data-label);
+                font-size: 12px;
+                opacity: 0.75;
+            }
+
+            /* Make "Size" feel like a header row */
+            .apparel-admin .admin-table td[data-label="Size"] {
+                grid-template-columns: 1fr;
+                padding-top: 0;
+                padding-bottom: 6px;
+            }
+            .apparel-admin .admin-table td[data-label="Size"]::before { display: none; }
+
+            /* Mobile input widths: do NOT stretch comically */
+            .apparel-admin input.price.admin-input,
+            .apparel-admin input.stock.admin-input {
+                width: 120px;
+                max-width: 100%;
+            }
+
+            .apparel-admin input.stripe.admin-input {
+                width: 100%;
+                min-width: 0;
+            }
         }
     </style>
 </AdminLayout>
