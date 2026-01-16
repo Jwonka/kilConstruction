@@ -180,9 +180,7 @@ const metaDescription =
             <div class="apparel-buttons">
                 <button id="checkoutBtn" type="submit" class="btn cta">Checkout</button>
 
-                <button class="btn cta">
-                    <a href="/apparel">Back to apparel</a>
-                </button>
+                <a class="btn cta btn-secondary" href="/apparel">Back to apparel</a>
             </div>
         </form>
     </section>
@@ -195,8 +193,57 @@ const metaDescription =
         const checkoutBtn = document.getElementById("checkoutBtn");
         const checkoutError = document.getElementById("checkoutError");
         const requestSizeLink = document.getElementById("requestSizeLink");
+        const statusEl = document.getElementById("form-status");
+
+        function setStatus(msg) {
+            if (!statusEl) return;
+            statusEl.textContent = msg || "";
+        }
 
         let variants = []; // [{size, priceCents, stock, active}]
+
+        function sameVariants(a, b) {
+            if (!Array.isArray(a) || !Array.isArray(b)) return false;
+            if (a.length !== b.length) return false;
+            for (let i = 0; i < a.length; i++) {
+                if (a[i].size !== b[i].size) return false;
+                if (Number(a[i].stock) !== Number(b[i].stock)) return false;
+                if (Number(a[i].active) !== Number(b[i].active)) return false;
+            }
+            return true;
+        }
+
+        // Show success if redirected back from Stripe
+        (function handleReturnFromStripe() {
+            const url = new URL(window.location.href);
+            const paid = url.searchParams.get("paid");
+            const sessionId = url.searchParams.get("session_id");
+
+            if (paid === "1") {
+                setStatus("Payment received. Updating inventory…");
+
+                url.searchParams.delete("paid");
+                url.searchParams.delete("session_id");
+                window.history.replaceState({}, "", url.pathname + url.search);
+
+                pollForStockUpdate(10, 800).catch(() => {
+                    setStatus("Payment received. Inventory may take a moment to update. Refresh shortly.");
+                });
+            }
+        })();
+
+        async function pollForStockUpdate(tries = 10, delayMs = 800) {
+            const before = variants.slice();
+            for (let i = 0; i < tries; i++) {
+                await loadVariants();
+                if (!sameVariants(before, variants)) {
+                    setStatus("Payment received. Inventory updated.");
+                    return;
+                }
+                await new Promise(r => setTimeout(r, delayMs));
+            }
+            throw new Error("timeout");
+        }
 
         function centsToDollars(cents) {
             return (Number(cents || 0) / 100).toFixed(2);
@@ -401,6 +448,8 @@ const metaDescription =
             min-height: 44px;
             box-sizing: border-box;
             border-radius: 8px;
+            margin: 0 auto;
+            display: block;
         }
 
         .apparel-form select:disabled,
@@ -413,12 +462,30 @@ const metaDescription =
             font-size: 0.95rem;
         }
 
-        .apparel-buttons {
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .apparel-buttons{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:16px;
+            margin-top: 18px;
+            flex-wrap: wrap;
         }
 
+        .apparel-buttons .btn{
+            min-width: 180px;
+            text-align:center;
+        }
+
+        .btn-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .btn-link:visited {
+            color: #fff;
+        }
     </style>
 </MainLayout>
