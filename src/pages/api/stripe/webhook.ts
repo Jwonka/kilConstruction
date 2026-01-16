@@ -194,6 +194,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
             const itemStmts = [];
             for (const p of purchases) {
                 const snap = await getVariantSnapshotByPriceId(db, p.priceId);
+                if (!snap) {
+                    console.warn("[stripe webhook] priceId not found in apparel_variants", { priceId: p.priceId });
+                }
                 itemStmts.push(
                     db
                         .prepare(
