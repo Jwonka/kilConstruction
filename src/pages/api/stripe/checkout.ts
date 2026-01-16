@@ -10,6 +10,16 @@ function json(data: unknown, status = 200) {
     });
 }
 
+function text(body: string, status = 200) {
+    return new Response(body, {
+        status,
+        headers: {
+            "content-type": "text/plain; charset=utf-8",
+            "cache-control": "no-store",
+        },
+    });
+}
+
 type CheckoutBody = {
     slug: string;     // e.g. "t-shirts"
     size: string;     // "S".."XXXXL"
@@ -43,6 +53,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const env = (locals as any).runtime?.env ?? {};
     const db = env.DB;
     const STRIPE_SECRET_KEY: string | undefined = env.STRIPE_SECRET_KEY;
+
+    // GUARD (disable store unless explicitly enabled + live key present)
+    const PAYMENTS_ENABLED = env.PAYMENTS_ENABLED === "true";
+    if (!PAYMENTS_ENABLED) return text("store temporarily unavailable", 503);
+    if (!STRIPE_SECRET_KEY?.startsWith("sk_live_")) return text("payments not enabled", 503);
+
     // Default to current request origin for local/dev; allow override in prod via env.
     const reqOrigin = new URL(request.url).origin;
     const PUBLIC_SITE_ORIGIN: string = env.PUBLIC_SITE_ORIGIN || reqOrigin;
