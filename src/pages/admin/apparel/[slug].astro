@@ -58,7 +58,10 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
         title={`Edit Apparel — ${item.title}`}
         description={`Admin editor for apparel sizes, pricing, stock, and Stripe Price IDs for ${item.title}.`}
 >
-    <h1 class="admin-title">{item.title}</h1>
+    <div class="admin-title-row">
+        <h1 class="admin-title">{item.title}</h1>
+        <a href="/admin/apparel" class="btn-small admin-back-btn">← Back to Apparel</a>
+    </div>
 
     <section class="panel">
         <p class="hint" style="margin-top:0;">
@@ -81,39 +84,39 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
                     </thead>
                     <tbody>
                     {variants?.map((v: any) => (
-                            <tr data-size={v.size}>
-                                <td data-label="Size" class="size-cell" style="font-weight:700;">{v.size}</td>
-                                <td data-label="Enabled">
-                                    <input type="checkbox" class="active" checked={v.active === 1} />
-                                </td>
-                                <td data-label="Price ($)">
-                                    <input
-                                        type="text"
-                                        inputmode="decimal"
-                                        class="price admin-input"
-                                        value={centsToDollars(v.priceCents)}
-                                        placeholder="0.00"
-                                        autocomplete="off"
-                                    />
-                                </td>
-                                <td data-label="Stock">
-                                    <input
-                                        type="number"
-                                        class="stock admin-input"
-                                        step="1"
-                                        min="0"
-                                        value={String(v.stock ?? 0)}
-                                    />
-                                </td>
-                                <td data-label="Stripe Price ID">
-                                    <input
-                                        type="text"
-                                        class="stripe admin-input"
-                                        value={v.stripePriceId ?? ""}
-                                        placeholder="price_..."
-                                    />
-                                </td>
-                            </tr>
+                        <tr data-size={v.size}>
+                            <td data-label="Size" class="size-cell" style="font-weight:700;">{v.size}</td>
+                            <td data-label="Enabled">
+                                <input type="checkbox" class="active" checked={v.active === 1} />
+                            </td>
+                            <td data-label="Price ($)">
+                                <input
+                                    type="text"
+                                    inputmode="decimal"
+                                    class="price admin-input"
+                                    value={centsToDollars(v.priceCents)}
+                                    placeholder="0.00"
+                                    autocomplete="off"
+                                />
+                            </td>
+                            <td data-label="Stock">
+                                <input
+                                    type="number"
+                                    class="stock admin-input"
+                                    step="1"
+                                    min="0"
+                                    value={String(v.stock ?? 0)}
+                                />
+                            </td>
+                            <td data-label="Stripe Price ID">
+                                <input
+                                    type="text"
+                                    class="stripe admin-input"
+                                    value={v.stripePriceId ?? ""}
+                                    placeholder="price_..."
+                                />
+                            </td>
+                        </tr>
                     ))}
                     </tbody>
                 </table>
@@ -181,6 +184,24 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
         /* =========================
        Desktop/tablet (>= 900): REAL TABLE
        ========================= */
+        /* Title row with back button */
+        .admin-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .admin-title-row .admin-title {
+            margin: 0;
+        }
+
+        .admin-back-btn {
+            flex-shrink: 0;
+        }
+
         .apparel-admin.table-wrap{
             overflow: visible;
             padding: 0 10px 10px;
@@ -383,6 +404,20 @@ const centsToDollars = (c: number) => (Number(c || 0) / 100).toFixed(2);
                 min-width: 0;
                 justify-self: stretch;
                 display: block;
+            }
+        }
+        
+        /* Mobile: stack title and button */
+        @media (max-width: 640px) {
+            .admin-title-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .admin-back-btn {
+                width: 100%;
+                text-align: center;
             }
         }
 
