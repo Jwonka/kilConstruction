@@ -130,6 +130,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
     if (!sess.ok) return text("failed to fetch session", 502);
 
+    await db.prepare(`
+  INSERT INTO stripe_webhook_audit (event_id, session_id, stage, note)
+  VALUES (?, ?, 'received', ?)
+`).bind(eventId, sessionId, event?.type ?? null).run();
+
+
     const s = sess.data;
 
     const customerEmail = s?.customer_details?.email ?? null;
@@ -155,6 +161,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
         if (!priceId || !Number.isInteger(qty) || qty < 1) continue;
         purchases.push({ priceId, quantity: qty });
     }
+    await db.prepare(`
+  INSERT INTO stripe_webhook_audit (event_id, session_id, stage, note)
+  VALUES (?, ?, 'purchases_built', ?)
+`).bind(eventId, sessionId, JSON.stringify(purchases)).run();
     if (purchases.length === 0) return text("no purchasable items", 200);
 
     // ---- TRANSACTION STARTS HERE ----
@@ -194,7 +204,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
             const itemStmts = [];
             for (const p of purchases) {
                 const snap = await getVariantSnapshotByPriceId(db, p.priceId);
-
+                if (!snap) {
+                    await db.prepare(`
+    INSERT INTO stripe_webhook_audit (event_id, session_id, stage, price_id, quantity, note)
+    VALUES (?, ?, 'price_not_found', ?, ?, NULL)
+  `).bind(eventId, sessionId, p.priceId, p.quantity).run();
+                }
                 itemStmts.push(
                     db
                         .prepare(
@@ -233,6 +248,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
         );
 
         const results = await db.batch(decStmts);
+
+        for (let i = 0; i < purchases.length; i++) {
+            const p = purchases[i];
+            const changes = results?.[i]?.meta?.changes ?? 0;
+
+            await db.prepare(`
+    INSERT INTO stripe_webhook_audit (event_id, session_id, stage, price_id, quantity, changes, note)
+    VALUES (?, ?, 'decrement', ?, ?, ?, NULL)
+  `).bind(eventId, sessionId, p.priceId, p.quantity, changes).run();
+        }
+
 
         let failed = 0;
         for (const r of results || []) {
