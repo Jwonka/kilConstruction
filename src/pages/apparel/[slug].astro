@@ -177,11 +177,13 @@ const metaDescription =
                 Need a different size? <a id="requestSizeLink" href="/contact">Contact us</a>.
             </p>
 
-            <button id="checkoutBtn" type="submit" class="btn cta">Checkout</button>
+            <div class="apparel-buttons">
+                <button id="checkoutBtn" type="submit" class="btn cta">Checkout</button>
 
-            <button class="btn cta" style="justify-content: center; margin-top: 10px; color: #fff;">
-                <a href="/apparel">Back to apparel</a>
-            </button>
+                <button class="btn cta">
+                    <a href="/apparel">Back to apparel</a>
+                </button>
+            </div>
         </form>
     </section>
     <script is:inline define:vars={{ slug }}>
@@ -378,4 +380,45 @@ const metaDescription =
             checkoutBtn.disabled = true;
         });
     </script>
+    <style>
+
+        .apparel-form {
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .apparel-form label {
+            font-size: 1rem;
+        }
+
+        .apparel-form select,
+        .apparel-form input[type="number"] {
+            width: 100%;
+            max-width: 420px;
+            font-size: 16px;
+            line-height: 1.25;
+            padding: 10px 12px;
+            min-height: 44px;
+            box-sizing: border-box;
+            border-radius: 8px;
+        }
+
+        .apparel-form select:disabled,
+        .apparel-form input:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .apparel-form .muted {
+            font-size: 0.95rem;
+        }
+
+        .apparel-buttons {
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+    </style>
 </MainLayout>
