@@ -88,9 +88,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     if (!row) return json({ error: "not_found" }, 404);
     if (row.itemActive !== 1) return json({ error: "item_inactive" }, 409);
+
+    const stock = Number(row.stock ?? 0);
+    if (stock <= 0) return json({ error: "out_of_stock" }, 409);
     if (row.active !== 1) return json({ error: "variant_inactive" }, 409);
     if (!row.stripePriceId) return json({ error: "missing_stripe_price_id" }, 409);
-    const stock = Number(row.stock ?? 0);
     if (stock < quantity) return json({ error: "out_of_stock" }, 409);
 
     // Create Stripe Checkout Session

@@ -160,65 +160,219 @@ const metaDescription =
         <p id="form-status" class="status" aria-live="polite"></p>
 
         <form id="checkoutForm" class="apparel-form">
-            <label>
-                Size
-                <select name="size" required>
-                    <option value="S">S</option>
-                    <option value="M">M</option>
-                    <option value="L">L</option>
-                    <option value="XL">XL</option>
-                    <option value="XXL">XXL</option>
-                    <option value="XXXL">XXXL</option>
-                    <option value="XXXXL">XXXXL</option>
-                </select>
-            </label>
+            <label for="sizeSelect">Size</label>
 
-            <label>
-                Quantity
-                <input type="number" name="quantity" min="1" max="20" value="1" />
-            </label>
+            <select id="sizeSelect" name="size" required disabled>
+                <option value="">Loading sizes…</option>
+            </select>
 
-            <p id="checkoutStatus" class="status" aria-live="polite"></p>
+            <p id="stockLine" class="muted" aria-live="polite"></p>
 
-            <button type="submit" class="btn cta">Checkout</button>
+            <label for="qtyInput">Quantity</label>
+            <input id="qtyInput" name="quantity" type="number" min="1" value="1" />
+
+            <p id="checkoutError" class="status" aria-live="polite"></p>
+
+            <p class="muted" style="margin-top:-6px;">
+                Need a different size? <a id="requestSizeLink" href="/contact">Request this item</a>.
+            </p>
+
+            <button id="checkoutBtn" type="submit" class="btn cta">Checkout</button>
         </form>
     </section>
     <script is:inline define:vars={{ slug }}>
-        (function () {
-            const form = document.getElementById("checkoutForm");
-            const statusEl = document.getElementById("checkoutStatus");
-            if (!form || !statusEl) return;
+        const slug = window.location.pathname.split("/").pop();
 
-            const itemSlug = slug;
+        const form = document.getElementById("checkoutForm");
+        const sizeSelect = document.getElementById("sizeSelect");
+        const qtyInput = document.getElementById("qtyInput");
+        const stockLine = document.getElementById("stockLine");
+        const checkoutBtn = document.getElementById("checkoutBtn");
+        const checkoutError = document.getElementById("checkoutError");
+        const requestSizeLink = document.getElementById("requestSizeLink");
 
-            form.addEventListener("submit", async (e) => {
-                e.preventDefault();
-                statusEl.textContent = "Starting checkout…";
+        let variants = []; // [{size, priceCents, stock, active}]
 
-                const fd = new FormData(form);
-                const size = String(fd.get("size") || "").toUpperCase();
-                const quantity = Number(fd.get("quantity") || 1);
+        function centsToDollars(cents) {
+            return (Number(cents || 0) / 100).toFixed(2);
+        }
 
-                try {
-                    const r = await fetch("/api/stripe/checkout", {
-                        method: "POST",
-                        headers: { "content-type": "application/json" },
-                        body: JSON.stringify({ slug: itemSlug, size, quantity }),
-                    });
+        function setError(msg) {
+            checkoutError.textContent = msg || "";
+        }
 
-                    const data = await r.json().catch(() => ({}));
-                    if (!r.ok || !data?.url) {
-                        statusEl.textContent = data?.error
-                            ? `Checkout failed: ${data.error}`
-                            : "Checkout failed. Please try again.";
+        function selectedVariant() {
+            return variants.find(v => v.size === sizeSelect.value) || null;
+        }
+
+        function optionLabel(v) {
+            const stock = Number(v.stock || 0);
+            const active = Number(v.active || 0);
+            if (active !== 1) return `${v.size} (unavailable)`;
+            if (stock <= 0) return `${v.size} (out of stock)`;
+            return `${v.size} (in stock: ${stock})`;
+        }
+
+        function updateRequestLink() {
+            const v = selectedVariant();
+            const size = v?.size || "";
+            const qs = new URLSearchParams();
+            qs.set("reason", "apparel-size-request");
+            qs.set("slug", slug);
+            if (size) qs.set("size", size);
+            requestSizeLink.href = `/contact?${qs.toString()}`;
+        }
+
+        function renderStock() {
+            const v = selectedVariant();
+            if (!v) {
+                stockLine.textContent = "";
+                qtyInput.max = "";
+                updateRequestLink();
+                return;
+            }
+
+            const stock = Number(v.stock || 0);
+            const active = Number(v.active || 0);
+
+            if (active !== 1) {
+                stockLine.textContent = "This size is currently unavailable.";
+                qtyInput.max = "";
+            } else if (stock <= 0) {
+                stockLine.textContent = "Out of stock.";
+                qtyInput.max = "";
+            } else {
+                stockLine.textContent = `In stock: ${stock} • $${centsToDollars(v.priceCents)}`;
+                const q = Number(qtyInput.value || 1);
+                if (q > stock) qtyInput.value = String(stock);
+                qtyInput.max = String(stock);
+            }
+
+            updateRequestLink();
+        }
+
+        async function loadVariants() {
+            setError("");
+            sizeSelect.disabled = true;
+            checkoutBtn.disabled = true;
+            sizeSelect.innerHTML = `<option value="">Loading sizes…</option>`;
+            stockLine.textContent = "";
+
+            const r = await fetch(`/api/item?slug=${encodeURIComponent(slug)}`, { cache: "no-store" });
+            const data = await r.json().catch(() => ({}));
+
+            if (!r.ok) {
+                sizeSelect.innerHTML = `<option value="">Unavailable</option>`;
+                return;
+            }
+
+            variants = Array.isArray(data.variants) ? data.variants : [];
+
+            if (variants.length === 0) {
+                sizeSelect.innerHTML = `<option value="">Unavailable</option>`;
+                return;
+            }
+
+            sizeSelect.innerHTML =
+                `<option value="">Select size…</option>` +
+                variants.map(v => {
+                    const stock = Number(v.stock || 0);
+                    const active = Number(v.active || 0);
+                    const disabled = (active !== 1 || stock <= 0) ? "disabled" : "";
+                    return `<option value="${v.size}" ${disabled}>${optionLabel(v)}</option>`;
+                }).join("");
+
+            sizeSelect.disabled = false;
+            updateRequestLink();
+        }
+
+        sizeSelect.addEventListener("change", () => {
+            setError("");
+            checkoutBtn.disabled = !sizeSelect.value;
+            renderStock();
+        });
+
+        qtyInput.addEventListener("input", () => {
+            setError("");
+            renderStock();
+        });
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            setError("");
+
+            const v = selectedVariant();
+            if (!v) {
+                setError("Please select a size.");
+                return;
+            }
+
+            const stock = Number(v.stock || 0);
+            const active = Number(v.active || 0);
+            if (active !== 1) {
+                setError("This size is not available.");
+                return;
+            }
+            if (stock <= 0) {
+                setError("Out of stock.");
+                return;
+            }
+
+            const quantity = Number(qtyInput.value || 1);
+            if (!Number.isInteger(quantity) || quantity < 1) {
+                setError("Quantity must be at least 1.");
+                return;
+            }
+            if (quantity > stock) {
+                setError("Out of stock.");
+                qtyInput.value = String(stock);
+                return;
+            }
+
+            checkoutBtn.disabled = true;
+
+            try {
+                const resp = await fetch(`/api/stripe/checkout`, {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ slug, size: v.size, quantity }),
+                });
+
+                const body = await resp.json().catch(() => ({}));
+
+                if (!resp.ok) {
+                    const code = body?.error || "unknown";
+                    if (code === "out_of_stock") {
+                        setError("Out of stock.");
+                        await loadVariants();
                         return;
                     }
-
-                    window.location.href = data.url;
-                } catch {
-                    statusEl.textContent = "Checkout failed (network). Please try again.";
+                    if (code === "variant_inactive" || code === "missing_stripe_price_id") {
+                        setError("This size is not available.");
+                        await loadVariants();
+                        return;
+                    }
+                    setError("Checkout failed. Please try again.");
+                    return;
                 }
-            });
-        })();
+
+                if (!body?.url) {
+                    setError("Checkout failed. Please try again.");
+                    return;
+                }
+
+                window.location.href = body.url;
+            } catch {
+                setError("Checkout failed (network). Please try again.");
+            } finally {
+                checkoutBtn.disabled = !sizeSelect.value;
+            }
+        });
+
+        loadVariants().catch(() => {
+            sizeSelect.innerHTML = `<option value="">Error loading sizes</option>`;
+            sizeSelect.disabled = true;
+            checkoutBtn.disabled = true;
+        });
     </script>
 </MainLayout>

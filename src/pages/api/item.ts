@@ -28,16 +28,16 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const variants = await db
         .prepare(`
-      SELECT size, price_cents AS priceCents, stock, active
-      FROM apparel_variants
-      WHERE item_id = ? AND active = 1
-      ORDER BY
-        CASE size
-          WHEN 'S' THEN 1 WHEN 'M' THEN 2 WHEN 'L' THEN 3 WHEN 'XL' THEN 4
-          WHEN 'XXL' THEN 5 WHEN 'XXXL' THEN 6 WHEN 'XXXXL' THEN 7
-          ELSE 99
-        END
-    `)
+            SELECT size, price_cents AS priceCents, stock, active
+            FROM apparel_variants
+            WHERE item_id = ?
+            ORDER BY
+                CASE size
+                WHEN 'S' THEN 1 WHEN 'M' THEN 2 WHEN 'L' THEN 3 WHEN 'XL' THEN 4
+                WHEN 'XXL' THEN 5 WHEN 'XXXL' THEN 6 WHEN 'XXXXL' THEN 7
+                ELSE 99
+            END
+        `)
         .bind(item.id)
         .all();
 
@@ -47,7 +47,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
         variants: (variants.results || []).map((v: any) => ({
             size: v.size,
             priceCents: v.priceCents,
-            stock: v.stock,
+            stock: Number(v.stock ?? 0),
+            active: Number(v.active ?? 0),
         })),
     });
 };
