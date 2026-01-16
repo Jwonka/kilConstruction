@@ -126,6 +126,11 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
     const eventType = event?.type;
     if (!eventId) return text("missing event id", 400);
 
+    // LIVE MODE GUARD (ignore test events hitting prod webhook)
+    // Stripe sets event.livemode true for live-mode events, false for test-mode.
+    if (event?.livemode !== true) return text("ignored_test_event", 200);
+
+
     // Only this event may mutate state
     if (eventType !== "checkout.session.completed") return text("ignored", 200);
 
