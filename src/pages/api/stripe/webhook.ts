@@ -3,7 +3,10 @@ import type { APIRoute } from "astro";
 function text(body: string, status = 200) {
     return new Response(body, {
         status,
-        headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+        headers: {
+            "content-type": "text/plain; charset=utf-8",
+            "cache-control": "no-store",
+        },
     });
 }
 
@@ -16,9 +19,13 @@ function timingSafeEqual(a: Uint8Array, b: Uint8Array) {
 
 async function hmacSHA256Hex(secret: string, message: string) {
     const enc = new TextEncoder();
-    const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, [
-        "sign",
-    ]);
+    const key = await crypto.subtle.importKey(
+        "raw",
+        enc.encode(secret),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"],
+    );
     const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
     const bytes = new Uint8Array(sig);
     return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -41,7 +48,7 @@ async function verifyStripeSignature(rawBody: string, sigHeader: string, webhook
     const v1s = parsed["v1"] || [];
     if (!t || v1s.length === 0) return false;
 
-    // 5 minute replay window
+    // 5-minute replay window
     const ts = Number(t);
     if (!Number.isFinite(ts)) return false;
     const now = Math.floor(Date.now() / 1000);
@@ -65,9 +72,9 @@ async function stripeGetJson(url: string, secretKey: string) {
     try {
         data = JSON.parse(t);
     } catch {
-        /* ignore */
+        // ignore
     }
-    return { ok: r.ok, status: r.status, data: data ?? {} };
+    return { ok: r.ok, status: r.status, data: data ?? {}, raw: t };
 }
 
 async function getVariantSnapshotByPriceId(db: any, priceId: string) {
@@ -87,9 +94,33 @@ async function getVariantSnapshotByPriceId(db: any, priceId: string) {
         .first();
 }
 
-export const POST: APIRoute = async ({ request, locals }) => {
+async function audit(db: any, stage: string, fields?: { priceId?: string; quantity?: number; changes?: number | null; note?: string | null }) {
+    // Best-effort; never let audit failure break webhook
+    try {
+        await db
+            .prepare(
+                `
+        INSERT INTO stripe_webhook_audit(stage, price_id, quantity, changes, note)
+        VALUES (?, ?, ?, ?, ?)
+      `,
+            )
+            .bind(
+                stage,
+                fields?.priceId ?? null,
+                fields?.quantity ?? null,
+                fields?.changes ?? null,
+                fields?.note ?? null,
+            )
+            .run();
+    } catch {
+        // ignore
+    }
+}
+
+export const POST: APIRoute = async ({ request, locals }): Promise<Response> => {
     const env = (locals as any).runtime?.env ?? {};
     const db = env.DB;
+
     const STRIPE_SECRET_KEY: string | undefined = env.STRIPE_SECRET_KEY;
     const STRIPE_WEBHOOK_SECRET: string | undefined = env.STRIPE_WEBHOOK_SECRET;
 
@@ -110,10 +141,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const eventId = event?.id;
+    const eventType = event?.type;
     if (!eventId) return text("missing event id", 400);
 
-    // Only this event may mutate state
-    if (event?.type !== "checkout.session.completed") return text("ignored", 200);
+    // Only checkout.session.completed mutates inventory
+    if (eventType !== "checkout.session.completed") return text("ignored", 200);
+
+    await audit(db, "received", { note: String(eventType || "") });
 
     const session = event?.data?.object;
     const sessionId = session?.id;
@@ -123,15 +157,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return text("not_paid", 200);
     }
 
-    // Canonical session details
+    // Canonical session details from Stripe
     const sess = await stripeGetJson(
         `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`,
         STRIPE_SECRET_KEY,
     );
-    if (!sess.ok) return text("failed to fetch session", 502);
+    if (!sess.ok) {
+        await audit(db, "stripe_fetch_session_failed", { note: `status=${sess.status}` });
+        return text("failed to fetch session", 502);
+    }
 
     const s = sess.data;
-
     const customerEmail = s?.customer_details?.email ?? null;
     const customerName = s?.customer_details?.name ?? null;
     const customerPhone = s?.customer_details?.phone ?? null;
@@ -139,12 +175,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const amountTotal = Number.isInteger(s?.amount_total) ? s.amount_total : null;
     const currency = s?.currency ?? null;
 
-    // Line items (price ids + qty)
+    // Line items
     const li = await stripeGetJson(
         `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}/line_items?limit=100`,
         STRIPE_SECRET_KEY,
     );
-    if (!li.ok) return text("failed to fetch line_items", 502);
+    if (!li.ok) {
+        await audit(db, "stripe_fetch_line_items_failed", { note: `status=${li.status}` });
+        return text("failed to fetch line_items", 502);
+    }
 
     const lineItems = li.data?.data || [];
     const purchases: Array<{ priceId: string; quantity: number }> = [];
@@ -155,21 +194,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
         if (!priceId || !Number.isInteger(qty) || qty < 1) continue;
         purchases.push({ priceId, quantity: qty });
     }
+
+    await audit(db, "purchases_built", { note: JSON.stringify(purchases) });
+
     if (purchases.length === 0) return text("no purchasable items", 200);
 
-    // ---- TRANSACTION STARTS HERE ----
+    // ---- DB WORK ----
     try {
-        await db.prepare("BEGIN").run();
-
-        // 1) Idempotency first
+        // Idempotency first
         try {
             await db.prepare(`INSERT INTO stripe_events (id) VALUES (?)`).bind(eventId).run();
         } catch {
-            await db.prepare("ROLLBACK").run();
+            await audit(db, "duplicate_event", { note: eventId });
             return text("duplicate", 200);
         }
 
-        // 2) Create order (unique on stripe_session_id should prevent duplicates)
+        // Create order (if you have UNIQUE(stripe_session_id), this prevents duplicates too)
         let orderId: number | null = null;
         try {
             const r = await db
@@ -185,39 +225,47 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
             orderId = (r as any)?.meta?.last_row_id ?? null;
         } catch {
-            await db.prepare("ROLLBACK").run();
+            await audit(db, "order_exists", { note: sessionId });
             return text("order_exists", 200);
         }
 
-        // 3) Snapshot order items (item_id, size, price_cents) + stripe_price_id + quantity
+        // Insert order items with snapshot
         if (orderId) {
-            const itemStmts = [];
+            const itemStmts: any[] = [];
+
             for (const p of purchases) {
                 const snap = await getVariantSnapshotByPriceId(db, p.priceId);
+                if (!snap) {
+                    await audit(db, "missing_variant", {
+                        priceId: p.priceId,
+                        quantity: p.quantity,
+                        note: "priceId not found in apparel_variants",
+                    });
+                    // Keep going; still attempt decrement (it will produce 0 changes)
+                }
 
                 itemStmts.push(
                     db
                         .prepare(
                             `
-              INSERT INTO apparel_order_items
-                (order_id, stripe_price_id, quantity, item_id, size, price_cents)
-              VALUES (?, ?, ?, ?, ?, ?)
-            `,
-                    )
-                    .bind(
-                        orderId,
-                        p.priceId,
-                        p.quantity,
-                        snap?.itemId ?? null,
-                        snap?.size ?? null,
-                        snap?.priceCents ?? null,
-                    ),
+                                INSERT INTO apparel_order_items
+                                    (order_id, stripe_price_id, quantity, item_id, size, price_cents)
+                                VALUES (?, ?, ?, ?, ?, ?)
+                            `,
+                        )
+                        .bind(orderId, p.priceId, p.quantity, snap?.itemId ?? null, snap?.size ?? null, snap?.priceCents ?? null),
                 );
             }
-            await db.batch(itemStmts);
+
+            try {
+                await db.batch(itemStmts);
+            } catch {
+                await audit(db, "order_items_insert_failed", { note: "db.batch(apparel_order_items) failed" });
+                // non-fatal; continue to decrement
+            }
         }
 
-        // 4) Atomic decrement(s) with guard
+        // Atomic decrement(s) with guard
         const decStmts = purchases.map((p) =>
             db
                 .prepare(
@@ -235,24 +283,25 @@ export const POST: APIRoute = async ({ request, locals }) => {
         const results = await db.batch(decStmts);
 
         let failed = 0;
-        for (const r of results || []) {
+        for (let idx = 0; idx < purchases.length; idx++) {
+            const p = purchases[idx];
+            const r = results?.[idx];
             const changes = r?.meta?.changes ?? 0;
+
+            await audit(db, "decrement_attempt", { priceId: p.priceId, quantity: p.quantity, changes });
+
             if (changes === 0) failed++;
         }
 
-        await db.prepare("COMMIT").run();
-        // ---- TRANSACTION ENDS HERE ----
-
         if (failed > 0) {
-            // Oversold or variant inactive; stock will NOT go negative due to guard.
+            // This means: priceId not in DB, inactive, or insufficient stock.
             return text("completed_with_warnings", 200);
         }
 
         return text("ok", 200);
-    } catch {
-        try {
-            await db.prepare("ROLLBACK").run();
-        } catch {}
+    } catch (err: any) {
+        // Always return a Response (fixes TS2322)
+        await audit(db, "exception", { note: String(err?.message || err) });
         return text("db error", 500);
     }
 };
