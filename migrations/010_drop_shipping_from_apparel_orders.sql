@@ -3,8 +3,6 @@
 
 PRAGMA foreign_keys=off;
 
-BEGIN TRANSACTION;
-
 -- 1) Create a new table without shipping_json
 CREATE TABLE apparel_orders_new (
                                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +45,5 @@ DROP TABLE apparel_orders;
 
 -- 4) Rename new table
 ALTER TABLE apparel_orders_new RENAME TO apparel_orders;
-
-COMMIT;
 
 PRAGMA foreign_keys=on;
