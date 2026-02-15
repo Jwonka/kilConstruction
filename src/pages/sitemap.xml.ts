@@ -10,6 +10,12 @@ function normalizePath(path: string): string {
     return path;
 }
 
+function forceHttps(u: URL): URL {
+  const out = new URL(u.toString());
+  out.protocol = "https:";
+  return out;
+}
+
 async function fetchSlugs(origin: URL, list: string): Promise<string[]> {
     try {
         const api = new URL("/api/gallery-api", origin);
@@ -48,7 +54,7 @@ async function fetchSlugs(origin: URL, list: string): Promise<string[]> {
 
 export const GET: APIRoute = async ({ site }) => {
     // Canonical site origin (from astro.config.mjs `site`, or fallback)
-    const origin = site ?? new URL("https://kilcon.work");
+    const origin = forceHttps(site ?? new URL("https://kilcon.work"));
 
     // Core static pages (NO trailing slashes; match trailingSlash: "never")
     const staticPaths = [
