@@ -80,7 +80,7 @@ try {
         loadError = "Failed to load New Construction.";
     } else {
         const json = (await res.json()) as ListResponse;
-        const albums = json.new-construction ?? json.projects ?? [];
+        const albums = json["new-construction"] ?? json.projects ?? [];
         cards = albums.map((proj) => {
             const previews = proj.previews ?? [];
             const firstPreview = previews[0];
