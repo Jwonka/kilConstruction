@@ -91,7 +91,7 @@ try {
         apiList.searchParams.set("list", "furniture");
 
         const r2 = await workerFetchJsonWithRetry(GALLERY_WORKER, apiList.toString());
-        if (r2.ok && r2.headers.get("content-type")?.includes("application/json")) {
+        if (r2 && r2.ok && r2.headers.get("content-type")?.includes("application/json")) {
             const j2 = (await r2.json()) as {
                 furniture?: { slug: string; name?: string; description?: string }[];
                 projects?: { slug: string; name?: string; description?: string }[];
@@ -111,7 +111,7 @@ try {
         apiItems2.searchParams.set("project", slug);
 
         const r3 = await workerFetchJsonWithRetry(GALLERY_WORKER, apiItems2.toString());
-        if (r3.ok && r3.headers.get("content-type")?.includes("application/json")) {
+        if (r3 && r3.ok && r3.headers.get("content-type")?.includes("application/json")) {
             const j3 = (await r3.json()) as {
                 items?: Photo[];
                 project?: ProjectMeta;

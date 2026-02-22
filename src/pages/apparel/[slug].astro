@@ -83,7 +83,7 @@ try {
         apiList.searchParams.set("list", "apparel");
 
         const r2 = await workerFetchJsonWithRetry(GALLERY_WORKER, apiList.toString());
-        if (r2.ok && r2.headers.get("content-type")?.includes("application/json")) {
+        if (r2 && r2.ok && r2.headers.get("content-type")?.includes("application/json")) {
             const j2 = (await r2.json()) as {
                 apparel?: { slug: string; name?: string; description?: string }[];
                 projects?: { slug: string; name?: string; description?: string }[];
