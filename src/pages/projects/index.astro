@@ -4,10 +4,9 @@ import ProjectCard from '../../components/ProjectCard.astro';
 import "../../styles/global.css";
 import "../../styles/projects.css";
 
-
-const PROD_ORIGIN = Astro.site?.origin || 'https://kilcon.work';
-const API_BASE = import.meta.env.DEV ? 'https://kilcon.work' : PROD_ORIGIN;
-const API = new URL('/api/gallery-api', API_BASE);
+const { env } = Astro.locals.runtime;
+const GALLERY_WORKER = env?.GALLERY_WORKER as Fetcher | undefined;
+if (!GALLERY_WORKER) throw new Error("Missing service binding: GALLERY_WORKER");
 
 type ProjectFromApi = {
     slug: string;
@@ -37,46 +36,35 @@ type ListResponse = { projects?: ProjectFromApi[] };
 let cards: Card[] = [];
 let loadError: string | null = null;
 
-async function fetchJsonWithRetry(url: URL, tries = 3): Promise<Response | null> {
+async function workerFetchJsonWithRetry(binding: any, url: string, tries = 2): Promise<Response | null> {
     let last: Response | null = null;
-
     for (let i = 0; i < tries; i++) {
         try {
-            const res = await fetch(url, {
-                cache: "no-store",
-                headers: { Accept: "application/json" },
+            const req = new Request(url, {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                    "Cache-Control": "no-store",
+                    Pragma: "no-cache",
+                },
+                // @ts-expect-error: Cloudflare supports this in Workers
+                cf: { cacheTtl: 0, cacheEverything: false },
             });
-
+            const res = await binding.fetch(req);
             last = res;
-
             const ct = res.headers.get("content-type") || "";
             if (res.ok && ct.includes("application/json")) return res;
         } catch {
-            // swallow and retry
+            // retry
         }
-
-        await new Promise<void>((r) => setTimeout(r, 150 * (i + 1)));
+        await new Promise((r) => setTimeout(r, 150 * (i + 1)));
     }
-
     return last;
 }
 
-function isJson(res: Response) {
-    return (res.headers.get("content-type") || "").includes("application/json");
-}
-
 try {
-    const u = new URL(API);
-    u.searchParams.set('list', 'projects');
-
-    let res = await fetchJsonWithRetry(u, 3);
-
-    if (!res || !res.ok || res.status === 404 || !isJson(res)) {
-        const fallback = new URL('/api/gallery-api', 'https://kilcon.work');
-        fallback.searchParams.set('list', 'projects');
-        res = await fetchJsonWithRetry(fallback, 3);
-    }
-    if (!res || !res.ok || !isJson(res)) {
+    const res = await workerFetchJsonWithRetry(GALLERY_WORKER, "https://kilcon.work/api/gallery-api?list=projects");
+    if (!res || !res.ok) {
         loadError = "Failed to load projects.";
     } else {
         const json = (await res.json()) as ListResponse;
@@ -86,14 +74,12 @@ try {
             const previews = proj.previews ?? [];
             const firstPreview = previews[0];
 
-            // choose a cover image for the card
             const cover =
                 proj.images?.thumb ||
                 proj.images?.full ||
                 firstPreview?.thumb ||
                 firstPreview?.full;
 
-            // list of images for the rotator
             const rotList = previews
                 .map((p) => p.thumb || p.full)
                 .filter((u): u is string => !!u);

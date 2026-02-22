@@ -5,8 +5,9 @@ import "../../../styles/projects.css";
 
 export const prerender = false;
 
-const API_ORIGIN = "https://kilcon.work";
-const API = new URL("/api/gallery-api", API_ORIGIN);
+const { env } = Astro.locals.runtime;
+const GALLERY_WORKER = env?.GALLERY_WORKER as Fetcher | undefined;
+if (!GALLERY_WORKER) throw new Error("Missing service binding: GALLERY_WORKER");
 
 type Photo = {
     name: string;
@@ -27,14 +28,40 @@ let loadError: string | null = null;
 let albumName: string = slugToTitle(slug);
 let albumDesc: string | undefined;
 
+async function workerFetchJsonWithRetry(binding: any, url: string, tries = 2): Promise<Response | null> {
+    let last: Response | null = null;
+    for (let i = 0; i < tries; i++) {
+        try {
+            const req = new Request(url, {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                    "Cache-Control": "no-store",
+                    Pragma: "no-cache",
+                },
+                // @ts-expect-error: Cloudflare supports this in Workers
+                cf: { cacheTtl: 0, cacheEverything: false },
+            });
+            const res = await binding.fetch(req);
+            last = res;
+            const ct = res.headers.get("content-type") || "";
+            if (res.ok && ct.includes("application/json")) return res;
+        } catch {
+            // retry
+        }
+        await new Promise((r) => setTimeout(r, 150 * (i + 1)));
+    }
+    return last;
+}
+
 try {
     // 1) Primary: furniture-specific request
     const apiItems = new URL(API);
     apiItems.searchParams.set("project", `furniture/${slug}`);
 
-    const r1 = await fetch(apiItems, { cache: "no-store" });
+    const r1 = await workerFetchJsonWithRetry(GALLERY_WORKER, apiItems.toString());
 
-    if (!r1.ok) {
+    if (!r1 || !r1.ok) {
         if (r1.status !== 404) {
             loadError = `HTTP ${r1.status}`;
         }
@@ -63,7 +90,7 @@ try {
         const apiList = new URL(API);
         apiList.searchParams.set("list", "furniture");
 
-        const r2 = await fetch(apiList, { cache: "no-store" });
+        const r2 = await workerFetchJsonWithRetry(GALLERY_WORKER, apiList.toString());
         if (r2.ok && r2.headers.get("content-type")?.includes("application/json")) {
             const j2 = (await r2.json()) as {
                 furniture?: { slug: string; name?: string; description?: string }[];
@@ -83,7 +110,7 @@ try {
         const apiItems2 = new URL(API);
         apiItems2.searchParams.set("project", slug);
 
-        const r3 = await fetch(apiItems2, { cache: "no-store" });
+        const r3 = await workerFetchJsonWithRetry(GALLERY_WORKER, apiItems2.toString());
         if (r3.ok && r3.headers.get("content-type")?.includes("application/json")) {
             const j3 = (await r3.json()) as {
                 items?: Photo[];
