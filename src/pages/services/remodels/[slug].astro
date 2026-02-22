@@ -56,6 +56,7 @@ async function workerFetchJsonWithRetry(binding: any, url: string, tries = 2): P
 
 try {
     // 1) Primary: remodels-specific request
+    const API = new URL('/api/gallery-api', 'https://kilcon.work');
     const apiItems = new URL(API);
     apiItems.searchParams.set("project", `remodels/${slug}`);
 
