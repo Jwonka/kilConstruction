@@ -23,8 +23,9 @@ type Review = {
     featured?: boolean;
 };
 
-const PROD_ORIGIN = Astro.site?.origin || "https://kilcon.work";
-const REVIEWS_API_BASE = new URL("/api/reviews", PROD_ORIGIN).toString();
+const { env } = Astro.locals.runtime;
+const GALLERY_WORKER = env?.GALLERY_WORKER as Fetcher | undefined;
+if (!GALLERY_WORKER) throw new Error("Missing GALLERY_WORKER binding");
 const SITEKEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
 // simple query params for filters/paging
@@ -60,21 +61,45 @@ function formatDate(iso: string): string {
     });
 }
 
+async function workerFetchJsonWithRetry(binding: any, url: string, tries = 2): Promise<Response | null> {
+  let last: Response | null = null;
+  for (let i = 0; i < tries; i++) {
+    try {
+      const req = new Request(url, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Cache-Control": "no-store",
+          Pragma: "no-cache",
+        },
+        // @ts-expect-error: Cloudflare supports this in Workers
+        cf: { cacheTtl: 0, cacheEverything: false },
+      });
+      const res = await binding.fetch(req);
+      last = res;
+      const ct = res.headers.get("content-type") || "";
+      if (res.ok && ct.includes("application/json")) return res;
+    } catch {
+      // retry
+    }
+    await new Promise((r) => setTimeout(r, 150 * (i + 1)));
+  }
+  return last;
+}
+
 try {
+ const listUrl =
+    `https://kilcon.work/api/reviews?page=${page}&pageSize=${pageSize}` +
+    (filterType !== "all" ? `&projectType=${encodeURIComponent(filterType)}` : "");
+
     const [summaryRes, listRes] = await Promise.all([
-        fetch(`${REVIEWS_API_BASE}/summary`),
-        fetch(
-            `${REVIEWS_API_BASE}?page=${page}&pageSize=${pageSize}${
-                filterType !== "all" ? `&projectType=${encodeURIComponent(filterType)}` : ""
-            }`
-        ),
+         workerFetchJsonWithRetry(GALLERY_WORKER, "https://kilcon.work/api/reviews/summary"),
+            workerFetchJsonWithRetry(GALLERY_WORKER, listUrl),
     ]);
 
-    if (summaryRes.ok) {
-        summary = await summaryRes.json();
-    }
+    if (summaryRes && summaryRes.ok) summary = await summaryRes.json();
 
-    if (listRes.ok) {
+    if (listRes && listRes.ok) {
         const data = await listRes.json();
         total = Number(data.total || 0);
         reviews = (Array.isArray(data.reviews) ? data.reviews : []) as Review[];
@@ -150,11 +175,11 @@ const hasReviews = !!summary && summary.totalReviews > 0;
                                             {review.location && <> · {review.location}</>}
                                         </p>
                                         <div
-                                                class="review-stars-row"
-                                                aria-label={`${review.rating} out of 5 stars`}
+                                            class="review-stars-row"
+                                            aria-label={`${review.rating} out of 5 stars`}
                                         >
                                             {Array.from({ length: 5 }).map((_, i) => (
-                                                    <span class={i < review.rating ? "star filled" : "star"}>★</span>
+                                                <span class={i < review.rating ? "star filled" : "star"}>★</span>
                                             ))}
                                         </div>
                                         <p class="review-date">{formatDate(review.createdAt)}</p>
@@ -324,22 +349,10 @@ const hasReviews = !!summary && summary.totalReviews > 0;
             const url = new URL(window.location.href);
             let changed = false;
 
-            if (url.searchParams.has('sent')) {
-                url.searchParams.delete('sent');
-                changed = true;
-            }
-            if (url.searchParams.has('err')) {
-                url.searchParams.delete('err');
-                changed = true;
-            }
+            if (url.searchParams.has('sent')) { url.searchParams.delete('sent'); changed = true; }
+            if (url.searchParams.has('err')) { url.searchParams.delete('err'); changed = true; }
 
-            if (changed) {
-                window.history.replaceState(
-                    null,
-                    "",
-                    url.pathname + url.search + window.location.hash
-                );
-            }
+            if (changed) { window.history.replaceState(null, "", url.pathname + url.search + window.location.hash); }
         })();
     </script>
 </MainLayout>
