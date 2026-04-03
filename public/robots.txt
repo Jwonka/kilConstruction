@@ -3,6 +3,13 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /node_modules/
 Disallow: /*?*
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
 Allow: /
 
 Sitemap: https://kilcon.work/sitemap.xml
